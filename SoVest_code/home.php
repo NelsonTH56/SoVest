@@ -1,91 +1,80 @@
 <?php
-session_start(); // This should be the FIRST line of the file, before any output
+/**
+ * SoVest - Home Page
+ * 
+ * This is the main home page for authenticated users.
+ */
 
-         
-    // Retrieve the userID cookie. If not set, redirect the user to the login page. If it is set, save it as $userID
-	if(!isset($_COOKIE["userID"])){header("Location: login.php");}
-	else {$userID = $_COOKIE["userID"];}
+// Start session
+session_start();
 
-	$servername = "localhost";
-    $username = "hackberr_399";
-    $email = 'nthayslett@gmail.com';
-    $password = "MarthaBerry!";
-    $dbname = "hackberr_399";
-    $conn = mysqli_connect($servername, $username, $password, $dbname);
-    $query = "SELECT * from npedigoUser WHERE email = '{$email}'";
-    $result = mysqli_query($conn, $query);
-    $row = mysqli_fetch_assoc($result);
-    $userID = $row['id'];
-    if (!$conn) {die("Connection failed: " . mysqli_connect_error());}
+// Include auth functions
+require_once __DIR__ . '/includes/auth.php';
 
+// Require authentication
+requireAuthentication();
+
+// Get current user data
+$user = getCurrentUser();
+$userID = $user['id'];
+
+// Page title
+$pageTitle = 'Home';
+
+// Include the header
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!doctype html>
-
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoVest</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <style>
-        body {
-            background-color: #2c2c2c;
-            color: #d4d4d4;
-        }
-        .navbar {
-            background-color: #1f1f1f;
-        }
-        .btn-primary {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-        .btn-primary:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-        .btn-warning {
-            background-color: #ffc107;
-            border-color: #ffc107;
-        }
-        .btn-success {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">SoVest</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="search.php">Search</a></li>
-                    <li class="nav-item"><a class="nav-link" href="trending.php">Trending</a></li>
-                    <?php if ($userID): ?>
-                        <li class="nav-item"><a class="nav-link" href="account.php">My Account</a></li>
-                   <?php else: ?>
-                        <li class="nav-item"><a class="nav-link" href="index.php">Login</a></li>
-                    <?php endif; ?>
-                </ul>
+<div class="container text-center mt-5">
+    <h1>Welcome to SoVest<?php echo isset($user['first_name']) ? ', ' . $user['first_name'] : ''; ?></h1>
+    <p>Analyze, Predict, and Improve Your Market Insights</p>
+    
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <a href="search.php" class="btn btn-primary">Search Stocks</a> 
+        <a href="trending.php" class="btn btn-warning">Trending Predictions</a>
+        <a href="create_prediction.php" class="btn btn-success">Create New Prediction</a>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="bi bi-graph-up"></i> Your Predictions</h4>
+                </div>
+                <div class="card-body">
+                    <p>Track your prediction performance and see your accuracy rating.</p>
+                    <a href="my_predictions.php" class="btn btn-outline-primary">View Your Predictions</a>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <div class="container text-center mt-5">
-        <h1>Welcome to SoVest</h1>
-        <p>Analyze, Predict, and Improve Your Market Insights</p>
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <a href="search.php" class="btn btn-primary">Search Stocks</a> 
-            <a href="trending.php" class="btn btn-warning">Trending Predictions</a>
-            <a href="<?php echo isset($userID) ? 'account.php' : 'login.php'; ?>" class="btn btn-success">My Account</a>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="bi bi-trophy"></i> Leaderboard</h4>
+                </div>
+                <div class="card-body">
+                    <p>See who has the highest REP score and learn from top predictors.</p>
+                    <a href="leaderboard.php" class="btn btn-outline-warning">View Leaderboard</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i class="bi bi-person-circle"></i> Your Profile</h4>
+                </div>
+                <div class="card-body">
+                    <p>Manage your account settings and view your profile statistics.</p>
+                    <a href="account.php" class="btn btn-outline-success">View Profile</a>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php
+// Include the footer
+require_once __DIR__ . '/includes/footer.php';
+?>

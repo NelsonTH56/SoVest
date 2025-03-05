@@ -1,0 +1,107 @@
+/**
+ * SoVest Prediction Styles
+ */
+
+/* Stock suggestions */
+#stock-suggestions {
+    position: relative;
+    z-index: 1000;
+}
+
+#stock-suggestions .list-group {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+#stock-suggestions .list-group-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#stock-suggestions .list-group-item:hover {
+    background-color: #3a3a3a !important;
+}
+
+/* Prediction type badges */
+.badge.bullish {
+    background-color: #28a745;
+}
+
+.badge.bearish {
+    background-color: #dc3545;
+}
+
+/* Prediction cards */
+.prediction-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #3a3a3a;
+}
+
+.prediction-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Form styles */
+.form-select option {
+    background-color: #333;
+    color: #d4d4d4;
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Button styles */
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    color: #212529;
+}
+
+/* Modal styles */
+.modal-content {
+    border: 1px solid #444;
+}
+
+.modal-header {
+    border-bottom: 1px solid #444;
+}
+
+.modal-footer {
+    border-top: 1px solid #444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .prediction-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .prediction-header .badge {
+        margin-top: 10px;
+    }
+}

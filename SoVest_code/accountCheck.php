@@ -1,41 +1,53 @@
 <?php
+/**
+ * Account Check Script
+ * 
+ * Handles new user registration using Eloquent ORM
+ */
+
+// Include Eloquent configuration
+require_once 'bootstrap/database.php';
+
+// Include User model
+require_once 'database/models/User.php';
+
+// Use the Models namespace
+use Database\Models\User;
 
 // Extract the form data with POST
-$newEmail = $_POST['newEmail']; 
-$newPass = $_POST['newPass']; 
-// Connect to the database
-$servername = "localhost";
-$username = "hackberr_399";
-$password = "MarthaBerry!";
-$dbname = "hackberr_399";
-$conn = mysqli_connect($servername, $username, $password, $dbname);
-if (!$conn) {die("Connection failed: " . mysqli_connect_error());}
+$newEmail = isset($_POST['newEmail']) ? $_POST['newEmail'] : ''; 
+$newPass = isset($_POST['newPass']) ? $_POST['newPass'] : '';
 
-// Check to see if the user's e-mail already exists
-$isUser = 0;
-
-$query = "SELECT * FROM npedigoUser WHERE email = '$newEmail' AND password = '$newPass'";
-
-$result = mysqli_query($conn, $query) or die ("Could not select.");
-while ($row = mysqli_fetch_array($result)){
-    extract($row);
-    $isUser = 1;
+// Validate inputs
+if (empty($newEmail) || empty($newPass)) {
+    // Handle validation error
+    header("Location: acctNew.php?error=missing_fields");
+    exit;
 }
 
-
-// If it does, redirect them back to account page
-if($isUser == 1){
-    $id = $row['id'];
-    header("Location: home.php?userID=" . $id);
-}	
-
-// If not, insert into database and redirect them to the login page
-else{
-    $query = "INSERT INTO npedigoUser (email, password, id) VALUES ('$newEmail', '$newPass', '$newID')";
-    $result = mysqli_query($conn, $query) or die ("Could not insert.");
-    header("Location: login.php");
+try {
+    // Check if the user already exists
+    $existingUser = User::where('email', $newEmail)->first();
+    
+    if ($existingUser) {
+        // User exists, redirect to home page with user ID
+        $id = $existingUser->id;
+        header("Location: home.php?userID=" . $id);
+        exit;
+    } else {
+        // User doesn't exist, create a new user
+        $user = new User();
+        $user->email = $newEmail;
+        $user->password = $newPass; // Note: In a production app, you should hash this password
+        $user->reputation_score = 0;
+        $user->save();
+        
+        // Redirect to login page
+        header("Location: login.php");
+        exit;
+    }
+} catch (Exception $e) {
+    // Handle database errors
+    header("Location: acctNew.php?error=database_error");
+    exit;
 }
-
-
-
-?>

@@ -1,20 +1,13 @@
 <?php
 
+    require_once 'includes/db_config.php';
     // ************************************************
     // Connect to a Database
     // ************************************************
     
     // Connect to a database (in this case 2023_399)
-    $servername = "localhost";
-    $username = "hackberr_399";
-    $password = "MarthaBerry!";
-    $dbname = "hackberr_399";
-    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    $conn = getDbConnection();
     if (!$conn) {die("Connection failed: " . mysqli_connect_error());}
-
-
-
-
 
     // ************************************************
     // Insert Info into a Table

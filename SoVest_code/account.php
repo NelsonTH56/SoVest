@@ -1,95 +1,170 @@
 <?php
-    session_start();
-	// Retrieve the userID cookie. If not set, redirect the user to the login page. If it is set, save it as $userID
-	if(!isset($_COOKIE["userID"])){header("Location: login.php");}
-	else {$userID = $_COOKIE["userID"];}
+/**
+ * SoVest - User Account Page
+ * 
+ * This page displays the user's profile, statistics, and recent predictions.
+ */
 
-	$servername = "localhost";
-    $username = "hackberr_399";
-    $password = "MarthaBerry!";
-    $dbname = "hackberr_399";
-    $conn = mysqli_connect($servername, $username, $password, $dbname);
-    if (!$conn) {die("Connection failed: " . mysqli_connect_error());}
+// Start session
+session_start();
 
-?>
+// Include required files
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/db_config.php';
+require_once __DIR__ . '/includes/prediction_score_display.php';
+require_once __DIR__ . '/services/PredictionScoringService.php';
+require_once __DIR__ . '/bootstrap/database.php';  // Include Eloquent bootstrap
 
-<?php
+// Import model classes
+use Database\Models\Prediction;
+use Exception;
 
-if (!isset($_COOKIE['userID'])) {
-    header("Location: account.php");
-    exit();
+// Require authentication
+requireAuthentication();
+
+// Get current user data
+$userData = getCurrentUser();
+$userID = $userData['id'];
+
+// Get database connection
+$conn = getDbConnection();
+
+// Initialize scoring service to get user stats
+$scoringService = new PredictionScoringService();
+$userStats = $scoringService->getUserPredictionStats($userID);
+
+// Get user's predictions using Eloquent ORM
+try {
+    // Get user predictions with related stock data
+    $predictionModels = Prediction::with('stock')
+        ->where('user_id', $userID)
+        ->orderBy('prediction_date', 'DESC')
+        ->limit(5)
+        ->get();
+    
+    $predictions = [];
+    
+    if ($predictionModels->count() > 0) {
+        foreach ($predictionModels as $prediction) {
+            $row = [
+                'prediction_id' => $prediction->prediction_id,
+                'symbol' => $prediction->stock->symbol,
+                'prediction' => $prediction->prediction_type,
+                'accuracy' => $prediction->accuracy,
+                'target_price' => $prediction->target_price,
+                'end_date' => $prediction->end_date,
+                'is_active' => $prediction->is_active
+            ];
+            
+            // Keep the raw accuracy value for styling
+            $row['raw_accuracy'] = $row['accuracy'];
+            
+            // Format accuracy as percentage if not null
+            if ($row['accuracy'] !== null) {
+                $row['accuracy'] = number_format($row['accuracy'], 0) . '%';
+            } else {
+                $row['accuracy'] = 'Pending';
+            }
+            
+            $predictions[] = $row;
+        }
+    }
+} catch (Exception $e) {
+    // Error handling
+    error_log('Error fetching predictions: ' . $e->getMessage());
+    $predictions = [];
 }
 
-// Dummy user data (Replace this with database query)
+// Prepare user data for display
 $user = [
-    'username' => 'JohnDoe',
-    'full_name' => 'John Doe',
-    'bio' => 'Stock enthusiast | Investor | Market analyst',
-    'profile_picture' => 'profile-placeholder.png',
-    'predictions' => [
-        ['symbol' => 'AAPL', 'prediction' => 'Bullish', 'accuracy' => '85%'],
-        ['symbol' => 'TSLA', 'prediction' => 'Bearish', 'accuracy' => '90%'],
-    ]
+    'username' => $userData['email'],
+    'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
+    'bio' => $userData['major'] ? $userData['major'] . ' | ' . $userData['year'] : 'Stock enthusiast',
+    'profile_picture' => 'images/logo.png',
+    'reputation_score' => isset($userData['reputation_score']) ? $userData['reputation_score'] : 0,
+    'avg_accuracy' => $userStats['avg_accuracy'],
+    'predictions' => $predictions
 ];
+
+// Page title
+$pageTitle = 'My Account';
+$pageCss = 'css/prediction.css';
+
+// Include the header
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $user['username']; ?> - SoVest</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <style>
-        body { background-color: #2c2c2c; color: #d4d4d4; }
-        .navbar { background-color: #1f1f1f; }
-        .profile-header { text-align: center; padding: 20px; }
-        .profile-picture { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #28a745; }
-        .bio { font-size: 1.1em; color: #b0b0b0; }
-        .predictions-list { margin-top: 20px; }
-        .prediction-card { background: #1f1f1f; padding: 15px; border-radius: 10px; }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">SoVest</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="search.php">Search</a></li>
-                    <li class="nav-item"><a class="nav-link" href="trending.php">Trending</a></li>
-                    <li class="nav-item"><a class="nav-link" href="account.php">My Account</a></li>
-                    <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<div class="container profile-header">
+    <img src="<?php echo $user['profile_picture']; ?>" class="profile-picture" alt="Profile Picture">
+    <h2><?php echo $user['full_name']; ?></h2>
+    <p class="bio">@<?php echo $user['username']; ?> | <?php echo $user['bio']; ?></p>
+</div>
 
-    <div class="container profile-header">
-        <img src="<?php echo $user['profile_picture']; ?>" class="profile-picture" alt="Profile Picture">
-        <h2><?php echo $user['full_name']; ?></h2>
-        <p class="bio">@<?php echo $user['username']; ?> | <?php echo $user['bio']; ?></p>
+<div class="container reputation-section">
+    <?php echo renderReputationScore($user['reputation_score'], $user['avg_accuracy']); ?>
+    
+    <div class="reputation-progress" data-reputation="<?php echo $user['reputation_score']; ?>" data-max-rep="50">
+        <div class="progress-bar" style="width: <?php echo min(100, max(0, ($user['reputation_score'] / 50) * 100)); ?>%"></div>
     </div>
+    
+    <div class="row mt-3">
+        <div class="col-4 text-center">
+            <h5><?php echo $userStats['total']; ?></h5>
+            <p class="small">Total Predictions</p>
+        </div>
+        <div class="col-4 text-center">
+            <h5 class="text-success"><?php echo $userStats['accurate']; ?></h5>
+            <p class="small">Accurate</p>
+        </div>
+        <div class="col-4 text-center">
+            <h5 class="text-secondary"><?php echo $userStats['pending']; ?></h5>
+            <p class="small">Pending</p>
+        </div>
+    </div>
+</div>
 
-    <div class="container predictions-list">
-        <h3 class="text-center">Predictions</h3>
-        <div class="row">
-            <?php foreach ($user['predictions'] as $prediction): ?>
-                <div class="col-md-4">
-                    <div class="prediction-card">
+<div class="container predictions-list">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>My Predictions</h3>
+        <a href="create_prediction.php" class="btn btn-primary">Create New Prediction</a>
+    </div>
+    
+    <div class="row">
+        <?php foreach ($user['predictions'] as $prediction): ?>
+            <div class="col-md-4">
+                <div class="prediction-card">
+                    <div class="d-flex justify-content-between align-items-center">
                         <h5><?php echo $prediction['symbol']; ?></h5>
-                        <p>Prediction: <strong><?php echo $prediction['prediction']; ?></strong></p>
-                        <p>Accuracy: <strong><?php echo $prediction['accuracy']; ?></strong></p>
+                        <?php echo renderPredictionBadge($prediction['raw_accuracy']); ?>
                     </div>
+                    <p>
+                        Prediction: 
+                        <strong class="<?php echo $prediction['prediction'] == 'Bullish' ? 'text-success' : 'text-danger'; ?>">
+                            <?php echo $prediction['prediction']; ?>
+                        </strong>
+                    </p>
+                    <?php if (isset($prediction['target_price'])): ?>
+                        <p>Target: $<?php echo number_format($prediction['target_price'], 2); ?></p>
+                    <?php endif; ?>
+                    
+                    <div class="prediction-visual" data-accuracy="<?php echo $prediction['raw_accuracy'] ?? 0; ?>"></div>
                 </div>
-            <?php endforeach; ?>
-        </div>
+            </div>
+        <?php endforeach; ?>
+        
+        <?php if (empty($user['predictions'])): ?>
+            <div class="col-12 text-center">
+                <p>You haven't made any predictions yet.</p>
+                <a href="create_prediction.php" class="btn btn-success mt-2">Make Your First Prediction</a>
+            </div>
+        <?php endif; ?>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php
+// Add page-specific scripts
+$pageJs = 'js/scoring.js';
+
+// Include the footer
+require_once __DIR__ . '/includes/footer.php';
+?>

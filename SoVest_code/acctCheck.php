@@ -1,42 +1,70 @@
 <?php
+/**
+ * SoVest - Account Creation Handler
+ * 
+ * Validates and processes new user registration.
+ * Uses Eloquent ORM for database operations.
+ */
 
-// Extract the form data with POST
-$newEmail = $_POST['newEmail']; 
-$newPass = $_POST['newPass']; 
-$newMajor = $_POST['newMajor']; 
-$newYear = $_POST['newYear']; 
-$newScholarship = $_POST['newScholarship']; 
-// Connect to the database
-$servername = "localhost";
-$username = "hackberr_399";
-$password = "MarthaBerry!";
-$dbname = "hackberr_399";
-$conn = mysqli_connect($servername, $username, $password, $dbname);
-if (!$conn) {die("Connection failed: " . mysqli_connect_error());}
+// Include Eloquent ORM setup and User model
+require_once 'bootstrap/database.php';
+require_once 'database/models/User.php';
 
-// Check to see if the user's e-mail already exists
-$isUser = 0;
+use Database\Models\User;
 
-$query = "SELECT * FROM npedigoUser WHERE email = '$newEmail' ";
-$result = mysqli_query($conn, $query) or die ("Could not select.");
-while ($row = mysqli_fetch_array($result)){
-    extract($row);
-    $isUser = 1;
+// Extract the form data with POST and validate
+$newEmail = isset($_POST['newEmail']) ? filter_var($_POST['newEmail'], FILTER_SANITIZE_EMAIL) : '';
+$newPass = isset($_POST['newPass']) ? $_POST['newPass'] : '';
+$newMajor = isset($_POST['newMajor']) ? filter_var($_POST['newMajor'], FILTER_SANITIZE_STRING) : '';
+$newYear = isset($_POST['newYear']) ? filter_var($_POST['newYear'], FILTER_SANITIZE_STRING) : '';
+$newScholarship = isset($_POST['newScholarship']) ? filter_var($_POST['newScholarship'], FILTER_SANITIZE_STRING) : '';
+
+// Basic validation
+if (empty($newEmail) || !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+    // Invalid email
+    header("Location: acctNew.php?error=invalid_email");
+    exit;
 }
 
-
-// If it does, redirect them back to account page
-if($isUser == 1){
-    header("Location: acctNew.php");
-}	
-
-// If not, insert into database and redirect them to the login page
-else{
-    $query = "INSERT INTO npedigoUser (email, password, major, year, scholarship) VALUES ('$newEmail', '$newPass', '$newMajor', '$newYear', '$newScholarship')";
-    $result = mysqli_query($conn, $query) or die ("Could not insert.");
-    header("Location: login.php");
+if (empty($newPass) || strlen($newPass) < 6) {
+    // Password too short
+    header("Location: acctNew.php?error=password_too_short");
+    exit;
 }
 
-
-
+try {
+    // Check if the email already exists using Eloquent
+    $existingUser = User::where('email', $newEmail)->first();
+    
+    // If user exists, redirect back to account creation page
+    if ($existingUser) {
+        header("Location: acctNew.php?error=email_exists");
+        exit;
+    }
+    
+    // If email doesn't exist, create a new user
+    // Hash the password
+    $hashedPassword = password_hash($newPass, PASSWORD_DEFAULT);
+    
+    // Create a new User model instance and save
+    $user = new User();
+    $user->email = $newEmail;
+    $user->password = $hashedPassword;
+    $user->major = $newMajor;
+    $user->year = $newYear;
+    $user->scholarship = $newScholarship;
+    $user->save();
+    
+    // Redirect to the login page with success message
+    header("Location: login.php?success=1");
+    exit;
+    
+} catch (Exception $e) {
+    // Log the error
+    error_log("Account creation error: " . $e->getMessage());
+    
+    // Redirect to account creation page with error
+    header("Location: acctNew.php?error=system_error");
+    exit;
+}
 ?>

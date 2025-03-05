@@ -1,0 +1,5 @@
+.env
+/.ra-aid
+**/vendor/
+error_log
+logs/

@@ -1,17 +1,26 @@
 <?php
-	// Retrieve the userID cookie. If not set, redirect the user to the login page. If it is set, save it as $userID
-	//if(isset($_COOKIE["userID"])){header("Location: home.php");}
-	 
+/**
+ * SoVest - Login Page
+ * 
+ * Displays the login form and verifies database connectivity.
+ * Uses DatabaseService for database operations.
+ */
 
-	$servername = "localhost";
-    $username = "hackberr_399";
-    $password = "MarthaBerry!";
-    $dbname = "hackberr_399";
-    $conn = mysqli_connect($servername, $username, $password, $dbname);
-    if (!$conn) {die("Connection failed: " . mysqli_connect_error());}
+// Include database configuration
+require_once 'includes/db_config.php';
 
+// Import DatabaseService
+use Services\DatabaseService;
+
+// Check database connectivity using DatabaseService
+try {
+    $dbService = DatabaseService::getInstance();
+    // Just getting the connection validates it's working
+    $dbService->getConnection();
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
 ?>
-
 
 <!doctype html>
 <html lang="en" data-bs-theme="auto">
@@ -50,7 +59,6 @@
 
 			<main>
 
-
 				<div class="row row-cols-1 row-cols-md-1 mb-1 text-center">
 
 					<div class="col">
@@ -66,17 +74,17 @@
 
 
 								<div class="form-floating">
-       						   <input type="email" class="form-control" id="tryEmail" name="tryEmail" required>
-        						  <label for="tryEmail">Email</label>
-  								  </div>
-   									 <br>
+       								<input type="email" class="form-control" id="tryEmail" name="tryEmail" required>
+        							<label for="tryEmail">Email</label>
+  									</div>
+   										<br>
 
     <!-- SAMPLE PASSWORD FORM (WITH REQUIRED) -->
-   								 <div class="form-floating">
-    						      <input type="password" class="form-control" id="tryPass" name="tryPass" required>
-    						      <label for="tryPass">Password</label>
-    							    </div>
-   								 <br>
+   									<div class="form-floating">
+    								    <input type="password" class="form-control" id="tryPass" name="tryPass" required>
+    								    <label for="tryPass">Password</label>
+    									</div>
+   									<br>
 
 									<button class="btn btn-success w-100 py-2" type="submit">Submit</button>
 								</form>
