@@ -1,5 +1,15 @@
 .env
+<<<<<<< HEAD
 /.ra-aid
 **/vendor/
 error_log
 logs/
+=======
+.env.dusk.local
+.ra-aid/
+**/vendor/
+error_log
+logs/
+.phpunit.cache/
+.phpunit.result.cache
+>>>>>>> b562cad1b8036045944a386317bea70f05eef2da
