@@ -33,6 +33,36 @@
             margin-bottom: 20px;    /* Optional: Adds space below each card */
             background-color: #fff; /* Optional: Sets background color */
         }
+        .search-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border-radius: 25px;
+            background-color: #f1f1f1;
+            padding: 5px 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .search-input {
+            flex: 1;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 15px;
+            font-size: 16px;
+            outline: none;
+            background-color: transparent;
+            }
+
+            .search-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 10px;
+            color: #333;
+            }
         /* body {
             background-color: #2c2c2c;
             color: #d4d4d4;
