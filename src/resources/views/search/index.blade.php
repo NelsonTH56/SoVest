@@ -91,9 +91,13 @@
                                         </div>
                                     </div>
                                     <div>
+                                    @if(isset($result['id'], $result['symbol'], $result['company_name']))
                                         <a href="{{ url('predictions/create') }}?stock_id={{ $result['id'] }}&symbol={{ urlencode($result['symbol']) }}&company_name={{ urlencode($result['company_name']) }}" class="btn btn-success btn-sm">
-                                            <i class="bi bi-lightning-charge"></i> Create Prediction
+                                            Create Prediction
                                         </a>
+                                    @else
+                                        <span class="text-muted">Data unavailable</span>
+                                    @endif
                                     </div>
                                 </div>
                                 

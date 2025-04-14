@@ -34,6 +34,7 @@ class MainController extends Controller
         }
         
         // Display the landing page with data
+        //$predictions = Prediction::with('user')->orderBy('is_active')->paginate(10);
         return view('main');
     }
 

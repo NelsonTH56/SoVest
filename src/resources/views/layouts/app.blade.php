@@ -26,6 +26,13 @@
 	@stack('styles')
 
     <style type="text/css">
+        .prediction-card {
+            border: 1px solid #ccc; /* Light gray border */
+            border-radius: 10px;    /* Rounded corners */
+            padding: 15px;          /* Optional: Adds space inside the box */
+            margin-bottom: 20px;    /* Optional: Adds space below each card */
+            background-color: #fff; /* Optional: Sets background color */
+        }
         /* body {
             background-color: #2c2c2c;
             color: #d4d4d4;
