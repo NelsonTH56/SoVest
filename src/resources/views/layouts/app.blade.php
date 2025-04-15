@@ -12,10 +12,11 @@
 
 	<!-- Favicon -->
 	<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
-	<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
-	<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo.png') }}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logo.png') }}">
 	<link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
-
+    <!--main css file -->
+    <link rel="stylesheet" href = "css/index.css">
     <!-- Page-specific CSS -->
 	@if (isset($pageCss))
 		<link href="{{ asset($pageCss) }}" rel="stylesheet">
@@ -25,87 +26,7 @@
 	@yield('styles')
 	@stack('styles')
 
-    <style type="text/css">
-        .prediction-card {
-            border: 1px solid #ccc; /* Light gray border */
-            border-radius: 10px;    /* Rounded corners */
-            padding: 15px;          /* Optional: Adds space inside the box */
-            margin-bottom: 20px;    /* Optional: Adds space below each card */
-            background-color: #fff; /* Optional: Sets background color */
-        }
-        .search-form {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            border-radius: 25px;
-            background-color: #f1f1f1;
-            padding: 5px 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
 
-            .search-input {
-            flex: 1;
-            border: none;
-            border-radius: 25px;
-            padding: 10px 15px;
-            font-size: 16px;
-            outline: none;
-            background-color: transparent;
-            }
-
-            .search-button {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 0 10px;
-            color: #333;
-            }
-        /* body {
-            background-color: #2c2c2c;
-            color: #d4d4d4;
-        }
-
-        .navbar {
-            background-color: #1f1f1f;
-        }
-
-        .btn-primary {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-
-        .btn-primary:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            border-color: #ffc107;
-        }
-
-        .btn-success {
-            background-color: #28a745;
-            border-color: #28a745;
-        } */
-
-        /* TODO: Move to stylescheet */
-        .navbar-nav {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .navbar-nav .nav-item {
-            display: inline-block;
-        }
-
-        .active {
-            font-weight: bold;
-        }
-    </style>
 </head>
 
 <body>

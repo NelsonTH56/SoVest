@@ -27,7 +27,8 @@ class Prediction extends Model {
         'end_date',
         'is_active',
         'accuracy',
-        'reasoning'
+        'reasoning',
+        'upvotes'
     ];
 
     /**

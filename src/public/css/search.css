@@ -92,12 +92,9 @@
     padding: 10px 15px;
     cursor: pointer;
     transition: background-color 0.2s;
-<<<<<<< HEAD:SoVest_code/css/search.css
-=======
     display: flex;
     justify-content: space-between;
     align-items: center;
->>>>>>> ded11c1df32be455bc722343f9d9556f8d241225:src/public/css/search.css
 }
 
 .search-suggestion:hover {
@@ -109,8 +106,6 @@
     font-size: 0.9rem;
 }
 
-<<<<<<< HEAD:SoVest_code/css/search.css
-=======
 /* New suggestion content wrapper */
 .suggestion-content {
     display: flex;
@@ -161,7 +156,6 @@
     font-size: 0.9rem;
 }
 
->>>>>>> ded11c1df32be455bc722343f9d9556f8d241225:src/public/css/search.css
 /* Navigation Search */
 .search-nav-container {
     position: relative;
@@ -216,8 +210,6 @@
         height: 40px;
         font-size: 1.2rem;
     }
-<<<<<<< HEAD:SoVest_code/css/search.css
-=======
     
     .search-suggestion {
         flex-direction: column;
@@ -243,7 +235,6 @@
         margin-top: 10px;
         width: 100%;
     }
->>>>>>> ded11c1df32be455bc722343f9d9556f8d241225:src/public/css/search.css
 }
 
 /* Search History & Saved Searches */

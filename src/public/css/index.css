@@ -1,0 +1,139 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+
+.prediction-card {
+    justify-self: center;
+    border: 2px solid rgb(180, 180, 180); /* Light gray border */
+    transition: border-color 0.2s ease-in-out;
+    border-radius: 10px;    /* Rounded corners */
+    padding: 15px;          /* Optional: Adds space inside the box */
+    margin-bottom: 20px;    /* Optional: Adds space below each card */
+    background: #fff; /* Optional: Sets background color */
+    width: 75%;
+}
+
+.prediction-card :hover{
+    border-color: rgb(162, 211, 173);
+}
+.search-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 25px;
+    background-color:rgb(162, 211, 173);
+    padding: 5px 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /*opacity: .5; */
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 15px;
+    font-size: 16px;
+    outline: none;
+    background-color: transparent;
+}
+
+.search-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 10px;
+    color: #333;
+}
+ body {
+    background-color: #f7f2f2;
+    color: black;
+}
+
+.navbar {
+    width: 100%;
+    background-color: #1f1f1f;
+}
+
+.btn-primary {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+} 
+
+
+/* TODO: Move to stylescheet */
+.navbar-nav {
+    list-style: none;
+    padding-left: 0;
+}
+
+.navbar-nav .nav-item {
+    display: inline-block;
+}
+
+.active {
+    font-weight: bold;
+    color: rgb(162, 211, 173);
+}
+
+.prediction-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.prediction-header .user-info {
+    display: flex;
+    align-items: center;
+    vertical-align: top;
+}
+
+.prediction-header img {
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+
+}
+
+.reasoning.my-4 {
+    border-style: solid;
+    border-width: 1px 0;
+    border-color: #000;
+    border-width: 150%;
+}
+
+.reasoning.my-5{
+    width: 75%;
+    margin: auto;
+}
+
+.reasoning.my-5 p{
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    direction: rtl;
+    overflow: hidden;
+    text-align: left;
+}
+
+.fs-5 {
+    font-size: 5px;
+}

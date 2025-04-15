@@ -22,7 +22,7 @@ class UserController extends Controller
     public function home()
     {
         //figure out how to do timestamps for this
-        $predictions = Prediction::with('user')->orderBy('is_active')->paginate(10);
+        $predictions = Prediction::with('user')->orderBy('prediction_date', 'desc')->paginate(10);
         return view('home', compact('predictions'));
     }
 

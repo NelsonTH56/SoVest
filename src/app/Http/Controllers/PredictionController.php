@@ -394,7 +394,6 @@ class PredictionController extends Controller
         if (!$predictionId) {
             $this->withError("Missing prediction ID");
             return $this->responseFormatter->redirect('/predictions/trending');
-            return;
         }
         
         try {
@@ -406,7 +405,6 @@ class PredictionController extends Controller
             if (!$prediction) {
                 $this->withError("Prediction not found");
                 return $this->responseFormatter->redirect('/predictions/trending');
-                return;
             }
             
             // Format data for the view
@@ -567,6 +565,31 @@ class PredictionController extends Controller
             $this->jsonError("Error processing vote: " . $e->getMessage());
         }
     }
+    public function upvote($userId)
+        {
+            if (!auth()->check()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            } else {
+            $prediction = Prediction::findOrFail($userId);
+            $prediction->upvotes = ($prediction->upvotes ?? 0) + 1;
+            $prediction->save();
+
+            return response()->json(['upvotes' => $prediction->upvotes]);
+            }
+        }
+
+        public function downvote($userId)
+        {
+            if (!auth()->check()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            } else {
+            $prediction = Prediction::findOrFail($userId);
+            $prediction->upvotes = max(0, ($prediction->upvotes ?? 0) - 1);
+            $prediction->save();
+
+            return response()->json(['upvotes' => $prediction->upvotes]);
+            }
+        }
     
     /**
      * Handle API requests for backward compatibility with the legacy prediction_operations.php API endpoint
