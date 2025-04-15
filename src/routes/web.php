@@ -44,6 +44,7 @@ Route::prefix('api')->middleware('api')->name('api.')->group(function () {
     Route::post('/predictions/create', [PredictionController::class, 'store'])->name('predictions.create');
     Route::post('/predictions/update', [PredictionController::class, 'update'])->name('predictions.update')->middleware('prediction.owner');
     Route::delete('/predictions/delete/{id}', [PredictionController::class, 'delete'])->name('predictions.delete');
+    Route::get('/predictions/{id}', [PredictionController::class, 'view'])->name('predictions.view');
     Route::get('/predictions/get', [PredictionController::class, 'apiGetPrediction'])->name('predictions.get');
     Route::get('/search', [SearchController::class, 'search'])->name('search');
     Route::get('/search_stocks', [SearchController::class, 'searchStocks'])->name('search.stocks');

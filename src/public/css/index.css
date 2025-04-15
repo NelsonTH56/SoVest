@@ -1,22 +1,28 @@
-html, body {
+body {
     height: 100%;
     margin: 0;
+    background-image: url(images/background.png);
+    background-blend-mode: lighten;
+    background-color: #f7f2f2;
+    color: black;
 }
 
 
 .prediction-card {
     justify-self: center;
     border: 2px solid rgb(180, 180, 180); /* Light gray border */
-    transition: border-color 0.2s ease-in-out;
+    transition: background-color 0.2s easse, box-shadow 0.3s ease;
     border-radius: 10px;    /* Rounded corners */
     padding: 15px;          /* Optional: Adds space inside the box */
     margin-bottom: 20px;    /* Optional: Adds space below each card */
     background: #fff; /* Optional: Sets background color */
-    width: 75%;
+    width: 90%;
 }
 
-.prediction-card :hover{
-    border-color: rgb(162, 211, 173);
+.prediction-card:hover {
+    background-color: #a7a7a7;  /* Change to your desired highlight color */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Optional: adds a shadow effect on hover */
+    cursor: pointer;
 }
 .search-form {
     display: flex;
@@ -49,19 +55,16 @@ html, body {
     padding: 0 10px;
     color: #333;
 }
- body {
-    background-color: #f7f2f2;
-    color: black;
-}
+
 
 .navbar {
     width: 100%;
-    background-color: #1f1f1f;
 }
 
 .btn-primary {
     background-color: #28a745;
     border-color: #28a745;
+    margin-left: 15%;
 }
 
 .btn-primary:hover {
@@ -134,6 +137,132 @@ html, body {
     text-align: left;
 }
 
-.fs-5 {
-    font-size: 5px;
+.company-name {
+        display: block;
+        text-align: center;
+        font-weight: bold;
+}
+
+.reasoning-text {
+    font-size: 0.85rem;
+    font-family: Arial, Helvetica, sans-serif;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;          /* Show 3 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+}
+
+.bottom-content-prediction {
+    margin-top: 15px;
+    border-top: 1px solid rgb(180, 180, 180) !important;
+    padding-top: 10px;
+}
+
+.top-container-prediction {
+    border-bottom: 1px solid rgb(180, 180, 180) !important;
+    padding-bottom: 10px;
+}
+
+
+/* Updated right-col to control layout width */
+.right-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 250px;
+    width: 100%;
+    max-width: 300px; /* ✅ Ensures consistent width */
+    margin: 0 auto;
+}
+
+/* Make the button take full width of right-col */
+.btn.home {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+
+/* Sidebar still stacks cards vertically */
+.user-prediction-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Make cards stretch to fill container (same as button) */
+.user-prediction-card {
+    width: 130%; /* ✅ Make it match the button width */
+    max-width: 130%; /* Keep it consistent */
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+
+/* Hover effect for the prediction cards */
+.user-prediction-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+    transform: translateY(-5px); /* Slightly lift the card */
+}
+
+/* Styling for links inside the prediction card */
+a.prediction-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+a.prediction-link:hover {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+    padding: 5px;
+    border-radius: 5px;
+}
+
+
+
+.prediction-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+
+.prediction-price,
+.prediction-date {
+    font-size: 1rem;
+    color: #555;
+}
+
+.sidebar-header {
+    
+    width: 100%;
+    align-items: center;
+    margin: 20px 0px 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ccc; /* Bottom border */
+    margin-left: 20px;
+}
+
+.sidebar-header h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 10px;
+    text-align: center;
+}
+
+.text-primary {
+    color: rgb(77, 77, 77) !important; /* or any color you want */
+    font-size: 30px;
 }

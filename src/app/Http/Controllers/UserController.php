@@ -21,9 +21,14 @@ class UserController extends Controller
 
     public function home()
     {
-        //figure out how to do timestamps for this
+
         $predictions = Prediction::with('user')->orderBy('prediction_date', 'desc')->paginate(10);
-        return view('home', compact('predictions'));
+        $userID = Auth::id();
+        $Userpredictions = Prediction::with('user')->orderBy('prediction_date', 'desc')
+            ->where('user_id', $userID) // Replace $userId with the actual ID or variable
+            ->orderBy('prediction_date', 'desc')
+            ->paginate(10);
+        return view('home', compact('predictions'), compact('Userpredictions'));
     }
 
     /**

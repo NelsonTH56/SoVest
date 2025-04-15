@@ -567,6 +567,7 @@ class PredictionController extends Controller
     }
     public function upvote($userId)
         {
+            $userId = Auth::id();
             if (!auth()->check()) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             } else {
@@ -580,6 +581,7 @@ class PredictionController extends Controller
 
         public function downvote($userId)
         {
+            $userId = Auth::id();
             if (!auth()->check()) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             } else {

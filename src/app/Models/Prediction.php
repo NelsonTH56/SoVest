@@ -218,7 +218,7 @@ class Prediction extends Model {
         $minDate = $this->isBusinessDay($today) ? clone $today : $this->getNextBusinessDay($today);
         
         // Calculate the maximum allowable date (5 business days from min date)
-        $maxDate = $this->addBusinessDays($minDate, 5);
+        $maxDate = $this->addBusinessDays($minDate, 1095);
         
         // Check if the date is a business day
         if (!$this->isBusinessDay($dateObj)) {
