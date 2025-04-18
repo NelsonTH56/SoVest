@@ -13,7 +13,7 @@ Route::get('/', [MainController::class, 'index'])->name('landing');
 Route::get('/about', [MainController::class, 'about'])->name('about');
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
-
+Route::post('/prediction/vote', [PredictionController::class, 'vote'])->name('prediction.vote');
 Route::get('/register', [AuthController::class, 'registerForm'])->name('register.form');
 Route::post('/register/submit', [AuthController::class, 'register'])->name('register.submit');
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
@@ -33,9 +33,20 @@ Route::controller(PredictionController::class)->group(function () {
     Route::get('/predictions/edit/{id}', 'edit')->name('predictions.edit')->middleware('auth')->middleware('prediction.owner');
     Route::post('/predictions/update/{id}', 'update')->name('predictions.update')->middleware('auth')->middleware('prediction.owner');
     Route::post('/predictions/delete/{id}', 'delete')->name('predictions.delete')->middleware('auth')->middleware('prediction.owner');
-    //Route::post('/predictions/vote/{id}', 'vote')->name('predictions.vote')->middleware('auth');
-    Route::post('/predictions/{id}/upvote', [PredictionController::class, 'upvote'])->name('predictions.upvote');
-    Route::post('/predictions/{id}/downvote', [PredictionController::class, 'downvote'])->name('predictions.downvote');
+    //Route::post('/predictions/vote/{id}', 'vote')->name('predictions.vote')->middleware('auth');  ORIGINAL
+    Route::post('/predictions/vote/{id}', [PredictionController::class, 'vote'])->middleware('auth'); //SUGGESTED SOLUTION
+    Route::get('/predictions/{id}/vote-counts', function ($id) {
+        $upvotes = \App\Models\PredictionVote::where('prediction_id', $id)->where('vote_type', 'upvote')->count();
+        $downvotes = \App\Models\PredictionVote::where('prediction_id', $id)->where('vote_type', 'downvote')->count();
+        $netVotes = $upvotes - $downvotes;
+        return response()->json([
+            'success' => true,
+            'upvotes' => $upvotes,
+            'downvotes' => $downvotes,
+            'netvotes' => $netVotes
+        ]);
+    });
+    
 });
 
 // API routes

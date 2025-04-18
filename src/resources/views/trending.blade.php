@@ -1,31 +1,33 @@
-@extends('layouts.app')
 
-@section('title', 'Trending')
 
-@php
-    // Dummy trending predictions (Replace this with data from controller)
-    //
-    $trending_predictions = [
-        ['username' => 'Investor123', 'symbol' => 'AAPL', 'prediction' => 'Bullish', 'votes' => 120],
-        ['username' => 'MarketGuru', 'symbol' => 'TSLA', 'prediction' => 'Bearish', 'votes' => 95],
-        ['username' => 'StockSavvy', 'symbol' => 'AMZN', 'prediction' => 'Bullish', 'votes' => 75],
-    ];
-@endphp
+@extends('layouts.app') {{-- or whatever layout you're using --}}
 
 @section('content')
-    <div class="container trending-container">
-        <h2 class="text-center">Trending Predictions</h2>
-        @foreach ($trending_predictions as $post)
-            <div class="post-card">
-                <div class="vote-section">
-                    <button class="vote-btn">&#9650;</button>
-                    <span class="vote-count">{{ $post['votes'] }}</span>
+<div class="container mt-4">
+    <h2 class="mb-4">{{ $pageTitle }}</h2>
+
+    @foreach ($trending_predictions as $pred)
+        <div class="card mb-3 p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ $pred['username'] }}</strong>
+                    <span class="ms-2 text-muted">{{ $pred['symbol'] }}</span>
                 </div>
-                <h5>{{ $post['symbol'] }} - {{ $post['prediction'] }}</h5>
-                <p>Posted by <strong>{{ $post['username'] }}</strong></p>
+                <div>
+                    <span class="badge bg-{{ $pred['prediction'] === 'Bullish' ? 'success' : 'danger' }}">
+                        {{ $pred['prediction'] }}
+                    </span>
+                </div>
             </div>
-        @endforeach
-    </div>
+
+            <div class="mt-2">
+                <strong>Votes:</strong> {{ $pred['votes'] ?? 0 }}<br>
+                <strong>Accuracy:</strong> 
+                {{ $pred['accuracy'] !== null ? $pred['accuracy'] . '%' : 'Pending' }}
+            </div>
+        </div>
+    @endforeach
+</div>
 @endsection
 
 @push('styles')
@@ -45,6 +47,10 @@
             margin-top: 30px;
         }
 
+        .h2{
+            width: 100%;
+            text-align: center;
+        }
         .post-card {
             /* background: #1f1f1f; */
             padding: 15px;

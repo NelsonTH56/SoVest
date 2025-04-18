@@ -46,7 +46,11 @@
                             style="border-radius: 50%; object-fit: cover;">
                         <div class="ms-3">
                             <div class="fw-bold">{{ $prediction->user->first_name }}</div>
-                            <small class="text-muted">Reputation: {{ $prediction->user->reputation_score }}</small>
+                            <!--<small class="text-muted">Reputation: {{ $prediction->user->reputation_score }}</small>-->
+                            <small class="text-muted d-block mb-1">Reputation: {{ $prediction->user->reputation_score }}%</small>
+                            <div class="progress reputation-progress" data-reputation="{{ $prediction->user->reputation_score }}" data-max-rep="50" style="height: 10px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="{{ $prediction->user->reputation_score }}" aria-valuemin="0" aria-valuemax="50"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -103,11 +107,13 @@
                                 data-id="{{ $prediction->prediction_id }}" 
                                 data-action="upvote">⬆️</button>
 
-                        <span id="upvote-count-{{ $prediction->id }}">{{ $prediction['upvotes'] ?? 0 }}</span>
+                        <span id="upvotes-{{ $prediction->prediction_id }}">
+                            {{ $prediction->upvotes ?? 0 }}
+                        </span>
 
-                        <button class="btn btn-sm ms-2 vote-btn" 
+                        <!--<button class="btn btn-sm ms-2 vote-btn" 
                                 data-id="{{ $prediction->prediction_id }}" 
-                                data-action="downvote">⬇️</button>
+                                data-action="downvote">⬇️</button> -->
                     </div>
                 </div>
 
@@ -117,33 +123,59 @@
                 @endif
             </div>
 
-            @push('scripts')
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-            <script>
-                $('.vote-btn').on('click', function () {
-                    const predictionId = $(this).data('id');
-                    const action = $(this).data('action');
-
-                    $.ajax({
-                        url: `/predictions/${predictionId}/${action}`,
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function (response) {
-                            $('#upvote-count-' + predictionId).text(response.upvotes);
-                        },
-                        error: function (xhr) {
-                            console.error('AJAX Error:', xhr.responseText);
-                            alert('Something went wrong: ' + xhr.responseText);
-                        }
-                    });
-                });
-            </script>
-            @endpush
-
             @endforeach
             @endif
+            @push('scripts')
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const voteButtons = document.querySelectorAll(".vote-btn");
+
+                        voteButtons.forEach(button => {
+                            button.addEventListener("click", function () {
+                                const predictionId = this.getAttribute('data-id');
+                                const voteType = this.getAttribute('data-action');
+
+                                fetch('/predictions/vote/' + predictionId, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/x-www-form-urlencoded'
+                                    },
+                                    body: new URLSearchParams({
+                                        vote_type: voteType,
+                                        prediction_id: predictionId // ✅ Ensures Laravel gets it
+                                    })
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        console.log(data.message);
+                                        updateVoteCount(predictionId);
+                                    } else {
+                                        alert(data.message || "Something went wrong.");
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    alert("Error submitting vote.");
+                                });
+                            });
+                        });
+
+                        function updateVoteCount(predictionId) {
+                            fetch(`/predictions/${predictionId}/vote-counts`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        document.getElementById(`upvotes-${predictionId}`).textContent = data.upvotes;
+                                        // Optionally handle downvotes here too
+                                    }
+                                });
+                        }
+                    });
+            </script>
+                @endpush
     </div>
 
     <div class="right-col ps-4" style="min-width: 250px;">
@@ -159,7 +191,7 @@
     
         @foreach($Userpredictions as $index => $prediction)
             <div class="user-prediction-card">
-                <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="prediction-link">
+                <a href="{{ route('predictions.index') }}" class="prediction-link">
                     <div class="prediction-card-body">
                         <h5 class="prediction-title">{{ $prediction->stock->company_name }}</h5>
                         <p class="prediction-price">Target Price: ${{ $prediction->target_price }}</p>

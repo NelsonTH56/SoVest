@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('predictions', function (Blueprint $table) {
-            //
+            $table->integer('upvotes')->default(0);
+            $table->integer('downvotes')->default(0);
         });
     }
 
@@ -22,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('predictions', function (Blueprint $table) {
-            //
+            $table->dropColumn(['upvotes', 'downvotes']);
         });
     }
 };

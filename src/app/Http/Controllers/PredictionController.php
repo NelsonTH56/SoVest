@@ -38,7 +38,18 @@ class PredictionController extends Controller
             $predictions = Prediction::with('stock')
                 ->where('user_id', $userId)
                 ->orderBy('prediction_date', 'desc')
-                ->get();
+                ->get()
+                
+                /**$predictions = Prediction::withCount([
+                    'votes as upvotes_count' => function ($query) {
+                    $query->where('vote_type', 'upvote');
+                    },
+                    'votes as downvotes_count' => function ($query) {
+                    $query->where('vote_type', 'downvote');
+                    },
+                ])->get(); 
+                chat said something about this. look into it.
+                */;
 
             // Format data for the view
             $formattedPredictions = $predictions->map(function ($prediction) {
@@ -511,16 +522,19 @@ class PredictionController extends Controller
      */
     public function vote(Request $request)
     {
+
         $user = Auth::user();
         $userId = Auth::id();
         
         // Get prediction ID and vote type from the request
         $predictionId = $request->input('prediction_id');
         $voteType = $request->input('vote_type', 'upvote'); // Default to upvote
+
+        \Log::info("Vote called with ID: " . $predictionId);
+        \Log::info("Request body: ", $request->all());
         
         if (!$predictionId) {
-            $this->jsonError("Missing prediction ID");
-            return;
+            return response()->json(['success' => false, 'message' => 'Missing prediction ID'], 400);
         }
         
         try {
@@ -528,8 +542,7 @@ class PredictionController extends Controller
             $prediction = Prediction::find($predictionId);
             
             if (!$prediction) {
-                $this->jsonError("Prediction not found");
-                return;
+                return response()->json(['success' => false, 'message' => 'Prediction not found'], 404);
             }
             
             // Check if user has already voted on this prediction
@@ -543,11 +556,11 @@ class PredictionController extends Controller
                     $existingVote->vote_type = $voteType;
                     $existingVote->vote_date = date('Y-m-d H:i:s');
                     $existingVote->save();
-                    $this->jsonSuccess("Vote updated successfully");
+                    return response()->json(['success' => true, 'message' => 'Vote updated successfully']);
                 } else {
                     // Remove vote if same type (toggle functionality)
                     $existingVote->delete();
-                    $this->jsonSuccess("Vote removed successfully");
+                    return response()->json(['success' => true, 'message' => 'Vote removed successfully']);
                 }
             } else {
                 // Create new vote
@@ -559,39 +572,37 @@ class PredictionController extends Controller
                 ]);
                 
                 $vote->save();
-                $this->jsonSuccess("Vote recorded successfully");
+                return response()->json(['success' => true, 'message' => 'Vote recorded successfully']);
             }
         } catch (Exception $e) {
-            $this->jsonError("Error processing vote: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error processing vote: ' . $e->getMessage()], 500);
         }
     }
-    public function upvote($userId)
-        {
-            $userId = Auth::id();
-            if (!auth()->check()) {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            } else {
-            $prediction = Prediction::findOrFail($userId);
-            $prediction->upvotes = ($prediction->upvotes ?? 0) + 1;
-            $prediction->save();
+    public function upvote($predictionId)
+{
+    if (!auth()->check()) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
 
-            return response()->json(['upvotes' => $prediction->upvotes]);
-            }
+    $prediction = Prediction::findOrFail($predictionId);
+    $prediction->upvotes = ($prediction->upvotes ?? 0) + 1;
+    $prediction->save();
+
+    return response()->json(['success' => true, 'upvotes' => $prediction->upvotes]);
+}
+
+    public function downvote($predictionId)
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        public function downvote($userId)
-        {
-            $userId = Auth::id();
-            if (!auth()->check()) {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            } else {
-            $prediction = Prediction::findOrFail($userId);
-            $prediction->upvotes = max(0, ($prediction->upvotes ?? 0) - 1);
-            $prediction->save();
+        $prediction = Prediction::findOrFail($predictionId);
+        $prediction->upvotes = max(0, ($prediction->upvotes ?? 0) - 1);
+        $prediction->save();
 
-            return response()->json(['upvotes' => $prediction->upvotes]);
-            }
-        }
+        return response()->json(['success' => true, 'upvotes' => $prediction->upvotes]);
+    }
     
     /**
      * Handle API requests for backward compatibility with the legacy prediction_operations.php API endpoint

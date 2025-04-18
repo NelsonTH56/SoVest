@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Services\Interfaces\PredictionScoringServiceInterface;
 use App\Services\Interfaces\ResponseFormatterInterface;
+use App\Models\PredictionVote;
+use App\Http\Controllers\PredictionController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Models\Prediction;
 use Exception;
 
@@ -122,6 +125,46 @@ class UserController extends Controller
         return view('leaderboard', [
             'topUsers' => $topUsers,
             'pageTitle' => $pageTitle
+        ]);
+    }
+
+    public function vote(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:predictions,prediction_id',
+            'action' => 'required|in:upvote,downvote'
+        ]);
+    
+        $userId = Auth::id();
+        $predictionId = $request->id;
+        $voteType = $request->action;
+    
+        $existingVote = PredictionVote::where('prediction_id', $predictionId)
+                                      ->where('user_id', $userId)
+                                      ->first();
+    
+        if ($existingVote) {
+            if ($existingVote->vote_type === $voteType) {
+                $existingVote->delete(); // toggle off
+            } else {
+                $existingVote->vote_type = $voteType;
+                $existingVote->save(); // switch vote
+            }
+        } else {
+            PredictionVote::create([
+                'prediction_id' => $predictionId,
+                'user_id' => $userId,
+                'vote_type' => $voteType,
+            ]);
+        }
+    
+        $upvotes = PredictionVote::where('prediction_id', $predictionId)->where('vote_type', 'upvote')->count();
+        $downvotes = PredictionVote::where('prediction_id', $predictionId)->where('vote_type', 'downvote')->count();
+    
+        return response()->json([
+            'success' => true,
+            'upvotes' => $upvotes,
+            'downvotes' => $downvotes
         ]);
     }
 }

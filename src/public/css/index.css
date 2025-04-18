@@ -242,10 +242,8 @@ a.prediction-link:hover {
     color: #555;
 }
 
-.sidebar-header {
-    
+.sidebar-header { 
     width: 100%;
-    align-items: center;
     margin: 20px 0px 10px;
     padding-bottom: 8px;
     border-bottom: 2px solid #ccc; /* Bottom border */
