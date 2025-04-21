@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ asset('css/prediction.css') }}">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 @endsection
 
 @section('content')
@@ -206,7 +207,7 @@
                             </div>
 
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">
+                                <button type="submit" class="btn btn-green btn-lg">
                                     <i class="bi bi-lightning-charge-fill me-1"></i>{{ $isEditing ? 'Update' : 'Create' }}
                                     Prediction
                                 </button>

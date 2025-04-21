@@ -30,7 +30,7 @@ class PredictionController extends Controller
 
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $Curruser = Auth::user();
         $userId = Auth::id();
 
         try {
@@ -38,7 +38,18 @@ class PredictionController extends Controller
             $predictions = Prediction::with('stock')
                 ->where('user_id', $userId)
                 ->orderBy('prediction_date', 'desc')
-                ->get();
+                ->get()
+                
+                /**$predictions = Prediction::withCount([
+                    'votes as upvotes_count' => function ($query) {
+                    $query->where('vote_type', 'upvote');
+                    },
+                    'votes as downvotes_count' => function ($query) {
+                    $query->where('vote_type', 'downvote');
+                    },
+                ])->get(); 
+                chat said something about this. look into it.
+                */;
 
             // Format data for the view
             $formattedPredictions = $predictions->map(function ($prediction) {
@@ -51,19 +62,24 @@ class PredictionController extends Controller
             // Render the view with the predictions data
             return view('predictions/my_predictions', [
                 'predictions' => $formattedPredictions,
-                'pageTitle' => 'My Predictions'
+                'pageTitle' => 'My Predictions',
+                'Curruser' => $Curruser
             ]);
         } catch (Exception $e) {
             error_log("Error retrieving predictions: " . $e->getMessage());
             return view('my_predictions', [
                 'predictions' => [],
-                'pageTitle' => 'My Predictions'
+                'pageTitle' => 'My Predictions',
+                'Curruser' => $Curruser
             ]);
         }
     }
 
     public function create(Request $request)
+
     {
+        $Curruser = Auth::user();
+        $cssPage = 'public/css/index.css';
         try {
             // Get all active stocks for the dropdown using the injected service
             //$stocks = $this->stockService->getStocks(true);
@@ -96,7 +112,9 @@ class PredictionController extends Controller
                 'isEditing' => false,
                 'prediction' => $prediction,
                 'pageTitle' => 'Create Prediction',
-                'hasPreselectedStock' => ($stockId && $symbol && $companyName)
+                'hasPreselectedStock' => ($stockId && $symbol && $companyName),
+                'Curruser' => $Curruser,
+                'cssPage' => $cssPage
             ]);
         } catch (Exception $e) {
             error_log("Error loading stock data: " . $e->getMessage());
@@ -394,7 +412,6 @@ class PredictionController extends Controller
         if (!$predictionId) {
             $this->withError("Missing prediction ID");
             return $this->responseFormatter->redirect('/predictions/trending');
-            return;
         }
         
         try {
@@ -406,7 +423,6 @@ class PredictionController extends Controller
             if (!$prediction) {
                 $this->withError("Prediction not found");
                 return $this->responseFormatter->redirect('/predictions/trending');
-                return;
             }
             
             // Format data for the view
@@ -435,6 +451,7 @@ class PredictionController extends Controller
     public function trending(Request $request)
     {
         try {
+            $Curruser = Auth::user();
             // Get trending predictions using Eloquent ORM
             $trending_predictions = Prediction::select([
                     'predictions.prediction_id',
@@ -487,8 +504,10 @@ class PredictionController extends Controller
             
             // Render the view with the trending predictions data
             return view('trending', [
+                'Curruser' => $Curruser,
                 'trending_predictions' => $trending_predictions,
-                'pageTitle' => 'Trending Predictions'
+                'pageTitle' => 'Trending Predictions',
+                'pageCss' => 'css/index.css' // ← Laravel handles 'public/' automatically
             ]);
         } catch (Exception $e) {
             // Fallback to dummy data if an error occurs
@@ -501,10 +520,7 @@ class PredictionController extends Controller
             $this->withError("Error retrieving trending predictions: " . $e->getMessage());
             
             // Render the view with the fallback data
-            return view('trending', [
-                'trending_predictions' => $trending_predictions,
-                'pageTitle' => 'Trending Predictions'
-            ]);
+            return view('trending', ['Curruser'=> $Curruser, 'pageTitle'=>'Trending Predictions', 'trending_predictions' => $trending_predictions, 'pageCss' => 'public/css/index.css']);
         }
     }
     
@@ -513,16 +529,19 @@ class PredictionController extends Controller
      */
     public function vote(Request $request)
     {
+
         $user = Auth::user();
         $userId = Auth::id();
         
         // Get prediction ID and vote type from the request
         $predictionId = $request->input('prediction_id');
         $voteType = $request->input('vote_type', 'upvote'); // Default to upvote
+
+        \Log::info("Vote called with ID: " . $predictionId);
+        \Log::info("Request body: ", $request->all());
         
         if (!$predictionId) {
-            $this->jsonError("Missing prediction ID");
-            return;
+            return response()->json(['success' => false, 'message' => 'Missing prediction ID'], 400);
         }
         
         try {
@@ -530,8 +549,7 @@ class PredictionController extends Controller
             $prediction = Prediction::find($predictionId);
             
             if (!$prediction) {
-                $this->jsonError("Prediction not found");
-                return;
+                return response()->json(['success' => false, 'message' => 'Prediction not found'], 404);
             }
             
             // Check if user has already voted on this prediction
@@ -545,11 +563,11 @@ class PredictionController extends Controller
                     $existingVote->vote_type = $voteType;
                     $existingVote->vote_date = date('Y-m-d H:i:s');
                     $existingVote->save();
-                    $this->jsonSuccess("Vote updated successfully");
+                    return response()->json(['success' => true, 'message' => 'Vote updated successfully']);
                 } else {
                     // Remove vote if same type (toggle functionality)
                     $existingVote->delete();
-                    $this->jsonSuccess("Vote removed successfully");
+                    return response()->json(['success' => true, 'message' => 'Vote removed successfully']);
                 }
             } else {
                 // Create new vote
@@ -561,11 +579,36 @@ class PredictionController extends Controller
                 ]);
                 
                 $vote->save();
-                $this->jsonSuccess("Vote recorded successfully");
+                return response()->json(['success' => true, 'message' => 'Vote recorded successfully']);
             }
         } catch (Exception $e) {
-            $this->jsonError("Error processing vote: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error processing vote: ' . $e->getMessage()], 500);
         }
+    }
+    public function upvote($predictionId)
+{
+    if (!auth()->check()) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    $prediction = Prediction::findOrFail($predictionId);
+    $prediction->upvotes = ($prediction->upvotes ?? 0) + 1;
+    $prediction->save();
+
+    return response()->json(['success' => true, 'upvotes' => $prediction->upvotes]);
+}
+
+    public function downvote($predictionId)
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $prediction = Prediction::findOrFail($predictionId);
+        $prediction->upvotes = max(0, ($prediction->upvotes ?? 0) - 1);
+        $prediction->save();
+
+        return response()->json(['success' => true, 'upvotes' => $prediction->upvotes]);
     }
     
     /**

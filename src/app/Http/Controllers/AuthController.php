@@ -94,9 +94,6 @@ class AuthController extends Controller
             'newEmail' => ['required', 'email', 'unique:users,email'],
             'newPass' => ['required', 'min:8'],
             'confirmPass' => ['required', 'same:newPass'],
-            'newMajor' => ['required'],
-            'newYear' => ['required'],
-            'newScholarship' => ['required']
         ], [
             'firstName.required' => 'First name is required.',
             'lastName.required' => 'Last name is required.',
@@ -105,10 +102,7 @@ class AuthController extends Controller
             'newEmail.unique' => 'This email is already registered.',
             'newPass.required' => 'Password is required.',
             'confirmPass.same' => 'Passwords do not match.',
-            'newPass.min' => 'Password must be at least 8 characters long.',
-            'newMajor.required' => 'Major is required.',
-            'newYear.required' => 'Year is required.',
-            'newScholarship.required' => 'Scholarship information is required.'
+            'newPass.min' => 'Password must be at least 8 characters long.'
         ]);
 
         try {
@@ -118,9 +112,6 @@ class AuthController extends Controller
                 'last_name' => $validated['lastName'],
                 'email' => $validated['newEmail'],
                 'password' => Hash::make($validated['newPass']),
-                'major' => $validated['newMajor'],
-                'year' => $validated['newYear'],
-                'scholarship' => $validated['newScholarship']
             ]);
 
             // Log the user in using Auth facade
