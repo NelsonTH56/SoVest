@@ -264,3 +264,219 @@ a.prediction-link:hover {
     color: rgb(77, 77, 77) !important; /* or any color you want */
     font-size: 30px;
 }
+
+.nav-dropdown{ /*overflow-hidden border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 */
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    overflow: hidden;
+    outline: none;
+    border: none;
+    background:transparent;
+    cursor: pointer;
+    padding: 0;
+   
+
+}
+
+.nav-dropdown:hover{
+    box-shadow: 0 0 0 2px #28a745;
+
+}
+
+.pfp{
+    width: 100%;
+    height: 100%;
+    border-radius: 30%;
+    object-fit:cover;
+    outline:none;
+}
+
+
+.trending-container {
+    max-width: 800px;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.menu {
+    position: relative;
+}
+
+.h2{
+    width: 100%;
+    text-align: center;
+}
+.post-card {
+    /* background: #1f1f1f; */
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.vote-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.vote-btn {
+    background: none;
+    border: none;
+    color: #28a745;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.vote-count {
+    font-size: 1.2rem;
+}
+
+.hidden{
+    display: none;
+}
+
+.drop-down-menu {
+    display: none; /* Initially hidden */
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0.5rem;
+    width: 160px;
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    flex-direction: column;  /* Ensure it's vertically aligned */
+    display: flex;           /* Use flex for vertical stacking */
+}
+
+.d-none {
+    display: none !important; /* hide dropdown using d-none */
+}
+
+.drop-down-items {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: #212529;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    display: block; /* Ensure links take full width */
+}
+
+.drop-down-items:hover {
+    background-color: #f8f9fa;
+}
+
+.logout {
+    color: #dc3545;
+}
+
+.stock-vote{
+    margin-left: 45px;
+    margin-top: -10px;
+    height: 25px;
+    width: 25px;
+}
+
+.votes{
+    margin-right: 10px;
+}
+
+.profile-header {
+    text-align: center;
+    padding: 20px;
+}
+
+.profile-picture {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: solid black;
+    object-fit: cover;
+}
+
+.profile-picture:hover{
+    border: none;
+    box-shadow: 0 0 0 3px #28a745;
+    cursor: pointer;
+    
+}
+
+.bio {
+    font-size: 1.1em;
+    color: #b0b0b0;
+}
+
+.predictions-list {
+    margin-top: 20px;
+}
+
+.prediction-card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+
+.edit-bio{
+    margin-left: 20%;
+    
+}
+
+.bio-form-control{
+    margin-top: 2%;
+}
+
+.acc-profile-pic{
+    justify-content: center;
+}
+
+/* Center the bio section content */
+.bio-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    text-align: center; /* Ensure text is centered */
+}
+
+/* Center the buttons (Edit and Save Bio) horizontally */
+.bio-edit-container button {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center buttons horizontally */
+    justify-content: center;
+    gap: 10px; /* Adds space between the buttons */
+}
+
+/* Style bio text */
+#bioText {
+    margin-top: 10px;
+}
+
+/* Center the editable bio section */
+#bioInputSection {
+    width: 100%;
+    max-width: 500px; /* Optional: Set a max width for better formatting */
+    text-align: center; /* Center the text and buttons */
+}
+
+#bioInput {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.save-bio {
+    margin-top: 10px;
+}
+
+/* Ensure Save Bio and Edit Bio buttons are aligned */
+.d-flex {
+    display: flex;
+}
+
+.save-bio {
+    margin-top: -10px; /* Optional: Ensures spacing between buttons */
+}
+

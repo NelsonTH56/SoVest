@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->string('bio', 300)->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

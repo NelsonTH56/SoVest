@@ -34,15 +34,15 @@
             <div class="prediction-card p-4 border rounded mb-5 shadow-sm bg-white">
 
                 @php
-                    $profilePicture = $prediction->user->profile_picture 
-                        ? asset('images/' . $prediction->user->profile_picture) 
+                    $profilePicture = $prediction->user->profile_picture
+                        ? asset('images/profile_pictures/' . $prediction->user->profile_picture) 
                         : asset('images/default.png');
                 @endphp
 
-                {{-- 🔝 Top section: Profile on left, dates on right --}}
+                {{--  Top section: Profile on left, dates on right --}}
                 <div class="top-container-prediction d-flex justify-content-between align-items-start mb-3">
                     <div class="d-flex">
-                        <img src="{{ $profilePicture }}" alt="profile picture" width="60" height="60"
+                            <img src="{{ $profilePicture }}" alt="User Picture" class="img-fluid rounded-circle" width="60" height="60"
                             style="border-radius: 50%; object-fit: cover;">
                         <div class="ms-3">
                             <div class="fw-bold">{{ $prediction->user->first_name }}</div>
@@ -54,14 +54,14 @@
                         </div>
                     </div>
 
-                    {{-- 📅 Created & End Dates --}}
+                    {{--  Created & End Dates --}}
                     <div class="text-end">
                         <p class="mb-1"><strong>Created:</strong> {{ date('M j, Y', strtotime($prediction['prediction_date'])) }}</p>
                         <p class="mb-0"><strong>Ends:</strong> {{ date('M j, Y', strtotime($prediction['end_date'])) }}</p>
                     </div>
                 </div>
 
-                {{-- 🧠 Company + Reasoning --}}
+                {{--  Company + Reasoning --}}
                 @if(!empty($prediction['reasoning']))
                     @if(!empty($prediction->stock->company_name))
                         <p class="mb-2 fw-semibold text-primary">
@@ -69,7 +69,7 @@
                         </p>
                     @endif
 
-                    {{-- 📈 Prediction Type & Target Price --}}
+                    {{--  Prediction Type & Target Price --}}
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="badge {{ $prediction['prediction_type'] == 'Bullish' ? 'bg-success' : 'bg-danger' }}">
                             {{ $prediction['prediction_type'] }}
@@ -79,11 +79,11 @@
                         @endif
                     </div>
 
-                    {{-- ✍️ Reasoning text --}}
+                    {{--  Reasoning text --}}
                     <p class="reasoning-text mb-4">{{ $prediction['reasoning'] }}</p>
                 @endif
 
-                {{-- 🔻 Bottom row: Status (left) & Votes (right) --}}
+                {{--  Bottom row: Status (left) & Votes (right) --}}
                 <div class="bottom-content-prediction d-flex justify-content-between align-items-center">
                     {{-- Status --}}
                     @php
@@ -102,10 +102,10 @@
                     <p class="mb-0"><strong>Status:</strong> <span class="badge {{ $statusClass }}">{{ $statusText }}</span></p>
 
                     {{-- Upvotes --}}
-                    <div class="d-flex align-items-center">
+                    <div class="votes d-flex align-items-center">
                         <button class="btn btn-sm me-2 vote-btn" 
                                 data-id="{{ $prediction->prediction_id }}" 
-                                data-action="upvote">⬆️</button>
+                                data-action="upvote"><img src="/images/stock-market.png" class="stock-vote"></button>
 
                         <span id="upvotes-{{ $prediction->prediction_id }}">
                             {{ $prediction->upvotes ?? 0 }}
@@ -152,6 +152,8 @@
                                     if (data.success) {
                                         console.log(data.message);
                                         updateVoteCount(predictionId);
+                                        const image = button.querySelector('img');
+                                        updateColor(image);
                                     } else {
                                         alert(data.message || "Something went wrong.");
                                     }
@@ -172,6 +174,19 @@
                                         // Optionally handle downvotes here too
                                     }
                                 });
+                        }
+                        function updateColor(image){
+                            const defaultSrc = "/images/stock-market.png";
+                            const greenSrc = "/images/stock-market-green.png";
+
+                            // Remove the origin part of the URL if present
+                            const currentSrc = image.src.split("/").slice(-1)[0];
+
+                            if (currentSrc === "stock-market-green.png") {
+                                image.src = defaultSrc;
+                            } else {
+                                image.src = greenSrc;
+                            }
                         }
                     });
             </script>

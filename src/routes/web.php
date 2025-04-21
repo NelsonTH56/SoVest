@@ -19,11 +19,13 @@ Route::post('/register/submit', [AuthController::class, 'register'])->name('regi
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 Route::post('/login/submit', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::patch('/user/update-bio', [UserController::class, 'updateBio'])->name('user.updateBio');
+
 
 Route::get('/home', [UserController::class, 'home'])->name('user.home')->middleware('auth');
 Route::get('/account', [UserController::class, 'account'])->name('user.account')->middleware('auth');
 Route::get('/leaderboard', [UserController::class, 'leaderboard'])->name('user.leaderboard')->middleware('auth');
-
+Route::post('/profile/upload-photo', [UserController::class, 'uploadPhoto'])->name('user.profile.uploadPhoto');
 Route::controller(PredictionController::class)->group(function () {
     Route::get('/predictions', 'index')->name('predictions.index')->middleware('auth');
     Route::get('/predictions/view/{id}', 'view')->name('predictions.view');

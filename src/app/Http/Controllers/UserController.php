@@ -27,17 +27,19 @@ class UserController extends Controller
 
         $predictions = Prediction::with('user')->orderBy('prediction_date', 'desc')->paginate(10);
         $userID = Auth::id();
+        $Curruser = Auth::user();
         $Userpredictions = Prediction::with('user')->orderBy('prediction_date', 'desc')
             ->where('user_id', $userID) // Replace $userId with the actual ID or variable
             ->orderBy('prediction_date', 'desc')
             ->paginate(10);
-        return view('home', compact('predictions'), compact('Userpredictions'));
+            return view('home', compact('Curruser', 'predictions', 'Userpredictions'));
     }
+
 
     /**
      * Display user account page
      * 
-     * @return void
+     *
      */
     public function account()
     {
@@ -91,42 +93,109 @@ class UserController extends Controller
         }
         
         // Prepare user data for display
-        $user = [
+        $Curruser = [
             'username' => $userData['email'],
             'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
-            'bio' => $userData['major'] ? $userData['major'] . ' | ' . $userData['year'] : 'Stock enthusiast',
-            'profile_picture' => 'images/logo.png',
+            //'bio' => $userData['major'] ? $userData['major'] . ' | ' . $userData['year'] : 'Stock enthusiast',
+            'profile_picture' => $userData['profile_picture'],
             'reputation_score' => isset($userData['reputation_score']) ? $userData['reputation_score'] : 0,
             'avg_accuracy' => $userStats['avg_accuracy'],
-            'predictions' => $predictions
+            'predictions' => $predictions,
+            'bio' => $userData['bio']
         ];
  
-        // Render the view
+
+        return view('account', compact('Curruser', 'userStats'));
+
+        /* Render the view
         return view('account', [
             'user' => $user,
             'userStats' => $userStats
-        ]);
+        ]); */
     }
 
     /**
      * Display leaderboard page
      * 
-     * @return void
+     * 
      */
     public function leaderboard()
     {
+
         // Use the injected scoring service to get top users
         $topUsers = $this->scoringService->getTopUsers(10);
-        
+        $userData = Auth::user();
+        $userID = request()->cookie('userID');
+        if (!$userID) return redirect()->route('login');
+        $userRank = 0;
+        foreach ($topUsers as $index => $user) {
+            if ($user['id'] == $userID) {
+                $userRank = $index + 1;
+                break;
+            }
+        }
         // Set page title
         $pageTitle = 'Leaderboard';
+        $Curruser = [
+            'username' => $userData['email'],
+            'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
+            //'bio' => $userData['major'] ? $userData['major'] . ' | ' . $userData['year'] : 'Stock enthusiast',
+            'profile_picture' => $userData['profile_picture'],
+            'reputation_score' => isset($userData['reputation_score']) ? $userData['reputation_score'] : 0
+        ];
+        $userStats = null;
+        $scoringService = new PredictionScoringService();
+        $topUsers = $scoringService->getTopUsers(20);
+        $pageCss = 'css/index.css';
+        if ($userRank == 0) {
+            $userStats = $scoringService->getUserPredictionStats($userID);
+            $userModel = User::find($userID);
+            if ($userModel) {
+                $userInfo = [
+                    'id' => $userModel->id,
+                    'first_name' => $userModel->first_name,
+                    'last_name' => $userModel->last_name,
+                    'email' => $userModel->email,
+                    'reputation_score' => $userModel->reputation_score,
+                    'avg_accuracy' => $userStats['avg_accuracy'],
+                    'prediction_count' => $userStats['total'],
+                ];
+            }
+        }
         
         // Render the view
-        return view('leaderboard', [
+        return view('user.leaderboard', [
             'topUsers' => $topUsers,
-            'pageTitle' => $pageTitle
+            'userRank' => $userRank,
+            'userInfo' => $userInfo,
+            'userID' => $userID,
+            'pageCss' => 'css/leaderboard.css', // optional
         ]);
     }
+
+    public function uploadPhoto(Request $request)
+    {
+        // Validate the uploaded file
+            $request->validate([
+                'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:8000',
+            ]);
+        
+            $user = Auth::user();
+        
+            $image = $request->file('profile_picture');
+        
+            // Give each file a unique name (timestamp + user ID)
+            $filename = time() . '_user' . $user->id . '.' . $image->getClientOriginalExtension();
+        
+            // Move to the profile_pictures folder
+            $image->move(public_path('images/profile_pictures'), $filename);
+        
+            // Save only the filename in DB
+            $user->profile_picture = $filename;
+            $user->save();
+        
+            return back()->with('success', 'Profile picture updated successfully.');
+        }
 
     public function vote(Request $request)
     {
@@ -167,4 +236,19 @@ class UserController extends Controller
             'downvotes' => $downvotes
         ]);
     }
+
+    public function updateBio(Request $request)
+    {
+        // Validate bio input
+        $request->validate([
+            'bio' => 'nullable|string|max:300',
+        ]);
+    
+        $user = Auth::user(); // Get the currently authenticated user
+        $user->bio = $request->input('bio'); // Update the bio field
+        $user->save(); // Save the updated user
+    
+        return back()->with('success', 'Bio updated successfully.');
+    }
+
 }

@@ -94,9 +94,6 @@ class AuthController extends Controller
             'newEmail' => ['required', 'email', 'unique:users,email'],
             'newPass' => ['required', 'min:8'],
             'confirmPass' => ['required', 'same:newPass'],
-            'newMajor' => ['required'],
-            'newYear' => ['required'],
-            'newScholarship' => ['required']
         ], [
             'firstName.required' => 'First name is required.',
             'lastName.required' => 'Last name is required.',

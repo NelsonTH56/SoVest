@@ -30,7 +30,7 @@ class PredictionController extends Controller
 
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $Curruser = Auth::user();
         $userId = Auth::id();
 
         try {
@@ -62,13 +62,15 @@ class PredictionController extends Controller
             // Render the view with the predictions data
             return view('predictions/my_predictions', [
                 'predictions' => $formattedPredictions,
-                'pageTitle' => 'My Predictions'
+                'pageTitle' => 'My Predictions',
+                'Curruser' => $Curruser
             ]);
         } catch (Exception $e) {
             error_log("Error retrieving predictions: " . $e->getMessage());
             return view('my_predictions', [
                 'predictions' => [],
-                'pageTitle' => 'My Predictions'
+                'pageTitle' => 'My Predictions',
+                'Curruser' => $Curruser
             ]);
         }
     }
@@ -444,6 +446,7 @@ class PredictionController extends Controller
     public function trending(Request $request)
     {
         try {
+            $Curruser = Auth::user();
             // Get trending predictions using Eloquent ORM
             $trending_predictions = Prediction::select([
                     'predictions.prediction_id',
@@ -496,8 +499,10 @@ class PredictionController extends Controller
             
             // Render the view with the trending predictions data
             return view('trending', [
+                'Curruser' => $Curruser,
                 'trending_predictions' => $trending_predictions,
-                'pageTitle' => 'Trending Predictions'
+                'pageTitle' => 'Trending Predictions',
+                'pageCss' => 'css/index.css' // ← Laravel handles 'public/' automatically
             ]);
         } catch (Exception $e) {
             // Fallback to dummy data if an error occurs
@@ -510,10 +515,7 @@ class PredictionController extends Controller
             $this->withError("Error retrieving trending predictions: " . $e->getMessage());
             
             // Render the view with the fallback data
-            return view('trending', [
-                'trending_predictions' => $trending_predictions,
-                'pageTitle' => 'Trending Predictions'
-            ]);
+            return view('trending', ['Curruser'=> $Curruser, 'pageTitle'=>'Trending Predictions', 'trending_predictions' => $trending_predictions, 'pageCss' => 'public/css/index.css']);
         }
     }
     

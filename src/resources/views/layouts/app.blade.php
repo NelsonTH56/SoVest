@@ -18,9 +18,10 @@
     <!--main css file -->
     <link rel="stylesheet" href = "css/index.css">
     <!-- Page-specific CSS -->
+     
 	@if (isset($pageCss))
 		<link href="{{ asset($pageCss) }}" rel="stylesheet">
-	@endif
+	@endif 
 
 	<!-- Yield and stack for styles -->
 	@yield('styles')
@@ -40,50 +41,63 @@
                     <span class="fs-4">SoVest</span>
                 </a>
 
-                <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-                    <ul class="navbar-nav d-flex flex-row">
-                        <li class="nav-item me-3">
-                            <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('home') ? 'active' : '' }}"
-                                href="{{ route('user.home') }}">Home</a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('search') ? 'active' : '' }}"
-                                href="{{ route('search') }}">Search</a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('predictions/trending') ? 'active' : '' }}"
-                                href="{{ route('predictions.trending') }}">Trending</a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('about') ? 'active' : '' }}"
-                                href="{{ route('about') }}">About Us</a>
-                        </li>
+                <nav class="d-flex align-items-center mt-2 mt-md-0 ms-md-auto">
+                {{-- Left: Horizontal Nav Items --}}
+                <ul class="navbar-nav d-flex flex-row me-3">
+                    <li class="nav-item me-3">
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('home') ? 'active' : '' }}"
+                            href="{{ route('user.home') }}">Home</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('predictions/trending') ? 'active' : '' }}"
+                            href="{{ route('predictions.trending') }}">Trending</a>
+                    </li>
+                    <!-- REDIRECTING TO HOME PAGE FOR SOME REASON
+                    <li class="nav-item me-3">
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ Route::is('user.leaderboard') ? 'active' : '' }}"
+                            href="{{ route('user.leaderboard') }}">Leaderboard</a>
+                    </li>  -->
+                </ul>
 
-                        @auth
-                            <li class="nav-item me-3">
-                                <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('predictions') ? 'active' : '' }}"
-                                    href="{{ route('predictions.index') }}">My Predictions</a>
-                            </li>
-                            <li class="nav-item me-3">
-                                <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('account') ? 'active' : '' }}"
-                                    href="{{ route('user.account') }}">My Account</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="py-2 link-body-emphasis text-decoration-none"
-                                    href="{{ route('logout') }}">Logout</a>
-                            </li>
-                        @else
-                            <li class="nav-item me-3">
-                                <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('login') ? 'active' : '' }}"
-                                    href="{{ route('login') }}">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('register') ? 'active' : '' }}"
-                                    href="{{ route('register.form') }}">Sign Up</a>
-                            </li>
-                        @endauth
-                    </ul>
-                </nav>
+                {{-- Right: Profile Dropdown --}}
+                @auth
+                @php
+                    $profilePicture = $Curruser['profile_picture']
+                        ? asset('images/profile_pictures/' . $Curruser['profile_picture']) 
+                        : asset('images/default.png');
+                @endphp
+                                <div class="menu position-relative">
+                        <button id="dropdownButton" class="nav-dropdown ">
+                        <img src="{{ $profilePicture }}" alt="Profile Picture" class="pfp" />
+                        </button>
+
+                        <div id="dropdownMenu" class="drop-down-menu d-none">
+                            <a href="{{ route('user.account') }}" class="drop-down-items">My Account</a>
+                            <a href="{{ route('predictions.index') }}" class="drop-down-items">My Predictions</a>
+                            <a href="{{ route('logout') }}" class="drop-down-items logout">Logout</a>
+                        </div>
+                    </div>
+
+                    {{-- JS: Toggle dropdown --}}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const button = document.getElementById('dropdownButton');
+                            const menu = document.getElementById('dropdownMenu');
+
+                            button.addEventListener('click', function (e) {
+                                e.stopPropagation();
+                                menu.classList.toggle('d-none');
+                            });
+
+                            document.addEventListener('click', function (e) {
+                                if (!button.contains(e.target) && !menu.contains(e.target)) {
+                                    menu.classList.add('d-none');
+                                }
+                            });
+                        });
+                    </script>
+                @endauth
+            </nav>
             </div>
 
             @if (!empty($pageHeader))
@@ -202,7 +216,6 @@
             </div>
         </div>
     </div>
-
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 
