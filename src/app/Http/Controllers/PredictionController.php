@@ -76,7 +76,10 @@ class PredictionController extends Controller
     }
 
     public function create(Request $request)
+
     {
+        $Curruser = Auth::user();
+        $cssPage = 'public/css/index.css';
         try {
             // Get all active stocks for the dropdown using the injected service
             //$stocks = $this->stockService->getStocks(true);
@@ -109,7 +112,9 @@ class PredictionController extends Controller
                 'isEditing' => false,
                 'prediction' => $prediction,
                 'pageTitle' => 'Create Prediction',
-                'hasPreselectedStock' => ($stockId && $symbol && $companyName)
+                'hasPreselectedStock' => ($stockId && $symbol && $companyName),
+                'Curruser' => $Curruser,
+                'cssPage' => $cssPage
             ]);
         } catch (Exception $e) {
             error_log("Error loading stock data: " . $e->getMessage());

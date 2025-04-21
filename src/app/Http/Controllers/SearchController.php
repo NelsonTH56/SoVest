@@ -43,6 +43,7 @@ class SearchController extends Controller
         $page = (int) $request->input('page', 1);
         $limit = 10;
         $offset = ($page - 1) * $limit;
+        $Curruser = Auth::user();
 
         // Detect prediction intent in search query
         $hasPredictionIntent = $this->detectPredictionIntent($query);
@@ -120,7 +121,8 @@ class SearchController extends Controller
             'searchHistory' => $searchHistory,
             'pageTitle' => $pageTitle,
             'hasPredictionIntent' => $hasPredictionIntent,
-            'predictionIntentDetected' => $hasPredictionIntent && $originalType === 'all'
+            'predictionIntentDetected' => $hasPredictionIntent && $originalType === 'all',
+            'Curruser' => $Curruser
         ]);
     }
 
