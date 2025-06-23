@@ -14,10 +14,6 @@ return new class extends Migration
             $table->string('password');
             $table->string('first_name', 100)->nullable();
             $table->string('last_name', 100)->nullable();
-            $table->string('major', 100)->nullable();
-            $table->string('year', 20)->nullable();
-            $table->string('scholarship', 50)->nullable();
-            $table->integer('reputation_score')->default(0);
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
