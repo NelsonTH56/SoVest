@@ -101,19 +101,31 @@
                     @endphp
                     <p class="mb-0"><strong>Status:</strong> <span class="badge {{ $statusClass }}">{{ $statusText }}</span></p>
 
-                    {{-- Upvotes --}}
-                    <div class="votes d-flex align-items-center">
-                        <button class="btn btn-sm me-2 vote-btn" 
-                                data-id="{{ $prediction->prediction_id }}" 
-                                data-action="upvote"><img src="/images/stock-market.png" class="stock-vote"></button>
+                    {{-- Voting --}}
+                    <div class="votes d-flex align-items-center gap-3">
+                        {{-- Upvotes --}}
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-sm me-2 vote-btn upvote-btn"
+                                    data-id="{{ $prediction->prediction_id }}"
+                                    data-action="upvote">
+                                <img src="/images/stock-market.png" class="stock-vote" alt="Upvote">
+                            </button>
+                            <span id="upvotes-{{ $prediction->prediction_id }}" class="text-success fw-bold">
+                                {{ $prediction->upvotes ?? 0 }}
+                            </span>
+                        </div>
 
-                        <span id="upvotes-{{ $prediction->prediction_id }}">
-                            {{ $prediction->upvotes ?? 0 }}
-                        </span>
-
-                        <!--<button class="btn btn-sm ms-2 vote-btn" 
-                                data-id="{{ $prediction->prediction_id }}" 
-                                data-action="downvote">⬇️</button> -->
+                        {{-- Downvotes --}}
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-sm me-2 vote-btn downvote-btn"
+                                    data-id="{{ $prediction->prediction_id }}"
+                                    data-action="downvote">
+                                <img src="/images/stock-market.png" class="stock-vote downvote-icon" alt="Downvote" style="transform: rotate(180deg);">
+                            </button>
+                            <span id="downvotes-{{ $prediction->prediction_id }}" class="text-danger fw-bold">
+                                {{ $prediction->downvotes ?? 0 }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -171,7 +183,7 @@
                                 .then(data => {
                                     if (data.success) {
                                         document.getElementById(`upvotes-${predictionId}`).textContent = data.upvotes;
-                                        // Optionally handle downvotes here too
+                                        document.getElementById(`downvotes-${predictionId}`).textContent = data.downvotes;
                                     }
                                 });
                         }

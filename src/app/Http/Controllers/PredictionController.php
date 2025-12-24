@@ -585,30 +585,44 @@ class PredictionController extends Controller
             return response()->json(['success' => false, 'message' => 'Error processing vote: ' . $e->getMessage()], 500);
         }
     }
+    /**
+     * Legacy upvote method - redirects to main vote() method
+     * Kept for backward compatibility with older routes
+     */
     public function upvote($predictionId)
-{
-    if (!auth()->check()) {
-        return response()->json(['error' => 'Unauthorized'], 403);
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Use the main vote method with proper PredictionVote tracking
+        $request = request();
+        $request->merge([
+            'prediction_id' => $predictionId,
+            'vote_type' => 'upvote'
+        ]);
+
+        return $this->vote($request);
     }
 
-    $prediction = Prediction::findOrFail($predictionId);
-    $prediction->upvotes = ($prediction->upvotes ?? 0) + 1;
-    $prediction->save();
-
-    return response()->json(['success' => true, 'upvotes' => $prediction->upvotes]);
-}
-
+    /**
+     * Legacy downvote method - redirects to main vote() method
+     * Kept for backward compatibility with older routes
+     */
     public function downvote($predictionId)
     {
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $prediction = Prediction::findOrFail($predictionId);
-        $prediction->upvotes = max(0, ($prediction->upvotes ?? 0) - 1);
-        $prediction->save();
+        // Use the main vote method with proper PredictionVote tracking
+        $request = request();
+        $request->merge([
+            'prediction_id' => $predictionId,
+            'vote_type' => 'downvote'
+        ]);
 
-        return response()->json(['success' => true, 'upvotes' => $prediction->upvotes]);
+        return $this->vote($request);
     }
     
     /**
@@ -714,55 +728,181 @@ class PredictionController extends Controller
     
     /**
      * API method to create a prediction
-     * 
+     *
      * Gets the current request and passes it to the store method.
      * Used by the apiHandler compatibility layer.
-     * 
+     *
      * @return void Outputs JSON response directly
      */
     public function apiStore()
     {
         try {
-            $req = request();
-            //TODO: write code to create a prediction from the api
+            $userId = Auth::id();
+
+            // Validate required fields for API
+            if (!request()->has('stock_id') || empty(request()->input('stock_id'))) {
+                return $this->jsonError("Missing required field: stock_id");
+            }
+            if (!request()->has('prediction_type') || empty(request()->input('prediction_type'))) {
+                return $this->jsonError("Missing required field: prediction_type");
+            }
+            if (!request()->has('end_date') || empty(request()->input('end_date'))) {
+                return $this->jsonError("Missing required field: end_date");
+            }
+            if (!request()->has('reasoning') || empty(request()->input('reasoning'))) {
+                return $this->jsonError("Missing required field: reasoning");
+            }
+
+            // Create a new Prediction model instance
+            $prediction = new Prediction([
+                'user_id' => $userId,
+                'stock_id' => request()->input('stock_id'),
+                'prediction_type' => request()->input('prediction_type'),
+                'target_price' => !empty(request()->input('target_price')) ?
+                                (float) request()->input('target_price') : null,
+                'end_date' => request()->input('end_date'),
+                'reasoning' => request()->input('reasoning'),
+                'prediction_date' => date('Y-m-d H:i:s'),
+                'is_active' => 1,
+                'accuracy' => null
+            ]);
+
+            // Use model validation
+            if ($prediction->validate()) {
+                // Validation passed, save the prediction
+                $prediction->save();
+
+                return $this->jsonSuccess("Prediction created successfully",
+                    ['prediction_id' => $prediction->prediction_id]);
+            } else {
+                // Get validation errors
+                $errors = $prediction->getErrors();
+
+                $errorMessage = "Validation failed: ";
+                foreach ($errors as $field => $fieldErrors) {
+                    foreach ($fieldErrors as $error) {
+                        $errorMessage .= $error . " ";
+                    }
+                }
+                return $this->jsonError(trim($errorMessage));
+            }
         } catch (Exception $e) {
-            return $this->jsonError($e->getMessage());
+            return $this->jsonError("Error creating prediction: " . $e->getMessage());
         }
     }
     
     /**
      * API method to update a prediction
-     * 
+     *
      * Gets the current request and passes it to the update method.
      * Used by the apiHandler compatibility layer.
-     * 
+     *
      * @return void Outputs JSON response directly
      */
     public function apiUpdate()
     {
         try {
-            $req = request();
-            //TODO: write code to update a prediction from the api
+            $userId = Auth::id();
+
+            // Validate prediction_id is provided
+            if (!request()->has('prediction_id') || empty(request()->input('prediction_id'))) {
+                return $this->jsonError("Missing required field: prediction_id");
+            }
+
+            $predictionId = request()->input('prediction_id');
+
+            // Check if prediction exists and belongs to user using Eloquent
+            $prediction = Prediction::where('prediction_id', $predictionId)
+                                  ->where('user_id', $userId)
+                                  ->first();
+
+            if (!$prediction) {
+                return $this->jsonError("Prediction not found or you don't have permission to edit it");
+            }
+
+            // Check if prediction can be edited (is still active)
+            if (!$prediction->is_active) {
+                return $this->jsonError("Cannot edit inactive predictions");
+            }
+
+            // Update prediction attributes - only update fields that are provided
+            if (request()->has('prediction_type') && !empty(request()->input('prediction_type'))) {
+                $prediction->prediction_type = request()->input('prediction_type');
+            }
+
+            if (request()->has('target_price')) {
+                $prediction->target_price = request()->input('target_price') !== '' ?
+                                (float) request()->input('target_price') : null;
+            }
+
+            if (request()->has('end_date') && !empty(request()->input('end_date'))) {
+                $prediction->end_date = request()->input('end_date');
+            }
+
+            if (request()->has('reasoning') && !empty(request()->input('reasoning'))) {
+                $prediction->reasoning = request()->input('reasoning');
+            }
+
+            // Use model validation
+            if ($prediction->validate()) {
+                // Validation passed, save the prediction
+                $prediction->save();
+
+                return $this->jsonSuccess("Prediction updated successfully",
+                    ['prediction_id' => $prediction->prediction_id]);
+            } else {
+                // Get validation errors
+                $errors = $prediction->getErrors();
+
+                $errorMessage = "Validation failed: ";
+                foreach ($errors as $field => $fieldErrors) {
+                    foreach ($fieldErrors as $error) {
+                        $errorMessage .= $error . " ";
+                    }
+                }
+                return $this->jsonError(trim($errorMessage));
+            }
         } catch (Exception $e) {
-            return $this->jsonError($e->getMessage());
+            return $this->jsonError("Error updating prediction: " . $e->getMessage());
         }
     }
     
     /**
      * API method to delete a prediction
-     * 
+     *
      * Gets the current request and passes it to the delete method.
      * Used by the apiHandler compatibility layer.
-     * 
+     *
      * @return void Outputs JSON response directly
      */
     public function apiDelete()
     {
         try {
-            $req = request();
-            //TODO: write code to delete a prediction from the api
+            $userId = Auth::id();
+
+            // Validate prediction_id is provided
+            if (!request()->has('prediction_id') || empty(request()->input('prediction_id'))) {
+                return $this->jsonError("Missing required field: prediction_id");
+            }
+
+            $predictionId = request()->input('prediction_id');
+
+            // Check if prediction exists and belongs to user using Eloquent
+            $prediction = Prediction::where('prediction_id', $predictionId)
+                                  ->where('user_id', $userId)
+                                  ->first();
+
+            if (!$prediction) {
+                return $this->jsonError("Prediction not found or you don't have permission to delete it");
+            }
+
+            // Delete prediction using Eloquent (cascading deletes handled by DB foreign keys)
+            $prediction->delete();
+
+            return $this->jsonSuccess("Prediction deleted successfully",
+                ['prediction_id' => $predictionId]);
         } catch (Exception $e) {
-            return $this->jsonError($e->getMessage());
+            return $this->jsonError("Error deleting prediction: " . $e->getMessage());
         }
     }
 }
