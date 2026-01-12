@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up()
     {
-        if(!Schema::hasColumn('users', 'bio')) {
-            $table->string('bio', 300)->nullable();  // Add bio column
-        };
+        Schema::table('users', function (Blueprint $table) {
+            if(!Schema::hasColumn('users', 'bio')) {
+                $table->string('bio', 300)->nullable();  // Add bio column
+            }
+        });
     }
     
     public function down()

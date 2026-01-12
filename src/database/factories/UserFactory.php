@@ -23,10 +23,6 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $majors = ['Computer Science', 'Business', 'Engineering', 'Biology', 'Psychology', 'Mathematics', 'English', 'Finance', 'Marketing', 'Economics'];
-        $years = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate'];
-        $scholarships = ['None', 'Partial', 'Full', 'Merit', 'Athletic'];
-        
         return [
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
@@ -34,10 +30,9 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             //'remember_token' => Str::random(10),
-            'major' => fake()->randomElement($majors),
-            'year' => fake()->randomElement($years),
-            'scholarship' => fake()->randomElement($scholarships),
             'reputation_score' => fake()->numberBetween(0, 100),
+            'bio' => fake()->optional()->sentence(),
+            'profile_picture' => null,
         ];
     }
 

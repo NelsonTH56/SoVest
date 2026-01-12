@@ -1,5 +1,26 @@
 @extends('layouts.app')
 
+@section('styles')
+<style>
+    .prediction-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .prediction-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .text-decoration-none {
+        color: inherit;
+    }
+
+    .text-decoration-none:hover {
+        color: inherit;
+    }
+</style>
+@endsection
+
 @section('content')
     <div class="container d-flex mt-5">
 
@@ -31,26 +52,25 @@
             </div>
         @else
             @foreach($predictions as $index => $prediction)
-            <div class="prediction-card p-4 border rounded mb-5 shadow-sm bg-white">
+            <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="text-decoration-none">
+                <div class="prediction-card p-4 border rounded mb-5 shadow-sm bg-white" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
 
-                @php
-                    $profilePicture = $prediction->user->profile_picture
-                        ? asset('images/profile_pictures/' . $prediction->user->profile_picture) 
-                        : asset('images/default.png');
-                @endphp
+                    @php
+                        $profilePicture = $prediction->user->profile_picture
+                            ? asset('images/profile_pictures/' . $prediction->user->profile_picture)
+                            : asset('images/default.png');
+                    @endphp
 
-                {{--  Top section: Profile on left, dates on right --}}
-                <div class="top-container-prediction d-flex justify-content-between align-items-start mb-3">
+                    {{--  Top section: Profile on left, dates on right --}}
+                    <div class="top-container-prediction d-flex justify-content-between align-items-start mb-3">
                     <div class="d-flex">
                             <img src="{{ $profilePicture }}" alt="User Picture" class="img-fluid rounded-circle" width="60" height="60"
                             style="border-radius: 50%; object-fit: cover;">
                         <div class="ms-3">
                             <div class="fw-bold">{{ $prediction->user->first_name }}</div>
-                            <!--<small class="text-muted">Reputation: {{ $prediction->user->reputation_score }}</small>-->
-                            <small class="text-muted d-block mb-1">Reputation: {{ $prediction->user->reputation_score }}%</small>
-                            <div class="progress reputation-progress" data-reputation="{{ $prediction->user->reputation_score }}" data-max-rep="50" style="height: 10px;">
-                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="{{ $prediction->user->reputation_score }}" aria-valuemin="0" aria-valuemax="50"></div>
-                            </div>
+                            <small class="text-muted d-block mb-1">
+                                <i class="bi bi-star-fill text-warning"></i> Reputation: {{ $prediction->user->reputation_score }} pts
+                            </small>
                         </div>
                     </div>
 
@@ -133,7 +153,8 @@
                 @if(isset($prediction['accuracy']) && $prediction['accuracy'] !== null)
                     <p class="mt-2 mb-0"><strong>Accuracy:</strong> {{ number_format($prediction['accuracy'], 2) }}%</p>
                 @endif
-            </div>
+                </div>
+            </a>
 
             @endforeach
             @endif
@@ -143,7 +164,10 @@
                     const voteButtons = document.querySelectorAll(".vote-btn");
 
                         voteButtons.forEach(button => {
-                            button.addEventListener("click", function () {
+                            button.addEventListener("click", function (event) {
+                                event.preventDefault(); // Prevent link navigation
+                                event.stopPropagation(); // Stop event from bubbling to parent link
+
                                 const predictionId = this.getAttribute('data-id');
                                 const voteType = this.getAttribute('data-action');
 
@@ -218,7 +242,7 @@
     
         @foreach($Userpredictions as $index => $prediction)
             <div class="user-prediction-card">
-                <a href="{{ route('predictions.index') }}" class="prediction-link">
+                <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="prediction-link">
                     <div class="prediction-card-body">
                         <h5 class="prediction-title">{{ $prediction->stock->company_name }}</h5>
                         <p class="prediction-price">Target Price: ${{ $prediction->target_price }}</p>

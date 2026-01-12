@@ -22,20 +22,24 @@
             </div>
         @else
             @foreach($predictions as $prediction)
-                <div class="prediction-card">
-                    <div class="prediction-header">
-                        <h4>{{ $prediction['symbol'] }} - {{ $prediction['company_name'] }}</h4>
-                        <span class="badge {{ $prediction['prediction_type'] == 'Bullish' ? 'bg-success' : 'bg-danger' }}">
-                            {{ $prediction['prediction_type'] }}
-                        </span>
-                    </div>
-                    <div class="prediction-body">
+                <a href="{{ route('predictions.view', ['id' => $prediction['prediction_id']]) }}" class="text-decoration-none">
+                    <div class="prediction-card" style="cursor: pointer;">
+                        <div class="prediction-header">
+                            <h4 class="text-light">{{ $prediction['symbol'] }} - {{ $prediction['company_name'] }}</h4>
+                            <span class="badge {{ $prediction['prediction_type'] == 'Bullish' ? 'bg-success' : 'bg-danger' }}">
+                                {{ $prediction['prediction_type'] }}
+                            </span>
+                        </div>
+                        <div class="prediction-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <p><strong>Created:</strong> {{ date('M j, Y', strtotime($prediction['prediction_date'])) }}</p>
                                 <p><strong>End Date:</strong> {{ date('M j, Y', strtotime($prediction['end_date'])) }}</p>
                                 @if(!empty($prediction['target_price']))
                                     <p><strong>Target Price:</strong> ${{ number_format($prediction['target_price'], 2) }}</p>
+                                @endif
+                                @if(isset($prediction['current_price']) && $prediction['current_price'] !== null)
+                                    <p><strong>Current Price:</strong> <span class="text-success">${{ number_format($prediction['current_price'], 2) }}</span></p>
                                 @endif
                             </div>
                             <div class="col-md-6">
@@ -73,14 +77,15 @@
                         @if($prediction['is_active'] == 1 && strtotime($prediction['end_date']) > time())
                             <div class="action-buttons mt-3">
                                 <a href="{{ route('predictions.edit', ['id' => $prediction['prediction_id']]) }}"
-                                    class="btn btn-sm btn-outline-primary">Edit</a>
+                                    class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">Edit</a>
                                 <button class="btn btn-sm btn-outline-danger delete-prediction"
                                     data-id="{{ $prediction['prediction_id'] }}" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal">Delete</button>
+                                    data-bs-target="#deleteModal" onclick="event.stopPropagation();">Delete</button>
                             </div>
                         @endif
+                        </div>
                     </div>
-                </div>
+                </a>
             @endforeach
         @endif
     </div>

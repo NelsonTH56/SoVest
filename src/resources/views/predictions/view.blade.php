@@ -181,12 +181,12 @@ HTML;
                     <!-- Owner actions -->
                     @if (Auth::check() && Auth::id() == $prediction['user_id'] && $isActive)
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('prediction.edit', ['id' => $prediction['prediction_id']]) }}" 
+                        <a href="{{ route('predictions.edit', ['id' => $prediction['prediction_id']]) }}"
                            class="btn btn-outline-primary me-2">
                             <i class="bi bi-pencil"></i> Edit
                         </a>
-                        <button type="button" class="btn btn-outline-danger delete-prediction" 
-                                data-id="{{ $prediction['prediction_id'] }}" 
+                        <button type="button" class="btn btn-outline-danger delete-prediction"
+                                data-id="{{ $prediction['prediction_id'] }}"
                                 data-bs-toggle="modal" data-bs-target="#deleteModal">
                             <i class="bi bi-trash"></i> Delete
                         </button>
@@ -197,8 +197,8 @@ HTML;
             
             <!-- Back button -->
             <div class="mb-4">
-                <a href="{{ route('prediction.trending') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Trending
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
                 </a>
             </div>
         </div>
@@ -211,23 +211,23 @@ HTML;
                     <h5 class="mb-0">Stock Information</h5>
                 </div>
                 <div class="card-body">
-                    <h3>{{ $prediction['stock']['symbol'] }}</h3>
-                    <p class="text-muted">{{ $prediction['stock']['company_name'] }}</p>
-                    
+                    <h3>{{ $prediction['stock']['symbol'] ?? $prediction['symbol'] ?? 'N/A' }}</h3>
+                    <p class="text-muted">{{ $prediction['stock']['company_name'] ?? $prediction['company_name'] ?? 'N/A' }}</p>
+
                     @if (isset($prediction['stock']['sector']))
                     <div class="mb-3">
                         <strong>Sector:</strong> {{ $prediction['stock']['sector'] }}
                     </div>
                     @endif
-                    
+
                     @if (isset($prediction['stock']['current_price']))
                     <div class="mb-3">
                         <strong>Current Price:</strong> ${{ number_format($prediction['stock']['current_price'], 2) }}
                     </div>
                     @endif
-                    
+
                     <div class="mt-4">
-                        <a href="{{ route('search', ['symbol' => $prediction['stock']['symbol']]) }}" class="btn btn-outline-primary btn-sm">
+                        <a href="{{ route('search', ['symbol' => $prediction['stock']['symbol'] ?? $prediction['symbol']]) }}" class="btn btn-outline-primary btn-sm">
                             View Stock Details
                         </a>
                     </div>
@@ -246,13 +246,15 @@ HTML;
                     @if (isset($prediction['user']['reputation_score']))
                         {!! renderReputationScore($prediction['user']['reputation_score']) !!}
                     @endif
-                    
+
                     <!-- If user has other predictions, show link -->
+                    {{-- Uncomment when user.predictions route is created
                     <div class="mt-3">
                         <a href="{{ route('user.predictions', ['id' => $prediction['user_id']]) }}" class="btn btn-outline-secondary btn-sm">
                             View User's Predictions
                         </a>
                     </div>
+                    --}}
                 </div>
             </div>
         </div>

@@ -56,6 +56,11 @@ class PredictionController extends Controller
                 $predictionData = $prediction->toArray();
                 $predictionData['symbol'] = $prediction->stock->symbol;
                 $predictionData['company_name'] = $prediction->stock->company_name;
+
+                // Fetch latest stock price
+                $latestPrice = $this->stockService->getLatestPrice($prediction->stock->symbol);
+                $predictionData['current_price'] = $latestPrice !== false ? $latestPrice : null;
+
                 return $predictionData;
             })->toArray();
 
@@ -404,11 +409,11 @@ class PredictionController extends Controller
     /**
      * Show a specific prediction
      */
-    public function view(Request $request)
+    public function view(Request $request, int $id = null)
     {
-        // Get the prediction ID from the request
-        $predictionId = $request->input('id');
-        
+        // Get the prediction ID from route parameter or request input
+        $predictionId = $id ?? $request->input('id');
+
         if (!$predictionId) {
             $this->withError("Missing prediction ID");
             return $this->responseFormatter->redirect('/predictions/trending');
@@ -419,25 +424,32 @@ class PredictionController extends Controller
             $prediction = Prediction::with(['stock', 'user', 'votes'])
                                   ->where('prediction_id', $predictionId)
                                   ->first();
-            
+
             if (!$prediction) {
                 $this->withError("Prediction not found");
                 return $this->responseFormatter->redirect('/predictions/trending');
             }
-            
+
             // Format data for the view
             $predictionData = $prediction->toArray();
             $predictionData['username'] = $prediction->user->first_name . ' ' . $prediction->user->last_name;
             $predictionData['upvotes'] = $prediction->votes->where('vote_type', 'upvote')->count();
             $predictionData['downvotes'] = $prediction->votes->where('vote_type', 'downvote')->count();
-            
+
+            // Fetch latest stock price and add to prediction data
+            $latestPrice = $this->stockService->getLatestPrice($prediction->stock->symbol);
+            if ($latestPrice !== false) {
+                $predictionData['stock']['current_price'] = $latestPrice;
+            }
+
             // Include prediction score display component
             require_once __DIR__ . '/../../includes/prediction_score_display.php';
-            
+
             // Render the view with the prediction data
             return view('predictions/view', [
                 'prediction' => $predictionData,
-                'pageTitle' => $prediction->stock->symbol . ' ' . $prediction->prediction_type . ' Prediction'
+                'pageTitle' => $prediction->stock->symbol . ' ' . $prediction->prediction_type . ' Prediction',
+                'Curruser' => Auth::user()
             ]);
         } catch (Exception $e) {
             $this->withError("Error retrieving prediction: " . $e->getMessage());
@@ -458,6 +470,7 @@ class PredictionController extends Controller
                     'users.id as user_id',
                     'users.reputation_score',
                     'stocks.symbol',
+                    'stocks.stock_id',
                     'predictions.prediction_type as prediction',
                     'predictions.accuracy',
                     'predictions.target_price',
@@ -470,7 +483,7 @@ class PredictionController extends Controller
                     $query->where('vote_type', 'upvote');
                 }])
                 ->addSelect([
-                    'users.first_name', 
+                    'users.first_name',
                     'users.last_name'
                 ])
                 ->where(function($query) {
@@ -485,11 +498,16 @@ class PredictionController extends Controller
                 ->orderBy('predictions.prediction_date', 'desc')
                 ->limit(15)
                 ->get();
-            
-            // Map the results to include the full name as username
+
+            // Map the results to include the full name as username and fetch latest stock prices
             $trending_predictions = $trending_predictions->map(function($prediction) {
                 $prediction = $prediction->toArray();
                 $prediction['username'] = $prediction['first_name'] . ' ' . $prediction['last_name'];
+
+                // Fetch latest stock price
+                $latestPrice = $this->stockService->getLatestPrice($prediction['symbol']);
+                $prediction['current_price'] = $latestPrice !== false ? $latestPrice : null;
+
                 return $prediction;
             })->toArray();
             

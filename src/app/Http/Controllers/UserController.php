@@ -118,7 +118,6 @@ class UserController extends Controller
         $Curruser = [
             'username' => $userData['email'],
             'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
-            //'bio' => $userData['major'] ? $userData['major'] . ' | ' . $userData['year'] : 'Stock enthusiast',
             'profile_picture' => $userData['profile_picture'],
             'reputation_score' => isset($userData['reputation_score']) ? $userData['reputation_score'] : 0,
             'avg_accuracy' => $userStats['avg_accuracy'],
