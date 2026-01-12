@@ -7,7 +7,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>@yield('title', $pageTitle ?? 'SoVest')</title>
 
-	<!-- Bootstrap CSS -->
+	<!-- Vite Assets -->
+	@vite(['resources/css/app.css', 'resources/js/app.js'])
+
+	<!-- Bootstrap CSS (for backward compatibility) -->
 	<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
 
 	<!-- Favicon -->
@@ -15,13 +18,14 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo.png') }}">
 	<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logo.png') }}">
 	<link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
-    <!--main css file -->
-    <link rel="stylesheet" href = "css/index.css">
+
+    <!-- Main CSS file (legacy) -->
+    <link rel="stylesheet" href="css/index.css">
+
     <!-- Page-specific CSS -->
-     
 	@if (isset($pageCss))
 		<link href="{{ asset($pageCss) }}" rel="stylesheet">
-	@endif 
+	@endif
 
 	<!-- Yield and stack for styles -->
 	@yield('styles')

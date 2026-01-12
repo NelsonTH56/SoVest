@@ -18,8 +18,8 @@ class RegistrationValidationTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/register')
-                    ->assertSee('Create Account')
-                    ->press('Create Account')
+                    ->assertSee('New User Registration')
+                    ->press('Submit')
                     ->pause(1000)
                     ->assertPresent('.alert-danger');
         });
@@ -32,17 +32,13 @@ class RegistrationValidationTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/register')
-                    ->assertSee('Create Account') 
+                    ->assertSee('New User Registration')
                     ->type('firstName', 'Test')
                     ->type('lastName', 'User')
                     ->type('newEmail', 'invalid-email')
                     ->type('newPass', 'password123')
                     ->type('confirmPass', 'password123')
-                    ->type('newMajor', 'Computer Science')
-                    ->type('newYear', 'Senior')
-                    ->type('newScholarship', 'Merit')
-                    ->check('termsAgreement')
-                    ->press('Create Account')
+                    ->press('Submit')
                     ->pause(1000)
                     ->assertSee('Please enter a valid email address')
                     ->assertPresent('.alert-danger');
@@ -56,43 +52,35 @@ class RegistrationValidationTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/register')
-                    ->assertSee('Create Account')
+                    ->assertSee('New User Registration')
                     ->type('firstName', 'Test')
                     ->type('lastName', 'User')
                     ->type('newEmail', 'test@example.com')
                     ->type('newPass', 'short')
                     ->type('confirmPass', 'short')
-                    ->type('newMajor', 'Computer Science')
-                    ->type('newYear', 'Senior')
-                    ->type('newScholarship', 'Merit')
-                    ->check('termsAgreement')
-                    ->press('Create Account')
+                    ->press('Submit')
                     ->pause(1000)
-                    ->assertSee('Password must be at least 6 characters long')
+                    ->assertSee('Password must be at least 8 characters long')
                     ->assertPresent('.alert-danger');
         });
     }
 
     /**
-     * Test validation for terms agreement checkbox
+     * Test validation for password mismatch
      */
-    public function testTermsAgreementValidation(): void
+    public function testPasswordMismatchValidation(): void
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/register')
-                    ->assertSee('Create Account')
+                    ->assertSee('New User Registration')
                     ->type('firstName', 'Test')
                     ->type('lastName', 'User')
                     ->type('newEmail', 'test@example.com')
                     ->type('newPass', 'password123')
-                    ->type('confirmPass', 'password123')
-                    ->type('newMajor', 'Computer Science')
-                    ->type('newYear', 'Senior')
-                    ->type('newScholarship', 'Merit')
-                    // Intentionally not checking termsAgreement
-                    ->press('Create Account')
+                    ->type('confirmPass', 'differentpassword')
+                    ->press('Submit')
                     ->pause(1000)
-                    ->assertSee('Please check your information and try again')
+                    ->assertSee('Passwords do not match')
                     ->assertPresent('.alert-danger');
         });
     }
@@ -103,23 +91,19 @@ class RegistrationValidationTest extends DuskTestCase
     public function testSuccessfulRegistration(): void
     {
         $uniqueEmail = 'test_' . time() . '@example.com';
-        
+
         $this->browse(function (Browser $browser) use ($uniqueEmail) {
             $browser->visit('/register')
-                    ->assertSee('Create Account')
+                    ->assertSee('New User Registration')
                     ->type('firstName', 'Test')
                     ->type('lastName', 'User')
                     ->type('newEmail', $uniqueEmail)
                     ->type('newPass', 'password123')
                     ->type('confirmPass', 'password123')
-                    ->type('newMajor', 'Computer Science')
-                    ->type('newYear', 'Senior')
-                    ->type('newScholarship', 'Merit')
-                    ->check('termsAgreement')
-                    ->press('Create Account')
-                    ->pause(1000)
-                    ->assertPathIs('/login');
-                    
+                    ->press('Submit')
+                    ->pause(2000)
+                    ->assertPathIs('/home');
+
             // Verify the user was created in the database
             $this->assertDatabaseHas('users', [
                 'email' => $uniqueEmail

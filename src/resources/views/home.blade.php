@@ -111,7 +111,7 @@
                             {{ $prediction->upvotes ?? 0 }}
                         </span>
 
-                        <!--<button class="btn btn-sm ms-2 vote-btn" 
+                        <!-- <button class="btn btn-sm ms-2 vote-btn" 
                                 data-id="{{ $prediction->prediction_id }}" 
                                 data-action="downvote">⬇️</button> -->
                     </div>

@@ -14,10 +14,15 @@ Route::get('/about', [MainController::class, 'about'])->name('about');
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::post('/prediction/vote', [PredictionController::class, 'vote'])->name('prediction.vote');
-Route::get('/register', [AuthController::class, 'registerForm'])->name('register.form');
-Route::post('/register/submit', [AuthController::class, 'register'])->name('register.submit');
-Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
-Route::post('/login/submit', [AuthController::class, 'login'])->name('login.submit');
+
+// Authentication routes with rate limiting (5 attempts per minute)
+Route::middleware('throttle:5,1')->group(function () {
+    Route::get('/register', [AuthController::class, 'registerForm'])->name('register.form');
+    Route::post('/register/submit', [AuthController::class, 'register'])->name('register.submit');
+    Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
+    Route::post('/login/submit', [AuthController::class, 'login'])->name('login.submit');
+});
+
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::patch('/user/update-bio', [UserController::class, 'updateBio'])->name('user.updateBio');
 
@@ -51,8 +56,9 @@ Route::controller(PredictionController::class)->group(function () {
     
 });
 
-// API routes
-Route::prefix('api')->middleware('api')->name('api.')->group(function () {
+// API routes with rate limiting
+// 60 requests per 1 minute for general API endpoints
+Route::prefix('api')->middleware(['api', 'throttle:120,1'])->name('api.')->group(function () {
     Route::match(['GET', 'POST'], '/predictions', [PredictionController::class, 'apiHandler'])->name('predictions');
     Route::post('/predictions/create', [PredictionController::class, 'store'])->name('predictions.create');
     Route::post('/predictions/update', [PredictionController::class, 'update'])->name('predictions.update')->middleware('prediction.owner');
@@ -61,6 +67,10 @@ Route::prefix('api')->middleware('api')->name('api.')->group(function () {
     Route::get('/predictions/get', [PredictionController::class, 'apiGetPrediction'])->name('predictions.get');
     Route::get('/search', [SearchController::class, 'search'])->name('search');
     Route::get('/search_stocks', [SearchController::class, 'searchStocks'])->name('search.stocks');
+    Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
+    Route::post('/search/save', [SearchController::class, 'saveSearch'])->name('search.save');
+    Route::post('/search/clear-history', [SearchController::class, 'clearHistory'])->name('search.clearHistory');
+    Route::post('/search/remove-saved', [SearchController::class, 'removeSavedSearch'])->name('search.removeSaved');
     Route::get('/stocks', [SearchController::class, 'stocks'])->name('stocks');
     Route::get('/stocks/{symbol}', [SearchController::class, 'getStock'])->name('stocks.get')
         ->where('symbol', '[A-Z]{1,5}');

@@ -9,6 +9,7 @@ use App\Models\Prediction;
 use App\Models\Stock;
 use App\Models\User;
 use App\Models\PredictionVote;
+use App\Models\PredictionComment;
 use App\Services\Interfaces\StockDataServiceInterface;
 use App\Services\Interfaces\ResponseFormatterInterface;
 use Exception;
@@ -38,18 +39,7 @@ class PredictionController extends Controller
             $predictions = Prediction::with('stock')
                 ->where('user_id', $userId)
                 ->orderBy('prediction_date', 'desc')
-                ->get()
-                
-                /**$predictions = Prediction::withCount([
-                    'votes as upvotes_count' => function ($query) {
-                    $query->where('vote_type', 'upvote');
-                    },
-                    'votes as downvotes_count' => function ($query) {
-                    $query->where('vote_type', 'downvote');
-                    },
-                ])->get(); 
-                chat said something about this. look into it.
-                */;
+                ->get();
 
             // Format data for the view
             $formattedPredictions = $predictions->map(function ($prediction) {
@@ -404,40 +394,49 @@ class PredictionController extends Controller
     /**
      * Show a specific prediction
      */
-    public function view(Request $request)
+    public function view(Request $request, $id = null)
     {
-        // Get the prediction ID from the request
-        $predictionId = $request->input('id');
-        
+        // Get the prediction ID from the route parameter or request input
+        $predictionId = $id ?? $request->input('id');
+
         if (!$predictionId) {
             $this->withError("Missing prediction ID");
             return $this->responseFormatter->redirect('/predictions/trending');
         }
-        
+
         try {
             // Use Eloquent with eager loading to get prediction with related data
             $prediction = Prediction::with(['stock', 'user', 'votes'])
                                   ->where('prediction_id', $predictionId)
                                   ->first();
-            
+
             if (!$prediction) {
                 $this->withError("Prediction not found");
                 return $this->responseFormatter->redirect('/predictions/trending');
             }
-            
+
             // Format data for the view
             $predictionData = $prediction->toArray();
             $predictionData['username'] = $prediction->user->first_name . ' ' . $prediction->user->last_name;
             $predictionData['upvotes'] = $prediction->votes->where('vote_type', 'upvote')->count();
             $predictionData['downvotes'] = $prediction->votes->where('vote_type', 'downvote')->count();
-            
+
+            // Get comments for this prediction (top-level comments with replies)
+            $comments = PredictionComment::with(['user', 'replies.user'])
+                ->where('prediction_id', $predictionId)
+                ->whereNull('parent_comment_id')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
             // Include prediction score display component
             require_once __DIR__ . '/../../includes/prediction_score_display.php';
-            
+
             // Render the view with the prediction data
             return view('predictions/view', [
                 'prediction' => $predictionData,
-                'pageTitle' => $prediction->stock->symbol . ' ' . $prediction->prediction_type . ' Prediction'
+                'comments' => $comments,
+                'pageTitle' => $prediction->stock->symbol . ' ' . $prediction->prediction_type . ' Prediction',
+                'Curruser' => Auth::user()
             ]);
         } catch (Exception $e) {
             $this->withError("Error retrieving prediction: " . $e->getMessage());
@@ -724,7 +723,7 @@ class PredictionController extends Controller
     {
         try {
             $req = request();
-            //TODO: write code to create a prediction from the api
+            return $this->store($req);
         } catch (Exception $e) {
             return $this->jsonError($e->getMessage());
         }
@@ -742,7 +741,8 @@ class PredictionController extends Controller
     {
         try {
             $req = request();
-            //TODO: write code to update a prediction from the api
+            $predictionId = $req->input('prediction_id') ?? $req->input('id');
+            return $this->update($req, $predictionId);
         } catch (Exception $e) {
             return $this->jsonError($e->getMessage());
         }
@@ -760,7 +760,8 @@ class PredictionController extends Controller
     {
         try {
             $req = request();
-            //TODO: write code to delete a prediction from the api
+            $predictionId = $req->input('prediction_id') ?? $req->input('id');
+            return $this->delete($req, $predictionId);
         } catch (Exception $e) {
             return $this->jsonError($e->getMessage());
         }
