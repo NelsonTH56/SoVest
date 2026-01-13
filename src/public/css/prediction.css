@@ -52,13 +52,18 @@
 .step.completed .step-number {
     background: #10b981;
     border-color: #10b981;
-    color: white;
+    color: transparent;
+    position: relative;
 }
 
 .step.completed .step-number::after {
     content: "✓";
     position: absolute;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    color: white;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .step-label {
