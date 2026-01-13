@@ -186,4 +186,111 @@ button:disabled {
     .validation-tooltip {
         font-size: 12px;
     }
+    .comment-section {
+            margin-top: 2rem;
+        }
+        .comment-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .comment-author-name {
+            font-weight: 600;
+            color: #fff;
+        }
+        .comment-reputation {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .comment-reputation .badge {
+            font-size: 0.75rem;
+        }
+        .comment-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .comment-content {
+            color: #e0e0e0;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+        .comment-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .comment-actions button {
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0;
+        }
+        .comment-actions button:hover {
+            color: #667eea;
+        }
+        .reply-container {
+            margin-left: 2rem;
+            padding-left: 1rem;
+            border-left: 2px solid rgba(102, 126, 234, 0.3);
+        }
+        .reply-form {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .reply-form.show {
+            display: block;
+        }
+        .comment-form textarea {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            resize: vertical;
+            min-height: 80px;
+        }
+        .comment-form textarea:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #667eea;
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .comment-form textarea::placeholder {
+            color: #6c757d;
+        }
+        .char-counter {
+            font-size: 0.8rem;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+        .char-counter.warning {
+            color: #ffc107;
+        }
+        .char-counter.danger {
+            color: #dc3545;
+        }
+        .no-comments {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        .no-comments i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
 }
