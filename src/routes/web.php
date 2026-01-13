@@ -12,6 +12,7 @@ use App\Http\Controllers\StockController;
 
 Route::get('/', [MainController::class, 'index'])->name('landing');
 Route::get('/about', [MainController::class, 'about'])->name('about');
+Route::get('/scoring-algorithm', [MainController::class, 'scoringAlgorithm'])->name('scoring.algorithm');
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/stocks/{symbol}', [StockController::class, 'show'])->name('stocks.show')->where('symbol', '[A-Za-z]{1,5}');
@@ -31,6 +32,7 @@ Route::patch('/user/update-bio', [UserController::class, 'updateBio'])->name('us
 
 Route::get('/home', [UserController::class, 'home'])->name('user.home')->middleware('auth');
 Route::get('/account', [UserController::class, 'account'])->name('user.account')->middleware('auth');
+Route::get('/settings', [UserController::class, 'settings'])->name('user.settings')->middleware('auth');
 Route::get('/leaderboard', [UserController::class, 'leaderboard'])->name('user.leaderboard')->middleware('auth');
 Route::post('/profile/upload-photo', [UserController::class, 'uploadPhoto'])->name('user.profile.uploadPhoto');
 Route::controller(PredictionController::class)->group(function () {

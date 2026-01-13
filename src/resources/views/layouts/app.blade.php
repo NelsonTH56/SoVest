@@ -56,6 +56,10 @@
                         <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('predictions/trending') ? 'active' : '' }}"
                             href="{{ route('predictions.trending') }}">Trending</a>
                     </li>
+                    <li class="nav-item me-3">
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('scoring-algorithm') ? 'active' : '' }}"
+                            href="{{ route('scoring.algorithm') }}">Scoring Algo 101</a>
+                    </li>
                     <!-- REDIRECTING TO HOME PAGE FOR SOME REASON
                     <li class="nav-item me-3">
                         <a class="py-2 link-body-emphasis text-decoration-none {{ Route::is('user.leaderboard') ? 'active' : '' }}"
@@ -78,6 +82,7 @@
                         <div id="dropdownMenu" class="drop-down-menu d-none">
                             <a href="{{ route('user.account') }}" class="drop-down-items">My Account</a>
                             <a href="{{ route('predictions.index') }}" class="drop-down-items">My Predictions</a>
+                            <a href="{{ route('user.settings') }}" class="drop-down-items">Settings</a>
                             <a href="{{ route('logout') }}" class="drop-down-items logout">Logout</a>
                         </div>
                     </div>
@@ -223,6 +228,16 @@
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 
+    <!-- Global Dark Mode Script -->
+    <script>
+        // Apply dark mode on page load if enabled
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+    </script>
 
     <!-- Page-specific JavaScript -->
     @if (isset($pageJs))

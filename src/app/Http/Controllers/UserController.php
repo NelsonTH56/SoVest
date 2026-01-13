@@ -277,12 +277,42 @@ class UserController extends Controller
         $request->validate([
             'bio' => 'nullable|string|max:300',
         ]);
-    
+
         $user = Auth::user(); // Get the currently authenticated user
         $user->bio = $request->input('bio'); // Update the bio field
         $user->save(); // Save the updated user
-    
+
         return back()->with('success', 'Bio updated successfully.');
+    }
+
+    /**
+     * Display settings page
+     *
+     * @return \Illuminate\View\View
+     */
+    public function settings()
+    {
+        $userData = Auth::user();
+        $userID = Auth::id();
+
+        // Get user statistics
+        $userStats = $this->scoringService->getUserPredictionStats($userID);
+
+        // Prepare user data for display
+        $Curruser = [
+            'id' => $userData['id'],
+            'username' => $userData['email'],
+            'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
+            'first_name' => $userData['first_name'],
+            'last_name' => $userData['last_name'],
+            'email' => $userData['email'],
+            'profile_picture' => $userData['profile_picture'],
+            'reputation_score' => isset($userData['reputation_score']) ? $userData['reputation_score'] : 0,
+            'bio' => $userData['bio'],
+            'created_at' => $userData['created_at']
+        ];
+
+        return view('settings', compact('Curruser', 'userStats'));
     }
 
 }

@@ -42,4 +42,15 @@ class MainController extends Controller
     {
         return view('about');
     }
+
+    /**
+     * Display the scoring algorithm explanation page
+     *
+     * @return \Illuminate\View\View
+     */
+    public function scoringAlgorithm()
+    {
+        $Curruser = Auth::user();
+        return view('scoring-algorithm', compact('Curruser'));
+    }
 }
