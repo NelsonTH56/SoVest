@@ -363,3 +363,61 @@ function removeSavedSearch(searchId, listItem) {
         alert('An error occurred while removing the saved search.');
     });
 }
+
+/**
+ * Fetch stock price on demand
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const fetchPriceBtns = document.querySelectorAll('.fetch-price-btn');
+
+    fetchPriceBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const symbol = this.getAttribute('data-symbol');
+            const priceDisplay = document.querySelector(`.price-display[data-symbol="${symbol}"]`);
+
+            // Disable button and show loading
+            this.disabled = true;
+            this.innerHTML = '<i class="bi bi-hourglass-split"></i> Fetching...';
+
+            // Fetch price from API
+            fetch('/api/fetch_stock_price', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                },
+                body: JSON.stringify({ symbol: symbol })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data && data.data.price) {
+                    // Hide button
+                    this.classList.add('d-none');
+
+                    // Show price
+                    const priceValue = priceDisplay.querySelector('.price-value');
+                    priceValue.textContent = data.data.price.toFixed(2);
+                    priceDisplay.classList.remove('d-none');
+                } else {
+                    this.innerHTML = '<i class="bi bi-x-circle"></i> Failed';
+                    this.classList.replace('btn-outline-info', 'btn-outline-danger');
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-download"></i> Retry';
+                        this.classList.replace('btn-outline-danger', 'btn-outline-info');
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching price:', error);
+                this.innerHTML = '<i class="bi bi-x-circle"></i> Error';
+                this.classList.replace('btn-outline-info', 'btn-outline-danger');
+                setTimeout(() => {
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-download"></i> Retry';
+                    this.classList.replace('btn-outline-danger', 'btn-outline-info');
+                }, 2000);
+            });
+        });
+    });
+});

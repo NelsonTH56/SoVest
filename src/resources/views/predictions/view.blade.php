@@ -295,6 +295,7 @@ HTML;
                             {!! renderReputationScore($prediction['user']['reputation_score']) !!}
                         @endif
                     </div>
+                    --}}
                 </div>
             </div>
         </div>

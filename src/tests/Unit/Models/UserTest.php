@@ -38,9 +38,6 @@ class UserTest extends TestCase
             'password' => 'password123',
             'first_name' => 'Test',
             'last_name' => 'User',
-            'major' => 'Computer Science',
-            'year' => 'Junior',
-            'scholarship' => 'None',
             'reputation_score' => 0
         ]);
     }

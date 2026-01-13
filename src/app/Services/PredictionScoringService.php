@@ -14,6 +14,8 @@ use App\Models\User;
 use App\Models\Prediction;
 use App\Models\Stock;
 use App\Models\StockPrice;
+use App\Mail\PredictionEvaluated;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Capsule\Manager as DB;
 use Carbon\Carbon;
 
@@ -116,10 +118,16 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
             $predictionModel->accuracy = $accuracy;
             $predictionModel->is_active = 0;
             $predictionModel->save();
-            
+
+            // Calculate reputation change before updating
+            $reputationChange = $this->calculateReputationPoints($accuracy);
+
             // Update user reputation score
             $this->updateUserReputation($userId, $accuracy);
-            
+
+            // Send email notification to user
+            $this->sendEvaluationEmail($predictionModel, $accuracy, $reputationChange);
+
             return true;
         } catch (\Exception $e) {
             error_log("Error evaluating prediction: " . $e->getMessage());
@@ -176,12 +184,16 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
         try {
             // Calculate reputation points based on accuracy
             $reputationChange = $this->calculateReputationPoints($accuracy);
-            
+
             // Update user reputation score using Eloquent
             $user = User::find($userId);
             $user->reputation_score = $user->reputation_score + $reputationChange;
             $user->save();
-            
+
+            // Clear leaderboard cache when user reputation changes
+            cache()->forget('leaderboard:top_users');
+            cache()->forget("user:stats:{$userId}");
+
             return true;
         } catch (\Exception $e) {
             error_log("Error updating user reputation: " . $e->getMessage());
@@ -207,6 +219,58 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
             return 0;   // Poor prediction
         } else {
             return -2;  // Very poor prediction
+        }
+    }
+
+    /**
+     * Send email notification to user about prediction evaluation
+     *
+     * @param Prediction $prediction The evaluated prediction
+     * @param float $accuracy The accuracy score
+     * @param int $reputationChange The reputation points gained/lost
+     * @return void
+     */
+    private function sendEvaluationEmail($prediction, $accuracy, $reputationChange) {
+        try {
+            // Load related data
+            $user = User::find($prediction->user_id);
+            $stock = Stock::find($prediction->stock_id);
+
+            if (!$user || !$user->email || !$stock) {
+                error_log("Cannot send email: Missing user or stock data for prediction {$prediction->prediction_id}");
+                return;
+            }
+
+            // Prepare data for email
+            $predictionData = [
+                'prediction_id' => $prediction->prediction_id,
+                'prediction_type' => $prediction->prediction_type,
+                'target_price' => $prediction->target_price,
+                'end_date' => $prediction->end_date,
+                'reasoning' => $prediction->reasoning,
+            ];
+
+            $userData = [
+                'id' => $user->id,
+                'email' => $user->email,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+            ];
+
+            $stockData = [
+                'stock_id' => $stock->stock_id,
+                'symbol' => $stock->symbol,
+                'company_name' => $stock->company_name,
+            ];
+
+            // Send email (queued for better performance)
+            Mail::to($user->email)->queue(
+                new PredictionEvaluated($predictionData, $userData, $stockData, $accuracy, $reputationChange)
+            );
+
+        } catch (\Exception $e) {
+            // Log error but don't fail the evaluation process
+            error_log("Error sending evaluation email: " . $e->getMessage());
         }
     }
     

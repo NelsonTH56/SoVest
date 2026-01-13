@@ -6,13 +6,16 @@ use App\Http\Controllers\MainController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\StockController;
 
 // We're not really using routes here we just want to redirect to main.php
 
 Route::get('/', [MainController::class, 'index'])->name('landing');
 Route::get('/about', [MainController::class, 'about'])->name('about');
+Route::get('/scoring-algorithm', [MainController::class, 'scoringAlgorithm'])->name('scoring.algorithm');
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/stocks/{symbol}', [StockController::class, 'show'])->name('stocks.show')->where('symbol', '[A-Za-z]{1,5}');
 Route::post('/prediction/vote', [PredictionController::class, 'vote'])->name('prediction.vote');
 
 // Authentication routes with rate limiting (5 attempts per minute)
@@ -29,6 +32,7 @@ Route::patch('/user/update-bio', [UserController::class, 'updateBio'])->name('us
 
 Route::get('/home', [UserController::class, 'home'])->name('user.home')->middleware('auth');
 Route::get('/account', [UserController::class, 'account'])->name('user.account')->middleware('auth');
+Route::get('/settings', [UserController::class, 'settings'])->name('user.settings')->middleware('auth');
 Route::get('/leaderboard', [UserController::class, 'leaderboard'])->name('user.leaderboard')->middleware('auth');
 Route::post('/profile/upload-photo', [UserController::class, 'uploadPhoto'])->name('user.profile.uploadPhoto');
 Route::controller(PredictionController::class)->group(function () {
@@ -71,6 +75,7 @@ Route::prefix('api')->middleware(['api', 'throttle:120,1'])->name('api.')->group
     Route::post('/search/save', [SearchController::class, 'saveSearch'])->name('search.save');
     Route::post('/search/clear-history', [SearchController::class, 'clearHistory'])->name('search.clearHistory');
     Route::post('/search/remove-saved', [SearchController::class, 'removeSavedSearch'])->name('search.removeSaved');
+    Route::post('/fetch_stock_price', [SearchController::class, 'fetchStockPrice'])->name('fetch.stock.price');
     Route::get('/stocks', [SearchController::class, 'stocks'])->name('stocks');
     Route::get('/stocks/{symbol}', [SearchController::class, 'getStock'])->name('stocks.get')
         ->where('symbol', '[A-Z]{1,5}');

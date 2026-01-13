@@ -21,7 +21,18 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Evaluate expired predictions every hour
+        $schedule->command('predictions:evaluate')
+                 ->hourly()
+                 ->withoutOverlapping()
+                 ->runInBackground();
+
+        // Optional: Run more frequently during market hours (9 AM - 4 PM EST)
+        // $schedule->command('predictions:evaluate')
+        //          ->cron('0 9-16 * * 1-5') // Every hour from 9 AM to 4 PM, Mon-Fri
+        //          ->timezone('America/New_York')
+        //          ->withoutOverlapping()
+        //          ->runInBackground();
     }
 
     /**

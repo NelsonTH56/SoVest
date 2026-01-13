@@ -374,4 +374,45 @@ class SearchController extends Controller
             return $this->jsonError('Error searching for stocks: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Fetch stock price via AJAX
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function fetchStockPrice(Request $request)
+    {
+        $symbol = $request->input('symbol');
+
+        if (empty($symbol)) {
+            return $this->jsonError('Stock symbol is required');
+        }
+
+        try {
+            // Try to get from database first
+            $latestPrice = $this->stockDataService->getLatestPrice($symbol);
+
+            // If not in database, fetch from API
+            if ($latestPrice === false) {
+                $stockData = $this->stockDataService->fetchStockData($symbol);
+                if ($stockData && isset($stockData['price'])) {
+                    $latestPrice = $stockData['price'];
+                    // Store it for future use
+                    $this->stockDataService->storeStockPrice($symbol, $latestPrice);
+                }
+            }
+
+            if ($latestPrice !== false) {
+                return $this->jsonSuccess('Price fetched successfully', [
+                    'symbol' => strtoupper($symbol),
+                    'price' => (float)$latestPrice
+                ]);
+            } else {
+                return $this->jsonError('Price not available for this stock');
+            }
+        } catch (\Exception $e) {
+            return $this->jsonError('Error fetching stock price: ' . $e->getMessage());
+        }
+    }
 }

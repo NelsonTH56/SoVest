@@ -71,7 +71,7 @@
 
 	
 
-						<button class="sign-up btn btn-primary w-100 py-2" type="submit">Submit</button>
+						<button class="sign-up btn btn-primary-2 w-100 py-2" type="submit">Submit</button>
 					</form>
 
 					<!-- END FORM INFO -->
