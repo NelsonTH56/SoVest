@@ -77,31 +77,33 @@
                 
                 <div class="search-results">
                     @foreach($results as $result)
+                        <a href="{{ route('stocks.show', $result['symbol']) }}" class="text-decoration-none">
+                            <div class="search-result-card" style="cursor: pointer;">
+                                @if($result['result_type'] == 'stock')
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center">
+                                            <div class="stock-icon">
+                                                <i class="bi bi-graph-up-arrow"></i>
+                                            </div>
+                                            <div class="result-content">
+                                                <h4>{{ $result['symbol'] }}</h4>
+                                                <p>{{ $result['company_name'] }}</p>
+                                                <div class="mt-1">
+                                                    <span class="badge bg-secondary">{{ $result['sector'] }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <i class="bi bi-chevron-right text-muted"></i>
+                                        </div>
+                                    </div>
+
+                            @endif
+                            </div>
+                        </a>
+
+                        @if($result['result_type'] == 'user')
                         <div class="search-result-card">
-                            @if($result['result_type'] == 'stock')
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <div class="stock-icon">
-                                            <i class="bi bi-graph-up-arrow"></i>
-                                        </div>
-                                        <div class="result-content">
-                                            <h4>{{ $result['symbol'] }}</h4>
-                                            <p>{{ $result['company_name'] }}</p>
-                                            <span class="badge bg-secondary">{{ $result['sector'] }}</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                    @if(isset($result['id'], $result['symbol'], $result['company_name']))
-                                        <a href="{{ url('predictions/create') }}?stock_id={{ $result['id'] }}&symbol={{ urlencode($result['symbol']) }}&company_name={{ urlencode($result['company_name']) }}" class="btn btn-success btn-sm">
-                                            Create Prediction
-                                        </a>
-                                    @else
-                                        <span class="text-muted">Data unavailable</span>
-                                    @endif
-                                    </div>
-                                </div>
-                                
-                            @elseif($result['result_type'] == 'user')
                                 <div class="d-flex align-items-center">
                                     <div class="user-icon">
                                         <i class="bi bi-person-circle"></i>
@@ -110,12 +112,15 @@
                                         <h4>{{ $result['first_name'] . ' ' . $result['last_name'] }}</h4>
                                         <p>{{ $result['email'] }}</p>
                                         @if(isset($result['reputation_score']))
-                                            <span class="badge bg-success">REP: {{ $result['reputation_score'] }}</span>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-star-fill"></i> {{ $result['reputation_score'] }} pts
+                                            </span>
                                         @endif
                                     </div>
                                 </div>
-                                
-                            @elseif($result['result_type'] == 'prediction')
+                        </div>
+                        @elseif($result['result_type'] == 'prediction')
+                        <div class="search-result-card">
                                 <div class="d-flex align-items-center">
                                     <div class="prediction-icon">
                                         <i class="bi bi-lightning-charge"></i>
@@ -144,8 +149,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endif
                         </div>
+                        @endif
                     @endforeach
                 </div>
                 

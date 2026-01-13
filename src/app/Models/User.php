@@ -25,10 +25,9 @@ class User extends Authenticatable {
         'password',
         'first_name',
         'last_name',
-        'major',
-        'year',
-        'scholarship',
-        'reputation_score'
+        'reputation_score',
+        'bio',
+        'profile_picture'
     ];
 
     /**
@@ -51,6 +50,7 @@ class User extends Authenticatable {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'reputation_score' => 'integer',
         ];
     }
 

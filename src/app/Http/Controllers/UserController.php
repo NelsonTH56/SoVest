@@ -24,15 +24,37 @@ class UserController extends Controller
 
     public function home()
     {
-
-        $predictions = Prediction::with('user')->orderBy('prediction_date', 'desc')->paginate(10);
         $userID = Auth::id();
         $Curruser = Auth::user();
-        $Userpredictions = Prediction::with('user')->orderBy('prediction_date', 'desc')
-            ->where('user_id', $userID) // Replace $userId with the actual ID or variable
+
+        // Get all predictions with vote counts
+        $predictions = Prediction::with('user')
+            ->withCount([
+                'votes as upvotes' => function ($query) {
+                    $query->where('vote_type', 'upvote');
+                },
+                'votes as downvotes' => function ($query) {
+                    $query->where('vote_type', 'downvote');
+                }
+            ])
             ->orderBy('prediction_date', 'desc')
             ->paginate(10);
-            return view('home', compact('Curruser', 'predictions', 'Userpredictions'));
+
+        // Get user's predictions with vote counts
+        $Userpredictions = Prediction::with('user')
+            ->withCount([
+                'votes as upvotes' => function ($query) {
+                    $query->where('vote_type', 'upvote');
+                },
+                'votes as downvotes' => function ($query) {
+                    $query->where('vote_type', 'downvote');
+                }
+            ])
+            ->where('user_id', $userID)
+            ->orderBy('prediction_date', 'desc')
+            ->paginate(10);
+
+        return view('home', compact('Curruser', 'predictions', 'Userpredictions'));
     }
 
 
@@ -96,7 +118,6 @@ class UserController extends Controller
         $Curruser = [
             'username' => $userData['email'],
             'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
-            //'bio' => $userData['major'] ? $userData['major'] . ' | ' . $userData['year'] : 'Stock enthusiast',
             'profile_picture' => $userData['profile_picture'],
             'reputation_score' => isset($userData['reputation_score']) ? $userData['reputation_score'] : 0,
             'avg_accuracy' => $userStats['avg_accuracy'],
@@ -116,39 +137,43 @@ class UserController extends Controller
 
     /**
      * Display leaderboard page
-     * 
-     * 
+     *
+     * Implements caching to reduce database queries and improve performance.
+     * Cache is refreshed every 5 minutes or when predictions are scored.
      */
     public function leaderboard()
     {
-
-        // Use the injected scoring service to get top users
-        $topUsers = $this->scoringService->getTopUsers(10);
         $userData = Auth::user();
-        $userID = request()->cookie('userID');
-        if (!$userID) return redirect()->route('login');
+        $userID = Auth::id();
+
+        if (!$userID) {
+            return redirect()->route('login');
+        }
+
+        // Cache leaderboard data for 5 minutes
+        $topUsers = cache()->remember('leaderboard:top_users', 300, function () {
+            return $this->scoringService->getTopUsers(20);
+        });
+
+        // Find user's rank in the leaderboard
         $userRank = 0;
+        $userInfo = null;
+
         foreach ($topUsers as $index => $user) {
             if ($user['id'] == $userID) {
                 $userRank = $index + 1;
+                $userInfo = $user;
                 break;
             }
         }
-        // Set page title
-        $pageTitle = 'Leaderboard';
-        $Curruser = [
-            'username' => $userData['email'],
-            'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
-            //'bio' => $userData['major'] ? $userData['major'] . ' | ' . $userData['year'] : 'Stock enthusiast',
-            'profile_picture' => $userData['profile_picture'],
-            'reputation_score' => isset($userData['reputation_score']) ? $userData['reputation_score'] : 0
-        ];
-        $userStats = null;
-        $scoringService = new PredictionScoringService();
-        $topUsers = $scoringService->getTopUsers(20);
-        $pageCss = 'css/index.css';
+
+        // If user is not in top 20, get their stats separately
         if ($userRank == 0) {
-            $userStats = $scoringService->getUserPredictionStats($userID);
+            // Cache individual user stats for 5 minutes
+            $userStats = cache()->remember("user:stats:{$userID}", 300, function () use ($userID) {
+                return $this->scoringService->getUserPredictionStats($userID);
+            });
+
             $userModel = User::find($userID);
             if ($userModel) {
                 $userInfo = [
@@ -158,18 +183,27 @@ class UserController extends Controller
                     'email' => $userModel->email,
                     'reputation_score' => $userModel->reputation_score,
                     'avg_accuracy' => $userStats['avg_accuracy'],
-                    'prediction_count' => $userStats['total'],
+                    'prediction_count' => $userStats['total_predictions'] ?? 0,
                 ];
             }
         }
-        
+
+        // Prepare current user data for display
+        $Curruser = [
+            'username' => $userData['email'],
+            'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
+            'profile_picture' => $userData['profile_picture'],
+            'reputation_score' => $userData['reputation_score'] ?? 0
+        ];
+
         // Render the view
         return view('user.leaderboard', [
             'topUsers' => $topUsers,
             'userRank' => $userRank,
             'userInfo' => $userInfo,
             'userID' => $userID,
-            'pageCss' => 'css/leaderboard.css', // optional
+            'Curruser' => $Curruser,
+            'pageCss' => 'css/leaderboard.css',
         ]);
     }
 

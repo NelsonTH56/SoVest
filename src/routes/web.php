@@ -6,6 +6,7 @@ use App\Http\Controllers\MainController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\StockController;
 
 // We're not really using routes here we just want to redirect to main.php
 
@@ -13,6 +14,7 @@ Route::get('/', [MainController::class, 'index'])->name('landing');
 Route::get('/about', [MainController::class, 'about'])->name('about');
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/stocks/{symbol}', [StockController::class, 'show'])->name('stocks.show')->where('symbol', '[A-Za-z]{1,5}');
 Route::post('/prediction/vote', [PredictionController::class, 'vote'])->name('prediction.vote');
 
 // Authentication routes with rate limiting (5 attempts per minute)
@@ -71,6 +73,7 @@ Route::prefix('api')->middleware(['api', 'throttle:120,1'])->name('api.')->group
     Route::post('/search/save', [SearchController::class, 'saveSearch'])->name('search.save');
     Route::post('/search/clear-history', [SearchController::class, 'clearHistory'])->name('search.clearHistory');
     Route::post('/search/remove-saved', [SearchController::class, 'removeSavedSearch'])->name('search.removeSaved');
+    Route::post('/fetch_stock_price', [SearchController::class, 'fetchStockPrice'])->name('fetch.stock.price');
     Route::get('/stocks', [SearchController::class, 'stocks'])->name('stocks');
     Route::get('/stocks/{symbol}', [SearchController::class, 'getStock'])->name('stocks.get')
         ->where('symbol', '[A-Z]{1,5}');

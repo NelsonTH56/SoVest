@@ -17,15 +17,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitButton = document.querySelector('button[type="submit"]');
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time part for date comparison
-    // Calculate min date (7 days from today)
+    // Calculate min date - must be at least 1 week (7 days) in the future
     const minDate = new Date(today);
-    minDate.setDate(minDate.getDate() + 7); // Minimum 7 days in the future
+    minDate.setDate(minDate.getDate() + 7);
 
+    // No maximum date restriction - can be any date after the minimum
     if (endDateInput != null) {
-        // Set min attribute on the date input (no max limit)
+        // Set min attribute on the date input (no max restriction)
         endDateInput.min = formatDateForInput(minDate);
-        // Remove max attribute to allow any future date
-        endDateInput.removeAttribute('max');
     }
 
     
@@ -41,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
         endDateInput != null &&
         document.querySelector('#end_date').closest('.mb-4').querySelector('.form-text') != null) {
         const dateHelpText = document.querySelector('#end_date').closest('.mb-4').querySelector('.form-text');
-        dateHelpText.innerHTML = `Select a date at least 7 days from today. The earliest available date is <strong>${formatDateForDisplay(minDate)}</strong>.`;
+        dateHelpText.innerHTML = `Select a date at least one week from today (on or after <strong>${formatDateForDisplay(minDate)}</strong>). Predictions must be for future dates beyond the current week.`;
     }
 
     // Validation state object to track form validity
@@ -298,60 +297,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    /**
-     * Check if a date is a business day (Monday to Friday)
-     * @param {Date} date - The date to check
-     * @return {boolean} - True if it's a business day, false otherwise
-     */
-    // function isBusinessDay(date) {
-    //     const dayOfWeek = date.getUTCDay(); // 0 (Sunday) to 6 (Saturday), dates from the date control are in UTC so we must use getUTCDay() here.
-    //     return dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
-    // }
-
-    /**
-     * Get the next business day from a given date
-     * @param {Date} date - The starting date
-     * @return {Date} - The next business day
-     */
-    // function getNextBusinessDay(date) {
-    //     const nextDay = new Date(date);
-    //     nextDay.setDate(nextDay.getDate() + 1);
-
-    //     // Keep adding days until we find a business day
-    //     while (!isBusinessDay(nextDay)) {
-    //         nextDay.setDate(nextDay.getDate() + 1);
-    //     }
-
-    //     return nextDay;
-    // }
-
-    /**
-     * Calculate a date that is N business days from a given date
-     * @param {Date} startDate - The starting date
-     * @param {number} businessDays - Number of business days to add
-     * @return {Date} - Resulting date after adding business days
-     */
-    // function addBusinessDays(startDate, businessDays) {
-    //     const result = new Date(startDate);
-
-    //     // If the start date is not a business day, start from the next business day
-    //     if (!isBusinessDay(result)) {
-    //         const nextBusiness = getNextBusinessDay(result);
-    //         result.setTime(nextBusiness.getTime());
-    //         // We already moved to the first business day, so subtract 1
-    //         businessDays--;
-    //     }
-
-    //     // Add the remaining business days
-    //     while (businessDays > 0) {
-    //         result.setDate(result.getDate() + 1);
-    //         if (isBusinessDay(result)) {
-    //             businessDays--;
-    //         }
-    //     }
-
-    //     return result;
-    // }
+    // Business day validation functions removed - no longer needed
+    // as we only require dates to be at least 7 days in the future
 
     /**
      * Format date as YYYY-MM-DD for input fields
@@ -385,14 +332,13 @@ document.addEventListener('DOMContentLoaded', function () {
             validationState.endDate = false;
         } else if (endDate < minDate) {
             const minDateStr = formatDateForDisplay(minDate);
-            setFieldInvalid(endDateInput, `End date must be at least 7 days from today (${minDateStr} or later)`);
+            setFieldInvalid(endDateInput, `End date must be at least one week from today (${minDateStr} or later)`);
             validationState.endDate = false;
         } else {
             // Calculate days from today for feedback
-            const diffTime = endDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const daysDiff = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
-            setFieldValid(endDateInput, `Prediction timeframe: ${diffDays} day${diffDays !== 1 ? 's' : ''} from now`);
+            setFieldValid(endDateInput, `Prediction timeframe: ${daysDiff} day${daysDiff !== 1 ? 's' : ''} from now`);
             validationState.endDate = true;
         }
 

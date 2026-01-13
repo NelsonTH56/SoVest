@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('prediction_comments', function (Blueprint $table) {
-            $table->id('comment_id');
-            $table->unsignedBigInteger('prediction_id');
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('parent_comment_id')->nullable(); // For replies
+            $table->id('comment_id'); // bigInteger unsigned auto-increment
+            $table->unsignedInteger('prediction_id'); // Match predictions.prediction_id type (increments = unsignedInteger)
+            $table->unsignedInteger('user_id'); // Match users.id type (increments = unsignedInteger)
+            $table->unsignedBigInteger('parent_comment_id')->nullable(); // For replies - matches comment_id (id() = bigInteger)
             $table->text('content'); // 600 character limit enforced at application level
             $table->timestamps();
 
