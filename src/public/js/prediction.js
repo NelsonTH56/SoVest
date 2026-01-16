@@ -630,20 +630,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
-
-    // Handle prediction editing
-    const editButtons = document.querySelectorAll('.edit-prediction');
-
-    if (editButtons.length > 0) {
-        editButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const predictionId = this.getAttribute('data-id');
-                // Redirect to edit page using Laravel route
-                window.location.href = `/predictions/edit/${predictionId}`;
-            });
-        });
-    }
-
     /**
      * Multi-step form navigation
      */

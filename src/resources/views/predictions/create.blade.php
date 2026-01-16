@@ -336,7 +336,6 @@
         // Update API endpoint for prediction.js to use Laravel routes
         const apiEndpoints = {
             searchStocks: '{{ route("api.search.stocks") }}',
-            deletePrediction: '{{ route("api.predictions.delete", 0) }}',
             getStockPrice: '{{ url("api/stocks") }}' // Will append /{symbol}/price
         };
     </script>

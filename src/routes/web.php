@@ -20,7 +20,7 @@ Route::get('/stocks/{symbol}', [StockController::class, 'show'])->name('stocks.s
 Route::post('/prediction/vote', [PredictionController::class, 'vote'])->name('prediction.vote');
 
 // Authentication routes with rate limiting (5 attempts per minute)
-Route::middleware('throttle:5,1')->group(function () {
+Route::middleware('throttle:10,1')->group(function () {
     Route::get('/register', [AuthController::class, 'registerForm'])->name('register.form');
     Route::post('/register/submit', [AuthController::class, 'register'])->name('register.submit');
     Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
@@ -42,9 +42,6 @@ Route::controller(PredictionController::class)->group(function () {
     Route::get('/predictions/trending', 'trending')->name('predictions.trending');
     Route::get('/predictions/create', 'create')->name('predictions.create')->middleware('auth');
     Route::post('/predictions/store', 'store')->name('predictions.store')->middleware('auth');
-    Route::get('/predictions/edit/{id}', 'edit')->name('predictions.edit')->middleware('auth')->middleware('prediction.owner');
-    Route::post('/predictions/update/{id}', 'update')->name('predictions.update')->middleware('auth')->middleware('prediction.owner');
-    Route::post('/predictions/delete/{id}', 'delete')->name('predictions.delete')->middleware('auth')->middleware('prediction.owner');
     //Route::post('/predictions/vote/{id}', 'vote')->name('predictions.vote')->middleware('auth');  ORIGINAL
     Route::post('/predictions/vote/{id}', [PredictionController::class, 'vote'])->middleware('auth'); //SUGGESTED SOLUTION
     Route::get('/predictions/{id}/vote-counts', function ($id) {
