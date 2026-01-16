@@ -23,7 +23,7 @@
 	<link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
 
     <!-- Main CSS file (legacy) -->
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 
     <!-- Page-specific CSS -->
 	@if (isset($pageCss))

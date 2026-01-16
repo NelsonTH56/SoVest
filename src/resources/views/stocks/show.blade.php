@@ -308,11 +308,39 @@
         font-size: 1.3rem;
         font-weight: 700;
     }
+
+    .back-link {
+        color: #a0a0a0;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: #10b981;
+        transform: translateX(-3px);
+    }
+
+    .back-link i {
+        transition: transform 0.2s ease;
+    }
+
+    .back-link:hover i {
+        transform: translateX(-3px);
+    }
 </style>
 @endsection
 
 @section('content')
 <div class="container mt-4" style="max-width: 1200px;">
+    <!-- Back Navigation -->
+    <div class="mb-3">
+        <a href="{{ url('search') }}?query={{ urlencode($stock->symbol) }}&type=stocks"
+           class="text-decoration-none d-inline-flex align-items-center back-link">
+            <i class="bi bi-arrow-left me-2"></i> Back to Search
+        </a>
+    </div>
+
     <!-- Stock Hero Section -->
     <div class="stock-detail-hero">
         <div class="stock-content">
@@ -320,10 +348,21 @@
                 <div class="col-lg-7">
                     <div class="stock-symbol-display">{{ $stock->symbol }}</div>
                     <div class="stock-company-name">{{ $stock->company_name }}</div>
-                    <div>
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
                         <span class="sector-badge">
                             <i class="bi bi-building"></i> {{ $stock->sector }}
                         </span>
+                        <!-- Primary Action Button - In Hero -->
+                        @auth
+                            <a href="{{ url('predictions/create') }}?stock_id={{ $stock->stock_id }}&symbol={{ urlencode($stock->symbol) }}&company_name={{ urlencode($stock->company_name) }}"
+                               class="btn action-button-primary">
+                                <i class="bi bi-lightning-charge-fill me-2"></i> Create Prediction
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="btn action-button-primary">
+                                <i class="bi bi-box-arrow-in-right me-2"></i> Login to Predict
+                            </a>
+                        @endauth
                     </div>
                 </div>
                 <div class="col-lg-5 mt-4 mt-lg-0">
@@ -341,26 +380,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="row mb-4">
-        <div class="col-12 d-flex gap-3 flex-wrap">
-            @auth
-                <a href="{{ url('predictions/create') }}?stock_id={{ $stock->stock_id }}&symbol={{ urlencode($stock->symbol) }}&company_name={{ urlencode($stock->company_name) }}"
-                   class="btn action-button-primary">
-                    <i class="bi bi-lightning-charge-fill me-2"></i> Create Prediction
-                </a>
-            @else
-                <a href="{{ route('login') }}" class="btn action-button-primary">
-                    <i class="bi bi-box-arrow-in-right me-2"></i> Login to Create Prediction
-                </a>
-            @endauth
-            <a href="{{ url('search') }}?query={{ urlencode($stock->symbol) }}&type=stocks"
-               class="btn action-button-secondary">
-                <i class="bi bi-arrow-left me-2"></i> Back to Search
-            </a>
         </div>
     </div>
 
