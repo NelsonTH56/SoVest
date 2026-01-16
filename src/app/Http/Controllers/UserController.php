@@ -27,21 +27,22 @@ class UserController extends Controller
         $userID = Auth::id();
         $Curruser = Auth::user();
 
-        // Get all predictions with vote counts
-        $predictions = Prediction::with('user')
+        // Get all predictions with vote counts and comment counts
+        $predictions = Prediction::with(['user', 'stock'])
             ->withCount([
                 'votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
                 },
                 'votes as downvotes' => function ($query) {
                     $query->where('vote_type', 'downvote');
-                }
+                },
+                'comments as comments_count'
             ])
             ->orderBy('prediction_date', 'desc')
             ->paginate(10);
 
         // Get user's predictions with vote counts
-        $Userpredictions = Prediction::with('user')
+        $Userpredictions = Prediction::with(['user', 'stock'])
             ->withCount([
                 'votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');

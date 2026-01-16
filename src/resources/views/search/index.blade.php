@@ -3,83 +3,122 @@
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/search.css') }}">
 <style>
-.gradient-search-hero {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d1f3f 50%, #1a2a3a 100%);
-    border-radius: 24px;
-    padding: 3rem 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+/* Modern, simplified search styling */
+.search-hero-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #111827;
 }
 
-.search-hero-title {
+body.dark-mode .search-hero-title {
     background: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
 }
 
 .search-hero-subtitle {
-    color: #a0a0a0;
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
+    color: #6b7280;
+    font-size: 1.15rem;
 }
 
-.enhanced-search-input {
-    background: #2a2a2a;
-    border: 2px solid #3a3a3a;
-    border-radius: 16px;
+body.dark-mode .search-hero-subtitle {
+    color: #9ca3af;
+}
+
+/* Modern search wrapper */
+.modern-search-wrapper {
+    position: relative;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.modern-search-input {
+    flex: 1;
+    border-radius: 1rem;
     padding: 1rem 1.5rem;
-    font-size: 1.1rem;
-    color: #fff;
+    font-size: 1.05rem;
+    border: 2px solid #e5e7eb;
     transition: all 0.3s ease;
+    background: white;
+    color: #111827;
 }
 
-.enhanced-search-input:focus {
-    background: #2d2d2d;
+.modern-search-input:focus {
     border-color: #10b981;
     box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-    color: #fff;
+    outline: none;
 }
 
-.enhanced-search-btn {
-    background: linear-gradient(135deg, #10b981, #3b82f6);
-    border: none;
-    border-radius: 12px;
-    padding: 1rem 2rem;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-}
-
-.enhanced-search-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-}
-
-.filter-chip {
+body.dark-mode .modern-search-input {
     background: #2a2a2a;
-    border: 2px solid #3a3a3a;
-    border-radius: 12px;
-    padding: 0.75rem 1rem;
-    color: #fff;
-    transition: all 0.3s ease;
+    border-color: #404040;
+    color: #e5e7eb;
 }
 
-.filter-chip:focus {
+body.dark-mode .modern-search-input:focus {
     background: #2d2d2d;
     border-color: #10b981;
-    color: #fff;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
 }
 
+body.dark-mode .modern-search-input::placeholder {
+    color: #6b7280;
+}
+
+.modern-search-button {
+    border-radius: 1rem;
+    padding: 1rem 1.75rem;
+    font-size: 1.2rem;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.modern-search-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+/* Simple filter selects */
+.simple-filter-select {
+    border-radius: 0.75rem;
+    padding: 0.65rem 1rem;
+    border: 2px solid #e5e7eb;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: white;
+    color: #111827;
+}
+
+.simple-filter-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    outline: none;
+}
+
+body.dark-mode .simple-filter-select {
+    background: #2a2a2a;
+    border-color: #404040;
+    color: #e5e7eb;
+}
+
+body.dark-mode .simple-filter-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+body.dark-mode .simple-filter-select option {
+    background: #2a2a2a;
+    color: #e5e7eb;
+}
+
+/* Result cards with light/dark mode */
 .result-card-enhanced {
-    background: #1a1a1a;
-    border: 1px solid #2c2c2c;
-    border-radius: 16px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1rem;
     transition: all 0.3s ease;
@@ -87,20 +126,30 @@
 }
 
 .result-card-enhanced:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     border-color: #10b981;
-    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .result-card-enhanced {
+    background: #2d2d2d;
+    border-color: #404040;
+}
+
+body.dark-mode .result-card-enhanced:hover {
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2);
 }
 
 .result-icon-wrapper {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
-    margin-right: 1.5rem;
+    font-size: 1.6rem;
+    margin-right: 1.25rem;
+    flex-shrink: 0;
 }
 
 .stock-icon-wrapper {
@@ -116,33 +165,42 @@
 }
 
 .result-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 700;
-    color: #fff;
-    margin-bottom: 0.3rem;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+body.dark-mode .result-title {
+    color: #f3f4f6;
 }
 
 .result-subtitle {
-    color: #a0a0a0;
-    font-size: 0.95rem;
+    color: #6b7280;
+    font-size: 0.9rem;
     margin-bottom: 0.5rem;
 }
 
+body.dark-mode .result-subtitle {
+    color: #9ca3af;
+}
+
 .badge-enhanced {
-    padding: 0.4rem 0.8rem;
-    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.5rem;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .quick-action-btn {
     background: rgba(16, 185, 129, 0.1);
     border: 1px solid #10b981;
     color: #10b981;
-    border-radius: 10px;
-    padding: 0.6rem 1.2rem;
+    border-radius: 0.75rem;
+    padding: 0.6rem 1.1rem;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
 }
 
 .quick-action-btn:hover {
@@ -151,36 +209,60 @@
     transform: scale(1.05);
 }
 
+/* Sidebar styling */
 .sidebar-card {
-    background: #1a1a1a;
-    border: 1px solid #2c2c2c;
-    border-radius: 16px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
+body.dark-mode .sidebar-card {
+    background: #2d2d2d;
+    border-color: #404040;
+}
+
 .sidebar-card-header {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #fff;
+    color: #111827;
     margin-bottom: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+body.dark-mode .sidebar-card-header {
+    color: #f3f4f6;
+}
+
 .history-item {
-    padding: 0.8rem;
-    border-radius: 10px;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
     margin-bottom: 0.5rem;
-    background: #2a2a2a;
-    border: 1px solid #3a3a3a;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     transition: all 0.2s ease;
 }
 
 .history-item:hover {
-    background: #2d2d2d;
+    background: #f3f4f6;
     border-color: #10b981;
+}
+
+body.dark-mode .history-item {
+    background: #2a2a2a;
+    border-color: #404040;
+}
+
+body.dark-mode .history-item:hover {
+    background: #333333;
+    border-color: #10b981;
+}
+
+body.dark-mode .history-item .text-white {
+    color: #f3f4f6 !important;
 }
 
 .empty-state {
@@ -190,88 +272,129 @@
 
 .empty-state-icon {
     font-size: 4rem;
-    background: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #d1d5db;
+}
+
+body.dark-mode .empty-state-icon {
+    color: #6b7280;
+}
+
+.empty-state h3 {
+    color: #111827;
+}
+
+body.dark-mode .empty-state h3 {
+    color: #f3f4f6;
+}
+
+.empty-state p {
+    color: #6b7280;
+}
+
+body.dark-mode .empty-state p {
+    color: #9ca3af;
+}
+
+/* Alert styling */
+.alert-info {
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 4px solid #3b82f6;
+    border-radius: 0.75rem;
+    color: #111827;
+}
+
+body.dark-mode .alert-info {
+    background: rgba(59, 130, 246, 0.15);
+    color: #e5e7eb;
+}
+
+/* Results section header */
+.results-header {
+    color: #111827;
+}
+
+body.dark-mode .results-header {
+    color: #f3f4f6;
+}
+
+/* Search suggestions */
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 4rem;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    margin-top: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .search-suggestions {
+    background: #2a2a2a;
+    border-color: #404040;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 </style>
 @endsection
 
 @section('content')
-<div class="container search-container mt-4">
+<div class="container mt-4">
     <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Enhanced Search Hero -->
-            <div class="gradient-search-hero">
-                <h1 class="search-hero-title text-center">Discover Insights</h1>
-                <p class="search-hero-subtitle text-center">Search for stocks, predictions, and top investors</p>
+        <div class="col-lg-10 mx-auto">
+            <!-- Simplified Search Hero -->
+            <div class="text-center mb-5">
+                <h1 class="search-hero-title mb-3">Search SoVest</h1>
+                <p class="search-hero-subtitle">Find stocks, predictions, and investors all in one place</p>
+            </div>
 
-                <!-- Main Search Form -->
-                <form action="{{ url('search') }}" method="GET">
-                    <div class="input-group mb-3">
-                        <input type="text"
-                               class="form-control enhanced-search-input"
-                               name="query"
-                               placeholder="Try 'AAPL', 'Tesla predictions', or 'top investors'..."
-                               value="{{ $query }}"
-                               id="searchInput"
-                               autocomplete="off">
-                        <button class="btn enhanced-search-btn" type="submit">
-                            <i class="bi bi-search me-2"></i> Search
-                        </button>
-                    </div>
+            <!-- Main Search Form - Simplified -->
+            <div class="row mb-4">
+                <div class="col-lg-8 mx-auto">
+                    <form action="{{ url('search') }}" method="GET">
+                        <div class="modern-search-wrapper">
+                            <input type="text"
+                                   class="form-control modern-search-input"
+                                   name="query"
+                                   placeholder="Search for stocks, predictions, or users..."
+                                   value="{{ $query }}"
+                                   id="searchInput"
+                                   autocomplete="off">
+                            <button class="btn btn-primary modern-search-button" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
 
-                    <!-- Search suggestions container -->
-                    <div id="searchSuggestions" class="search-suggestions"></div>
+                        <!-- Search suggestions container -->
+                        <div id="searchSuggestions" class="search-suggestions"></div>
 
-                    <!-- Filters -->
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <select name="type" class="form-select filter-chip">
-                                <option value="all" {{ $type == 'all' ? 'selected' : '' }}>
-                                    <i class="bi bi-grid"></i> All Types
-                                </option>
-                                <option value="stocks" {{ $type == 'stocks' ? 'selected' : '' }}>
-                                    <i class="bi bi-graph-up"></i> Stocks
-                                </option>
-                                <option value="predictions" {{ $type == 'predictions' ? 'selected' : '' }}>
-                                    <i class="bi bi-lightning"></i> Predictions
-                                </option>
-                                <option value="users" {{ $type == 'users' ? 'selected' : '' }}>
-                                    <i class="bi bi-people"></i> Users
-                                </option>
+                        <!-- Simple Filters Row -->
+                        <div class="d-flex gap-2 mt-3 flex-wrap justify-content-center">
+                            <select name="type" class="form-select simple-filter-select" style="width: auto;">
+                                <option value="all" {{ $type == 'all' ? 'selected' : '' }}>All Types</option>
+                                <option value="stocks" {{ $type == 'stocks' ? 'selected' : '' }}>📈 Stocks</option>
+                                <option value="predictions" {{ $type == 'predictions' ? 'selected' : '' }}>⚡ Predictions</option>
+                                <option value="users" {{ $type == 'users' ? 'selected' : '' }}>👥 Users</option>
+                            </select>
+
+                            <select name="prediction" class="form-select simple-filter-select" style="width: auto;" id="predictionFilter">
+                                <option value="">Any Type</option>
+                                <option value="Bullish" {{ $prediction == 'Bullish' ? 'selected' : '' }}>🔼 Bullish</option>
+                                <option value="Bearish" {{ $prediction == 'Bearish' ? 'selected' : '' }}>🔽 Bearish</option>
+                            </select>
+
+                            <select name="sort" class="form-select simple-filter-select" style="width: auto;">
+                                <option value="relevance" {{ $sort == 'relevance' ? 'selected' : '' }}>Most Relevant</option>
+                                <option value="date_desc" {{ $sort == 'date_desc' ? 'selected' : '' }}>Latest</option>
+                                <option value="accuracy" {{ $sort == 'accuracy' ? 'selected' : '' }}>Highest Accuracy</option>
+                                <option value="votes" {{ $sort == 'votes' ? 'selected' : '' }}>Most Votes</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <select name="prediction" class="form-select filter-chip">
-                                <option value="">Any Prediction</option>
-                                <option value="Bullish" {{ $prediction == 'Bullish' ? 'selected' : '' }}>
-                                    <i class="bi bi-arrow-up-circle"></i> Bullish
-                                </option>
-                                <option value="Bearish" {{ $prediction == 'Bearish' ? 'selected' : '' }}>
-                                    <i class="bi bi-arrow-down-circle"></i> Bearish
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <select name="sort" class="form-select filter-chip">
-                                <option value="relevance" {{ $sort == 'relevance' ? 'selected' : '' }}>
-                                    <i class="bi bi-sort-alpha-down"></i> Relevance
-                                </option>
-                                <option value="date_desc" {{ $sort == 'date_desc' ? 'selected' : '' }}>
-                                    <i class="bi bi-clock"></i> Latest
-                                </option>
-                                <option value="accuracy" {{ $sort == 'accuracy' ? 'selected' : '' }}>
-                                    <i class="bi bi-bullseye"></i> Highest Accuracy
-                                </option>
-                                <option value="votes" {{ $sort == 'votes' ? 'selected' : '' }}>
-                                    <i class="bi bi-hand-thumbs-up"></i> Most Votes
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
 
             @if (isset($predictionIntentDetected) && $predictionIntentDetected)
@@ -284,13 +407,13 @@
         </div>
     </div>
 
-    <div class="row mt-4">
+    <div class="row mt-5">
         <!-- Search Results -->
         <div class="col-lg-8">
             @if (!empty($results))
                 <div class="mb-4">
-                    <h3 class="text-white fw-bold">Search Results</h3>
-                    <p class="text-muted">{{ $totalResults }} result(s) for "<span class="text-white">{{ $query }}</span>"</p>
+                    <h3 class="fw-bold results-header">Search Results</h3>
+                    <p class="text-muted">{{ $totalResults }} result(s) for "<span style="color: #10b981; font-weight: 600;">{{ $query }}</span>"</p>
                 </div>
 
                 <div class="search-results">

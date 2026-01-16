@@ -824,3 +824,124 @@ button:disabled {
         padding: 1.5rem 1rem;
     }
 }
+
+/* ===========================================
+   LIGHT MODE STYLES FOR PREDICTION FORM
+   =========================================== */
+
+/* Light mode overrides for prediction form card */
+body:not(.dark-mode) .prediction-form-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .step-number {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .step-label {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .step-line {
+    background: #d1d5db;
+}
+
+body:not(.dark-mode) .step-title {
+    color: #111827;
+}
+
+body:not(.dark-mode) .step-description {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .form-label-enhanced {
+    color: #374151;
+}
+
+body:not(.dark-mode) .form-control-enhanced {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+body:not(.dark-mode) .form-control-enhanced:focus {
+    background: #ffffff;
+    border-color: #10b981;
+}
+
+body:not(.dark-mode) .form-hint {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .prediction-type-card {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .prediction-type-card h4 {
+    color: #111827;
+}
+
+body:not(.dark-mode) .prediction-type-card p {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .tips-list li {
+    color: #374151;
+}
+
+body:not(.dark-mode) .stock-info-card {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+body:not(.dark-mode) .stock-name {
+    color: #111827;
+}
+
+body:not(.dark-mode) .stock-symbol {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .btn-nav {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+body:not(.dark-mode) .btn-nav:hover {
+    background: #e5e7eb;
+    border-color: #10b981;
+    color: #10b981;
+}
+
+body:not(.dark-mode) .form-navigation {
+    border-top-color: #e5e7eb;
+}
+
+body:not(.dark-mode) #stock-suggestions .list-group {
+    background: #ffffff;
+    border-color: #10b981;
+}
+
+body:not(.dark-mode) #stock-suggestions .list-group-item {
+    background: #ffffff;
+    color: #374151;
+    border-bottom-color: #e5e7eb;
+}
+
+body:not(.dark-mode) #stock-suggestions .list-group-item:hover {
+    background: #f3f4f6 !important;
+    color: #10b981 !important;
+}
+
+/* Global text transition */
+.prediction-form-card, .step-number, .step-label, .step-line,
+.step-title, .step-description, .form-label-enhanced,
+.form-control-enhanced, .form-hint, .prediction-type-card,
+.prediction-type-card h4, .prediction-type-card p, .tips-list li,
+.stock-info-card, .stock-name, .stock-symbol, .btn-nav {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}

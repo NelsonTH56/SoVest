@@ -22,16 +22,27 @@
 @endsection
 
 @section('content')
-    <div class="container d-flex mt-5">
-
-    {{-- Left Column: Main Content --}}
-    <div class="flex-grow-1 pe-4 border-end">
-        <div class="text-center animate-fade-in">
-            <h1 class="mb-3" style="font-size: 3rem; font-weight: 800;">
-                <span class="welcome-text" style="color: #111827;">Welcome to </span>
+    <div class="container mt-4">
+        {{-- Welcome Header --}}
+        <div class="text-center animate-fade-in mb-4">
+            <h1 class="mb-2" style="font-size: 2.5rem; font-weight: 800;">
+                <span class="welcome-text">Welcome to </span>
                 <span class="gradient-text">SoVest</span>
             </h1>
-            <p class="welcome-subtext" style="font-size: 1.2rem; color: #6b7280; font-weight: 500;">Analyze, Predict, and Improve Your Market Insights</p>
+            <p class="welcome-subtext" style="font-size: 1.1rem; font-weight: 500;">Your community for market predictions and insights</p>
+        </div>
+
+    <div class="row">
+    {{-- Left Column: Main Content Feed --}}
+    <div class="col-lg-8 col-md-7">
+        {{-- Quick Search Bar --}}
+        <div class="quick-search-container mb-4">
+            <form action="{{ url('search') }}" method="GET" class="d-flex gap-2">
+                <input type="text" name="query" placeholder="Search stocks, predictions, or users..." class="form-control search-input-modern" />
+                <button type="submit" class="btn btn-primary" style="border-radius: 0.75rem; padding: 0.75rem 1.5rem;">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
         </div>
 
         <style>
@@ -61,30 +72,311 @@
         }
 
         body.dark-mode .welcome-subtext {
+            color: #9ca3af !important;
+        }
+
+        /* Modern search input */
+        .search-input-modern {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            border: 2px solid #e5e7eb;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input-modern:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        body.dark-mode .search-input-modern {
+            background-color: #2a2a2a;
+            border-color: #404040;
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .search-input-modern:focus {
+            border-color: #10b981;
+            background-color: #2d2d2d;
+        }
+
+        body.dark-mode .search-input-modern::placeholder {
+            color: #6b7280;
+        }
+
+        /* Feed section header */
+        .feed-header {
+            color: #111827;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        body.dark-mode .feed-header {
+            color: #f3f4f6;
+            border-bottom-color: #404040;
+        }
+
+        /* Dark mode: sidebar cards */
+        body.dark-mode .user-prediction-card {
+            background: #2a2a2a !important;
+            border-color: #404040 !important;
+        }
+
+        body.dark-mode .user-prediction-card:hover {
+            background: #2d2d2d !important;
+            border-color: #10b981 !important;
+        }
+
+        body.dark-mode .user-prediction-card h6 {
+            color: #f3f4f6 !important;
+        }
+
+        body.dark-mode .user-prediction-card p {
+            color: #9ca3af !important;
+        }
+
+        /* Dark mode: engagement bar */
+        body.dark-mode .prediction-card .border-top {
+            border-color: #404040 !important;
+        }
+
+        /* Hover effects for vote buttons */
+        .vote-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .upvote-btn:hover {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+        }
+
+        .downvote-btn:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: #ef4444 !important;
+        }
+
+        .vote-btn.voted-up {
+            background: rgba(16, 185, 129, 0.25) !important;
+            border-color: #10b981 !important;
+        }
+
+        .vote-btn.voted-down {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+        }
+
+        /* Dark mode vote buttons */
+        body.dark-mode .upvote-btn {
+            background: rgba(16, 185, 129, 0.15) !important;
+        }
+
+        body.dark-mode .downvote-btn {
+            background: rgba(239, 68, 68, 0.15) !important;
+        }
+
+        body.dark-mode .upvote-btn:hover {
+            background: rgba(16, 185, 129, 0.25) !important;
+        }
+
+        body.dark-mode .downvote-btn:hover {
+            background: rgba(239, 68, 68, 0.25) !important;
+        }
+
+        .user-prediction-card:hover {
+            border-color: #10b981 !important;
+            background: #ffffff !important;
+        }
+
+        body.dark-mode .user-prediction-card:hover {
+            background: #333333 !important;
+        }
+
+        /* Prediction card text colors for dark mode */
+        body.dark-mode .prediction-card .fw-bold {
+            color: #f3f4f6 !important;
+        }
+
+        body.dark-mode .prediction-card h5 {
+            color: #f3f4f6 !important;
+        }
+
+        body.dark-mode .prediction-card .reasoning-text {
             color: #d1d5db !important;
+        }
+
+        body.dark-mode .prediction-card small {
+            color: #9ca3af !important;
+        }
+
+        /* Card text dark mode */
+        body.dark-mode .card-body h5,
+        body.dark-mode .card-body h6 {
+            color: #f3f4f6 !important;
+        }
+
+        /* No predictions message */
+        body.dark-mode .prediction-card h4 {
+            color: #f3f4f6 !important;
+        }
+
+        /* Comments toggle button */
+        .comments-toggle:hover {
+            background: rgba(59, 130, 246, 0.2) !important;
+            border-color: #3b82f6 !important;
+        }
+
+        body.dark-mode .comments-toggle {
+            background: rgba(59, 130, 246, 0.15) !important;
+        }
+
+        body.dark-mode .comments-toggle:hover {
+            background: rgba(59, 130, 246, 0.25) !important;
+        }
+
+        /* Comments section styles */
+        .comments-section {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 1000px;
+            }
+        }
+
+        .comment-input {
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .comment-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        body.dark-mode .comment-input {
+            background-color: #2a2a2a;
+            border-color: #404040;
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .comment-input:focus {
+            border-color: #3b82f6;
+            background-color: #2d2d2d;
+        }
+
+        body.dark-mode .comment-input::placeholder {
+            color: #6b7280;
+        }
+
+        /* Individual comment styles */
+        .comment-item {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: rgba(0, 0, 0, 0.02);
+            border-left: 3px solid #e5e7eb;
+        }
+
+        .comment-item:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        body.dark-mode .comment-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-left-color: #404040;
+        }
+
+        body.dark-mode .comment-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #111827;
+        }
+
+        body.dark-mode .comment-author {
+            color: #f3f4f6;
+        }
+
+        .comment-content {
+            font-size: 0.9rem;
+            color: #374151;
+            margin-top: 0.25rem;
+            line-height: 1.5;
+        }
+
+        body.dark-mode .comment-content {
+            color: #d1d5db;
+        }
+
+        .comment-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .reply-item {
+            margin-left: 1.5rem;
+            padding-left: 0.75rem;
+            border-left: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .no-comments-msg {
+            text-align: center;
+            padding: 1rem;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .reply-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .reply-btn:hover {
+            color: #3b82f6;
+        }
+
+        .reply-form {
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .reply-form.show {
+            display: block;
         }
         </style>
 
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <form action="{{ url('search') }}" method="GET" class="search-form">
-                <input type="text" name="query" placeholder="Search stocks..." class="search-input" />
-                <button type="submit" class="search-button">
-                    <img src="{{ asset('images/search-icon.png') }}" alt="Search" class="search-icon" />
-                </button>
-            </form>
-        </div>
-        <br>
-        <br>
+        {{-- Feed Header --}}
+        <h2 class="feed-header">
+            <i class="bi bi-lightning-charge-fill me-2" style="color: #10b981;"></i>
+            Latest Predictions
+        </h2>
 
-        {{-- Predictions go here --}}
+        {{-- Predictions Feed --}}
         @if(empty($predictions))
-            <div class="empty-state prediction-card">
-                <h4>No predictions yet</h4>
+            <div class="prediction-card text-center" style="padding: 3rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                <h4 style="margin-bottom: 0.5rem;">No predictions yet</h4>
+                <p class="text-muted">Be the first to make a prediction!</p>
             </div>
         @else
             @foreach($predictions as $index => $prediction)
-            <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="text-decoration-none">
-                <div class="prediction-card p-4 border rounded mb-5 shadow-sm bg-white" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
+                <div class="prediction-card" data-prediction-id="{{ $prediction->prediction_id }}">
 
                     @php
                         $profilePicture = $prediction->user->profile_picture
@@ -93,40 +385,54 @@
                     @endphp
 
                     {{--  Top section: Profile on left, dates on right --}}
-                    <div class="top-container-prediction d-flex justify-content-between align-items-start mb-3">
-                    <div class="d-flex">
-                            <img src="{{ $profilePicture }}" alt="User Picture" class="img-fluid rounded-circle" width="60" height="60"
-                            style="border-radius: 50%; object-fit: cover;">
-                        <div class="ms-3">
-                            <div class="fw-bold">{{ $prediction->user->first_name }}</div>
-                            <small class="text-muted d-block mb-1">
-                                <i class="bi bi-star-fill text-warning"></i> Reputation: {{ $prediction->user->reputation_score }} pts
-                            </small>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ $profilePicture }}" alt="{{ $prediction->user->first_name }}"
+                                 class="rounded-circle" width="48" height="48"
+                                 style="object-fit: cover; border: 2px solid #10b981;">
+                            <div class="ms-3">
+                                <div class="fw-bold" style="font-size: 1rem; margin-bottom: 0.25rem;">
+                                    {{ $prediction->user->first_name }}
+                                </div>
+                                <small class="text-muted d-flex align-items-center gap-1">
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                    <span>{{ $prediction->user->reputation_score }} pts</span>
+                                    <span class="mx-1">•</span>
+                                    <span>{{ date('M j, Y', strtotime($prediction->prediction_date)) }}</span>
+                                </small>
+                            </div>
+                        </div>
+
+                        {{--  End Date Badge --}}
+                        <div>
+                            <span class="badge" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                                <i class="bi bi-clock"></i> Ends {{ date('M j', strtotime($prediction->end_date)) }}
+                            </span>
                         </div>
                     </div>
 
-                    {{--  Created & End Dates --}}
-                    <div class="text-end">
-                        <p class="mb-1"><strong>Created:</strong> {{ date('M j, Y', strtotime($prediction['prediction_date'])) }}</p>
-                        <p class="mb-0"><strong>Ends:</strong> {{ date('M j, Y', strtotime($prediction['end_date'])) }}</p>
-                    </div>
-                </div>
-
                 {{--  Company + Reasoning --}}
-                @if(!empty($prediction['reasoning']))
+                @if(!empty($prediction->reasoning))
                     @if(!empty($prediction->stock->company_name))
-                        <p class="mb-2 fw-semibold text-primary">
-                            {{ $prediction->stock->company_name }} ({{ $prediction->stock->symbol }})
-                        </p>
+                        <div class="mb-3">
+                            <h5 class="mb-2" style="font-size: 1.25rem; font-weight: 700;">
+                                <span class="text-primary">{{ $prediction->stock->symbol }}</span>
+                                <span style="color: #6b7280; font-weight: 500; font-size: 1rem;">{{ $prediction->stock->company_name }}</span>
+                            </h5>
+                        </div>
                     @endif
 
                     {{--  Prediction Type & Target Price --}}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge prediction-badge-vibrant {{ $prediction['prediction_type'] == 'Bullish' ? 'badge-bullish' : 'badge-bearish' }}">
-                            {{ $prediction['prediction_type'] }}
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="badge prediction-badge-vibrant {{ $prediction->prediction_type == 'Bullish' ? 'badge-bullish' : 'badge-bearish' }}">
+                            <i class="bi bi-{{ $prediction->prediction_type == 'Bullish' ? 'arrow-up' : 'arrow-down' }}-circle-fill me-1"></i>
+                            {{ $prediction->prediction_type }}
                         </span>
-                        @if(!empty($prediction['target_price']))
-                            <p class="mb-0" style="font-size: 1.1rem;"><strong style="color: #6b7280;">Target:</strong> <span style="color: #10b981; font-weight: 700;">${{ number_format($prediction['target_price'], 2) }}</span></p>
+                        @if(!empty($prediction->target_price))
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="color: #6b7280; font-size: 0.95rem;">Target Price:</span>
+                                <span style="color: #10b981; font-weight: 700; font-size: 1.15rem;">${{ number_format($prediction->target_price, 2) }}</span>
+                            </div>
                         @endif
                     </div>
 
@@ -168,64 +474,182 @@
                     </style>
 
                     {{--  Reasoning text --}}
-                    <p class="reasoning-text mb-4">{{ $prediction['reasoning'] }}</p>
+                    <p class="reasoning-text mb-3" style="line-height: 1.6;">{{ $prediction->reasoning }}</p>
                 @endif
 
-                {{--  Bottom row: Status (left) & Votes (right) --}}
-                <div class="bottom-content-prediction d-flex justify-content-between align-items-center">
-                    {{-- Status --}}
-                    @php
-                        $statusClass = 'bg-secondary';
-                        $statusText = 'Inactive';
-                        if ($prediction['is_active'] == 1) {
-                            if (strtotime($prediction['end_date']) > time()) {
-                                $statusClass = 'bg-primary';
-                                $statusText = 'Active';
-                            } else {
-                                $statusClass = 'bg-warning text-dark';
-                                $statusText = 'Expired';
-                            }
-                        }
-                    @endphp
-                    <p class="mb-0"><strong>Status:</strong> <span class="badge {{ $statusClass }}">{{ $statusText }}</span></p>
-
-                    {{-- Voting --}}
-                    <div class="votes d-flex align-items-center gap-3">
-                        {{-- Upvotes --}}
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-sm me-2 vote-btn upvote-btn"
+                {{--  Engagement Bar: Votes & Stats --}}
+                <div class="border-top pt-3 mt-3" style="border-color: #e5e7eb !important;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        {{-- Left: Voting --}}
+                        <div class="d-flex align-items-center gap-2">
+                            {{-- Upvotes --}}
+                            <button class="btn btn-sm vote-btn upvote-btn d-flex align-items-center gap-2"
                                     data-id="{{ $prediction->prediction_id }}"
-                                    data-action="upvote">
-                                <img src="/images/stock-market.png" class="stock-vote" alt="Upvote">
+                                    data-action="upvote"
+                                    style="background: rgba(16, 185, 129, 0.1); border: 1px solid transparent; border-radius: 20px; color: #10b981; padding: 0.4rem 0.75rem; transition: all 0.2s;">
+                                <i class="bi bi-arrow-up-circle-fill" style="font-size: 1.1rem;"></i>
+                                <span id="upvotes-{{ $prediction->prediction_id }}" class="fw-bold" style="font-size: 0.85rem;">
+                                    {{ $prediction->upvotes ?? 0 }}
+                                </span>
                             </button>
-                            <span id="upvotes-{{ $prediction->prediction_id }}" class="text-success fw-bold">
-                                {{ $prediction->upvotes ?? 0 }}
+
+                            {{-- Downvotes --}}
+                            <button class="btn btn-sm vote-btn downvote-btn d-flex align-items-center gap-2"
+                                    data-id="{{ $prediction->prediction_id }}"
+                                    data-action="downvote"
+                                    style="background: rgba(239, 68, 68, 0.1); border: 1px solid transparent; border-radius: 20px; color: #ef4444; padding: 0.4rem 0.75rem; transition: all 0.2s;">
+                                <i class="bi bi-arrow-down-circle-fill" style="font-size: 1.1rem;"></i>
+                                <span id="downvotes-{{ $prediction->prediction_id }}" class="fw-bold" style="font-size: 0.85rem;">
+                                    {{ $prediction->downvotes ?? 0 }}
+                                </span>
+                            </button>
+
+                            {{-- Status --}}
+                            @php
+                                $statusClass = 'bg-secondary';
+                                $statusText = 'Inactive';
+                                $statusIcon = 'pause-circle';
+                                if ($prediction->is_active == 1) {
+                                    if (strtotime($prediction->end_date) > time()) {
+                                        $statusClass = 'bg-success';
+                                        $statusText = 'Active';
+                                        $statusIcon = 'play-circle-fill';
+                                    } else {
+                                        $statusClass = 'bg-warning text-dark';
+                                        $statusText = 'Expired';
+                                        $statusIcon = 'clock-history';
+                                    }
+                                }
+                            @endphp
+                            <span class="badge {{ $statusClass }}" style="padding: 0.4rem 0.8rem;">
+                                <i class="bi bi-{{ $statusIcon }} me-1"></i>{{ $statusText }}
                             </span>
                         </div>
 
-                        {{-- Downvotes --}}
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-sm me-2 vote-btn downvote-btn"
-                                    data-id="{{ $prediction->prediction_id }}"
-                                    data-action="downvote">
-                                <img src="/images/stock-market.png" class="stock-vote downvote-icon" alt="Downvote" style="transform: rotate(180deg);">
+                        {{-- Right: Accuracy & Comments Toggle --}}
+                        <div class="d-flex align-items-center gap-3">
+                            @if(isset($prediction->accuracy) && $prediction->accuracy !== null)
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-bullseye" style="color: #10b981; font-size: 1.1rem;"></i>
+                                    <span style="font-weight: 700; font-size: 1rem;">{{ number_format($prediction->accuracy, 1) }}%</span>
+                                    <span class="text-muted" style="font-size: 0.85rem;">accuracy</span>
+                                </div>
+                            @endif
+
+                            {{-- Comments Toggle Button --}}
+                            <button class="btn btn-sm comments-toggle d-flex align-items-center gap-2"
+                                    data-prediction-id="{{ $prediction->prediction_id }}"
+                                    style="background: rgba(59, 130, 246, 0.1); border: 1px solid transparent; border-radius: 20px; color: #3b82f6; padding: 0.4rem 0.75rem; transition: all 0.2s;">
+                                <i class="bi bi-chat-dots" style="font-size: 1.1rem;"></i>
+                                <span class="comment-count fw-bold" style="font-size: 0.85rem;">
+                                    {{ $prediction->comments_count ?? 0 }}
+                                </span>
                             </button>
-                            <span id="downvotes-{{ $prediction->prediction_id }}" class="text-danger fw-bold">
-                                {{ $prediction->downvotes ?? 0 }}
-                            </span>
                         </div>
                     </div>
                 </div>
 
-                {{-- Accuracy --}}
-                @if(isset($prediction['accuracy']) && $prediction['accuracy'] !== null)
-                    <p class="mt-2 mb-0"><strong>Accuracy:</strong> {{ number_format($prediction['accuracy'], 2) }}%</p>
-                @endif
+                {{-- Expandable Comments Section --}}
+                <div class="comments-section" id="comments-{{ $prediction->prediction_id }}" style="display: none;">
+                    <div class="border-top pt-3 mt-3" style="border-color: #e5e7eb !important;">
+                        {{-- Comment Form --}}
+                        @auth
+                        <div class="comment-form mb-3">
+                            <div class="d-flex gap-2">
+                                <input type="text"
+                                       class="form-control comment-input"
+                                       placeholder="Add a comment..."
+                                       data-prediction-id="{{ $prediction->prediction_id }}"
+                                       style="border-radius: 20px; padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                <button class="btn btn-primary btn-sm submit-comment"
+                                        data-prediction-id="{{ $prediction->prediction_id }}"
+                                        style="border-radius: 20px; padding: 0.5rem 1rem;">
+                                    <i class="bi bi-send"></i>
+                                </button>
+                            </div>
+                        </div>
+                        @else
+                        <div class="text-muted mb-3" style="font-size: 0.9rem;">
+                            <a href="{{ route('login') }}">Log in</a> to join the discussion.
+                        </div>
+                        @endauth
+
+                        {{-- Comments List --}}
+                        <div class="comments-list" id="comments-list-{{ $prediction->prediction_id }}">
+                            <div class="text-center py-3 loading-comments">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span class="ms-2 text-muted">Loading comments...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </a>
+                </div>
 
             @endforeach
-            @endif
+
+            {{-- Pagination --}}
+            <div class="d-flex justify-content-center mt-4">
+                {{ $predictions->links() }}
+            </div>
+        @endif
+    </div>
+
+    {{-- Right Sidebar --}}
+    <div class="col-lg-4 col-md-5">
+        <div class="sticky-top" style="top: 1rem;">
+            {{-- Create Prediction CTA --}}
+            <a href="{{ route('predictions.create') }}" class="btn btn-primary w-100 mb-4" style="padding: 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.05rem; display: flex; align-items-center; justify-content: center; gap: 0.5rem;">
+                <i class="bi bi-plus-circle-fill" style="font-size: 1.2rem;"></i>
+                Create New Prediction
+            </a>
+
+            {{-- Active Predictions Widget --}}
+            <div class="card mb-4">
+                <div class="card-body" style="padding: 1.5rem;">
+                    <h5 class="mb-3" style="font-weight: 700; display: flex; align-items-center; gap: 0.5rem;">
+                        <i class="bi bi-lightning-charge" style="color: #10b981;"></i>
+                        Your Active Predictions
+                    </h5>
+
+                    @if(!empty($Userpredictions) && count($Userpredictions) > 0)
+                        @foreach($Userpredictions as $index => $prediction)
+                            <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="text-decoration-none">
+                                <div class="user-prediction-card mb-3" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; transition: all 0.2s;">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div style="flex-grow: 1;">
+                                            <h6 class="mb-1" style="font-weight: 700; font-size: 0.95rem;">{{ $prediction->stock->symbol }}</h6>
+                                            <p class="mb-1 text-muted" style="font-size: 0.85rem;">{{ $prediction->stock->company_name }}</p>
+                                            <div class="d-flex align-items-center gap-2 mt-2">
+                                                <span class="badge {{ $prediction->prediction_type == 'Bullish' ? 'bg-success' : 'bg-danger' }}" style="font-size: 0.75rem;">
+                                                    {{ $prediction->prediction_type }}
+                                                </span>
+                                                <span style="font-weight: 700; font-size: 0.9rem; color: #10b981;">${{ number_format($prediction->target_price, 2) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 pt-2 border-top" style="border-color: #e5e7eb !important;">
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock"></i> Ends {{ \Carbon\Carbon::parse($prediction->end_date)->format('M j, Y') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    @else
+                        <p class="text-muted text-center" style="padding: 2rem 1rem;">
+                            <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                            No active predictions yet
+                        </p>
+                    @endif
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
             @push('scripts')
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
@@ -256,8 +680,7 @@
                                     if (data.success) {
                                         console.log(data.message);
                                         updateVoteCount(predictionId);
-                                        const image = button.querySelector('img');
-                                        updateColor(image);
+                                        toggleVoteStyle(button, voteType);
                                     } else {
                                         alert(data.message || "Something went wrong.");
                                     }
@@ -279,91 +702,283 @@
                                     }
                                 });
                         }
-                        function updateColor(image){
-                            const defaultSrc = "/images/stock-market.png";
-                            const greenSrc = "/images/stock-market-green.png";
-
-                            // Remove the origin part of the URL if present
-                            const currentSrc = image.src.split("/").slice(-1)[0];
-
-                            if (currentSrc === "stock-market-green.png") {
-                                image.src = defaultSrc;
+                        function toggleVoteStyle(button, voteType){
+                            const voteClass = voteType === 'upvote' ? 'voted-up' : 'voted-down';
+                            if (button.classList.contains(voteClass)) {
+                                button.classList.remove(voteClass);
                             } else {
-                                image.src = greenSrc;
+                                button.classList.add(voteClass);
                             }
                         }
+
+                    // Comments functionality
+                    const loadedComments = new Set();
+
+                    // Toggle comments section
+                    document.querySelectorAll('.comments-toggle').forEach(button => {
+                        button.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const predictionId = this.getAttribute('data-prediction-id');
+                            const commentsSection = document.getElementById('comments-' + predictionId);
+
+                            if (commentsSection.style.display === 'none') {
+                                commentsSection.style.display = 'block';
+                                if (!loadedComments.has(predictionId)) {
+                                    loadComments(predictionId);
+                                    loadedComments.add(predictionId);
+                                }
+                            } else {
+                                commentsSection.style.display = 'none';
+                            }
+                        });
                     });
+
+                    // Load comments for a prediction
+                    function loadComments(predictionId) {
+                        const commentsList = document.getElementById('comments-list-' + predictionId);
+
+                        fetch('/predictions/' + predictionId + '/comments')
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success && data.data.length > 0) {
+                                    commentsList.innerHTML = data.data.map(comment => renderComment(comment, predictionId)).join('');
+                                } else {
+                                    commentsList.innerHTML = '<div class="no-comments-msg"><i class="bi bi-chat-square-text me-2"></i>No comments yet. Be the first to share your thoughts!</div>';
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                commentsList.innerHTML = '<div class="no-comments-msg text-danger">Error loading comments</div>';
+                            });
+                    }
+
+                    // Render a single comment with replies
+                    function renderComment(comment, predictionId, isReply = false) {
+                        const replyClass = isReply ? 'reply-item' : '';
+                        let html = `
+                            <div class="comment-item ${replyClass}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="comment-author">${escapeHtml(comment.user.name)}</span>
+                                        <span class="comment-meta ms-2">
+                                            <i class="bi bi-star-fill text-warning" style="font-size: 0.7rem;"></i>
+                                            ${comment.user.reputation_score} pts
+                                        </span>
+                                    </div>
+                                    <span class="comment-meta">${comment.created_at}</span>
+                                </div>
+                                <div class="comment-content">${escapeHtml(comment.content)}</div>
+                                <div class="mt-2">
+                                    <button class="reply-btn" onclick="toggleReplyForm(${comment.comment_id}, ${predictionId})">
+                                        <i class="bi bi-reply me-1"></i>Reply
+                                    </button>
+                                </div>
+                                <div class="reply-form" id="reply-form-${comment.comment_id}">
+                                    <div class="d-flex gap-2 mt-2">
+                                        <input type="text" class="form-control comment-input reply-input"
+                                               placeholder="Write a reply..."
+                                               id="reply-input-${comment.comment_id}"
+                                               style="border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                                        <button class="btn btn-primary btn-sm" onclick="submitReply(${comment.comment_id}, ${predictionId})" style="border-radius: 20px;">
+                                            <i class="bi bi-send"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                        `;
+
+                        // Render replies
+                        if (comment.replies && comment.replies.length > 0) {
+                            html += '<div class="mt-2">';
+                            comment.replies.forEach(reply => {
+                                html += renderComment(reply, predictionId, true);
+                            });
+                            html += '</div>';
+                        }
+
+                        html += '</div>';
+                        return html;
+                    }
+
+                    // Submit new comment
+                    document.querySelectorAll('.submit-comment').forEach(button => {
+                        button.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const predictionId = this.getAttribute('data-prediction-id');
+                            const input = document.querySelector(`.comment-input[data-prediction-id="${predictionId}"]`);
+                            const content = input.value.trim();
+
+                            if (!content) return;
+
+                            submitComment(predictionId, content, null, input);
+                        });
+                    });
+
+                    // Handle enter key for comment input
+                    document.querySelectorAll('.comment-input[data-prediction-id]').forEach(input => {
+                        input.addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const predictionId = this.getAttribute('data-prediction-id');
+                                const content = this.value.trim();
+
+                                if (!content) return;
+
+                                submitComment(predictionId, content, null, this);
+                            }
+                        });
+                    });
+
+                    function submitComment(predictionId, content, parentId, inputElement) {
+                        const formData = new FormData();
+                        formData.append('prediction_id', predictionId);
+                        formData.append('content', content);
+                        if (parentId) {
+                            formData.append('parent_comment_id', parentId);
+                        }
+
+                        fetch('/comments', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                inputElement.value = '';
+                                loadedComments.delete(predictionId);
+                                loadComments(predictionId);
+
+                                // Update comment count
+                                const countSpan = document.querySelector(`.comments-toggle[data-prediction-id="${predictionId}"] .comment-count`);
+                                if (countSpan) {
+                                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                                }
+                            } else {
+                                alert(data.message || 'Error posting comment');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Error posting comment');
+                        });
+                    }
+
+                    // Escape HTML to prevent XSS
+                    function escapeHtml(text) {
+                        const div = document.createElement('div');
+                        div.textContent = text;
+                        return div.innerHTML;
+                    }
+                    });
+
+                    // Global functions for reply handling
+                    function toggleReplyForm(commentId, predictionId) {
+                        const replyForm = document.getElementById('reply-form-' + commentId);
+                        if (replyForm) {
+                            replyForm.classList.toggle('show');
+                            if (replyForm.classList.contains('show')) {
+                                document.getElementById('reply-input-' + commentId).focus();
+                            }
+                        }
+                    }
+
+                    function submitReply(parentId, predictionId) {
+                        const input = document.getElementById('reply-input-' + parentId);
+                        const content = input.value.trim();
+
+                        if (!content) return;
+
+                        const formData = new FormData();
+                        formData.append('prediction_id', predictionId);
+                        formData.append('content', content);
+                        formData.append('parent_comment_id', parentId);
+
+                        fetch('/comments', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                input.value = '';
+                                document.getElementById('reply-form-' + parentId).classList.remove('show');
+                                // Reload comments
+                                const commentsList = document.getElementById('comments-list-' + predictionId);
+                                fetch('/predictions/' + predictionId + '/comments')
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.success && data.data.length > 0) {
+                                            commentsList.innerHTML = data.data.map(comment => renderCommentGlobal(comment, predictionId)).join('');
+                                        }
+                                    });
+                            } else {
+                                alert(data.message || 'Error posting reply');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert('Error posting reply');
+                        });
+                    }
+
+                    // Global version of renderComment for use outside DOMContentLoaded
+                    function renderCommentGlobal(comment, predictionId, isReply = false) {
+                        const replyClass = isReply ? 'reply-item' : '';
+                        let html = `
+                            <div class="comment-item ${replyClass}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="comment-author">${escapeHtmlGlobal(comment.user.name)}</span>
+                                        <span class="comment-meta ms-2">
+                                            <i class="bi bi-star-fill text-warning" style="font-size: 0.7rem;"></i>
+                                            ${comment.user.reputation_score} pts
+                                        </span>
+                                    </div>
+                                    <span class="comment-meta">${comment.created_at}</span>
+                                </div>
+                                <div class="comment-content">${escapeHtmlGlobal(comment.content)}</div>
+                                <div class="mt-2">
+                                    <button class="reply-btn" onclick="toggleReplyForm(${comment.comment_id}, ${predictionId})">
+                                        <i class="bi bi-reply me-1"></i>Reply
+                                    </button>
+                                </div>
+                                <div class="reply-form" id="reply-form-${comment.comment_id}">
+                                    <div class="d-flex gap-2 mt-2">
+                                        <input type="text" class="form-control comment-input reply-input"
+                                               placeholder="Write a reply..."
+                                               id="reply-input-${comment.comment_id}"
+                                               style="border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                                        <button class="btn btn-primary btn-sm" onclick="submitReply(${comment.comment_id}, ${predictionId})" style="border-radius: 20px;">
+                                            <i class="bi bi-send"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                        `;
+
+                        if (comment.replies && comment.replies.length > 0) {
+                            html += '<div class="mt-2">';
+                            comment.replies.forEach(reply => {
+                                html += renderCommentGlobal(reply, predictionId, true);
+                            });
+                            html += '</div>';
+                        }
+
+                        html += '</div>';
+                        return html;
+                    }
+
+                    function escapeHtmlGlobal(text) {
+                        const div = document.createElement('div');
+                        div.textContent = text;
+                        return div.innerHTML;
+                    }
             </script>
                 @endpush
-    </div>
-
-    <div class="right-col ps-4" style="min-width: 250px;">
-        <div class="sidebar-container">
-    <!-- Create New Prediction Button -->
-    <a href="{{ route('predictions.create') }}" class="btn btn-primary home mb-4 create-btn-vibrant">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle me-2" viewBox="0 0 16 16" style="display: inline-block; vertical-align: middle;">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-        </svg>
-        Create New Prediction
-    </a>
-    <br>
-    <div class="sidebar-header sidebar-header-vibrant">
-        <h5>ACTIVE PREDICTIONS</h5>
-    </div>
-    <br>
-
-    <style>
-    .create-btn-vibrant {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.95rem;
-        position: relative;
-        overflow: hidden;
-    }
-    .sidebar-header-vibrant {
-        background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        border: none;
-        margin: 0;
-        width: 100%;
-    }
-    .sidebar-header-vibrant h5 {
-        color: white;
-        font-size: 0.95rem;
-        font-weight: 700;
-        letter-spacing: 1px;
-        margin: 0;
-    }
-    </style>
-    <!-- User Predictions Section -->
-    
-        @foreach($Userpredictions as $index => $prediction)
-            <div class="user-prediction-card">
-                <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="prediction-link">
-                    <div class="prediction-card-body">
-                        <h5 class="prediction-title">{{ $prediction->stock->company_name }}</h5>
-                        <p class="prediction-price">Target Price: ${{ $prediction->target_price }}</p>
-                        <!-- Format the end_date to remove time -->
-                        <p class="prediction-date">End Date: {{ \Carbon\Carbon::parse($prediction->end_date)->format('Y-m-d') }}</p>
-                    </div>
-                </a>
-            </div>
-        @endforeach
-        </div>
-    
-</div>
-
-       <br>
-       <br>
-                <!-- Pagination Links -->
-                <div class="pagination">
-                     {{ $predictions->links() }}
-                 </div>
-                 
-            </div>
 @endsection

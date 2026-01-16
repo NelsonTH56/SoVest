@@ -292,3 +292,102 @@
 .nav-search-suggestions::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+/* ===========================================
+   LIGHT MODE TEXT COLORS FOR SEARCH PAGE
+   =========================================== */
+
+/* Light mode overrides */
+body:not(.dark-mode) .search-results-header {
+    border-bottom-color: #e5e7eb;
+    color: #111827;
+}
+
+body:not(.dark-mode) .search-result-card {
+    background-color: #ffffff;
+    color: #111827;
+}
+
+body:not(.dark-mode) .search-result-card h4 {
+    color: #111827;
+}
+
+body:not(.dark-mode) .result-content h4 {
+    color: #111827;
+}
+
+body:not(.dark-mode) .search-suggestions,
+body:not(.dark-mode) .nav-search-suggestions {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .search-suggestion {
+    color: #374151;
+}
+
+body:not(.dark-mode) .search-suggestion:hover {
+    background-color: #f3f4f6;
+}
+
+body:not(.dark-mode) .pagination .page-link {
+    background-color: #ffffff;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+body:not(.dark-mode) .pagination .page-link:hover {
+    background-color: #f3f4f6;
+}
+
+body:not(.dark-mode) .card.bg-dark {
+    background-color: #ffffff !important;
+    color: #111827;
+    border-color: #e5e7eb !important;
+}
+
+body:not(.dark-mode) .card.bg-dark .card-header {
+    background-color: #f9fafb !important;
+    border-bottom-color: #e5e7eb !important;
+    color: #111827 !important;
+}
+
+body:not(.dark-mode) .list-group-item.bg-transparent a {
+    color: #374151;
+}
+
+body:not(.dark-mode) .form-select {
+    background-color: #ffffff;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+body:not(.dark-mode) .empty-search-message {
+    color: #6b7280;
+}
+
+/* Stock, User, and Prediction icon styling for light mode */
+body:not(.dark-mode) .stock-icon,
+body:not(.dark-mode) .user-icon,
+body:not(.dark-mode) .prediction-icon {
+    background-color: #f3f4f6;
+}
+
+body:not(.dark-mode) .stock-icon {
+    color: #10b981;
+}
+
+body:not(.dark-mode) .user-icon {
+    color: #3b82f6;
+}
+
+body:not(.dark-mode) .prediction-icon {
+    color: #f59e0b;
+}
+
+/* Global text transition for search elements */
+.search-results-header, .search-result-card, .result-content,
+.search-suggestions, .nav-search-suggestions, .search-suggestion,
+.pagination .page-link, .form-select, .stock-icon, .user-icon, .prediction-icon {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
