@@ -73,10 +73,6 @@
                                 <p>{{ $prediction['reasoning'] }}</p>
                             </div>
                         @endif
-<<<<<<< HEAD
-
-=======
->>>>>>> b859f20f83065ad9dd9b4522fb3e635e781527cc
                         </div>
                     </div>
                 </a>

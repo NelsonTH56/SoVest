@@ -22,17 +22,6 @@
 	<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logo.png') }}">
 	<link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
 
-    <!-- Critical Dark Mode Script - Must run before page renders to prevent flash -->
-    <script>
-        (function() {
-            const darkMode = localStorage.getItem('darkMode');
-            if (darkMode === 'enabled') {
-                document.documentElement.classList.add('dark-mode');
-                document.body.classList.add('dark-mode');
-            }
-        })();
-    </script>
-
     <!-- Main CSS file (legacy) -->
     <link rel="stylesheet" href="css/index.css">
 
@@ -506,6 +495,17 @@
     </div>
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Global Dark Mode Script -->
+    <script>
+        // Apply dark mode on page load if enabled
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+    </script>
 
     <!-- Page-specific JavaScript -->
     @if (isset($pageJs))
