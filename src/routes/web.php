@@ -86,7 +86,7 @@ Route::prefix('api')->middleware(['api', 'throttle:120,1'])->name('api.')->group
     Route::post('/fetch_stock_price', [SearchController::class, 'fetchStockPrice'])->name('fetch.stock.price');
     Route::get('/stocks', [SearchController::class, 'stocks'])->name('stocks');
     Route::get('/stocks/{symbol}', [SearchController::class, 'getStock'])->name('stocks.get')
-        ->where('symbol', '[A-Z]{1,5}');
+        ->where('symbol', '[A-Za-z]{1,5}');
     Route::get('/stocks/{symbol}/price', [SearchController::class, 'getStockPrice'])->name('stocks.price')
-        ->where('symbol', '[A-Z]{1,5}');
+        ->where('symbol', '[A-Za-z]{1,5}');
 });

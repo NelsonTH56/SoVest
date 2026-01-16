@@ -8,9 +8,10 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Multi-step form variables
     let currentStep = 1;
-    const totalSteps = 4;
+    const totalSteps = 5; // Now 5 steps including confirmation
     let selectedStockSymbol = null;
     let currentStockPrice = null;
+
     // Form elements
     const predictionForm = document.getElementById('prediction-form');
     const stockSearchInput = document.getElementById('stock-search');
@@ -18,11 +19,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const stockSuggestions = document.getElementById('stock-suggestions');
     const predictionTypeSelect = document.getElementById('prediction_type');
     const targetPriceInput = document.getElementById('target_price');
+    const percentChangeInput = document.getElementById('percent_change');
     const endDateInput = document.getElementById('end_date');
     const reasoningTextarea = document.getElementById('reasoning');
     const submitButton = document.querySelector('button[type="submit"]');
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time part for date comparison
+
     // Calculate min date - must be at least 1 week (7 days) in the future
     const minDate = new Date(today);
     minDate.setDate(minDate.getDate() + 7);
@@ -33,6 +36,9 @@ document.addEventListener('DOMContentLoaded', function () {
         endDateInput.min = formatDateForInput(minDate);
     }
 
+    // Flag to prevent circular updates between target price and percent change
+    let isUpdatingPrice = false;
+
     
 
     // Enable tooltips
@@ -42,11 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Update the form text to inform users of date constraints
-    if (
-        endDateInput != null &&
-        document.querySelector('#end_date').closest('.mb-4').querySelector('.form-text') != null) {
-        const dateHelpText = document.querySelector('#end_date').closest('.mb-4').querySelector('.form-text');
-        dateHelpText.innerHTML = `Select a date at least one week from today (on or after <strong>${formatDateForDisplay(minDate)}</strong>). Predictions must be for future dates beyond the current week.`;
+    if (endDateInput != null) {
+        const endDateContainer = document.querySelector('#end_date')?.closest('.mb-4');
+        const dateHelpText = endDateContainer?.querySelector('.form-text');
+        if (dateHelpText) {
+            dateHelpText.innerHTML = `Select a date at least one week from today (on or after <strong>${formatDateForDisplay(minDate)}</strong>). Predictions must be for future dates beyond the current week.`;
+        }
     }
 
     // Validation state object to track form validity
@@ -142,7 +149,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (/([A-Za-z]{2,5})(-[A-Za-z]{1,2})?/g.test(searchTerm) !== true) return;
+            // Allow searches for stock symbols (2-5 letters) or company names (2+ characters)
+            if (searchTerm.length < 2) return;
 
             // Set timeout to prevent excessive API calls
             searchTimeout = setTimeout(function () {
@@ -281,28 +289,153 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /**
-     * Validate target price (optional field)
+     * Validate target price (optional field) with direction enforcement
      */
     function validateTargetPrice() {
-        if (!targetPriceInput) return;
+        if (!targetPriceInput) return true;
 
         const targetPrice = targetPriceInput.value.trim();
 
         // Target price is optional but must be a valid number if provided
         if (targetPrice === '') {
             removeValidationStatus(targetPriceInput);
+            updatePercentChangeFromTargetPrice();
             return true;
         }
 
         const priceValue = parseFloat(targetPrice);
 
-        if (!isNaN(priceValue) && priceValue > 0) {
-            setFieldValid(targetPriceInput, `Target price set to $${priceValue.toFixed(2)}`);
-            return true;
-        } else {
+        if (isNaN(priceValue) || priceValue <= 0) {
             setFieldInvalid(targetPriceInput, 'Price must be a positive number');
             return false;
         }
+
+        // Enforce direction constraints if we have current price
+        const predictionType = document.querySelector('input[name="prediction_type"]:checked');
+
+        if (predictionType && currentStockPrice) {
+            const type = predictionType.value;
+
+            if (type === 'Bullish' && priceValue <= currentStockPrice) {
+                setFieldInvalid(targetPriceInput, `Bullish predictions require a target above $${currentStockPrice.toFixed(2)}`);
+                return false;
+            } else if (type === 'Bearish' && priceValue >= currentStockPrice) {
+                setFieldInvalid(targetPriceInput, `Bearish predictions require a target below $${currentStockPrice.toFixed(2)}`);
+                return false;
+            }
+        }
+
+        setFieldValid(targetPriceInput, `Target price set to $${priceValue.toFixed(2)}`);
+        updatePercentChangeFromTargetPrice();
+        return true;
+    }
+
+    /**
+     * Update percent change input based on target price
+     */
+    function updatePercentChangeFromTargetPrice() {
+        if (isUpdatingPrice || !percentChangeInput || !currentStockPrice) return;
+
+        isUpdatingPrice = true;
+
+        const targetPrice = parseFloat(targetPriceInput?.value);
+
+        if (!isNaN(targetPrice) && targetPrice > 0 && currentStockPrice > 0) {
+            const percentChange = ((targetPrice - currentStockPrice) / currentStockPrice) * 100;
+            percentChangeInput.value = percentChange.toFixed(2);
+        } else {
+            percentChangeInput.value = '';
+        }
+
+        isUpdatingPrice = false;
+    }
+
+    /**
+     * Update target price input based on percent change
+     */
+    function updateTargetPriceFromPercentChange() {
+        if (isUpdatingPrice || !targetPriceInput || !currentStockPrice) return;
+
+        isUpdatingPrice = true;
+
+        const percentChange = parseFloat(percentChangeInput?.value);
+
+        if (!isNaN(percentChange) && currentStockPrice > 0) {
+            const targetPrice = currentStockPrice * (1 + percentChange / 100);
+            targetPriceInput.value = targetPrice.toFixed(2);
+        } else {
+            targetPriceInput.value = '';
+        }
+
+        isUpdatingPrice = false;
+
+        // Validate the computed target price
+        validateTargetPrice();
+    }
+
+    /**
+     * Validate percent change with direction enforcement
+     */
+    function validatePercentChange() {
+        if (!percentChangeInput) return true;
+
+        const percentValue = parseFloat(percentChangeInput.value);
+        const predictionType = document.querySelector('input[name="prediction_type"]:checked');
+
+        if (percentChangeInput.value.trim() === '') {
+            removeValidationStatus(percentChangeInput);
+            return true;
+        }
+
+        if (isNaN(percentValue)) {
+            setFieldInvalid(percentChangeInput, 'Please enter a valid number');
+            return false;
+        }
+
+        if (predictionType) {
+            const type = predictionType.value;
+
+            if (type === 'Bullish' && percentValue <= 0) {
+                setFieldInvalid(percentChangeInput, 'Bullish predictions require a positive percent change');
+                return false;
+            } else if (type === 'Bearish' && percentValue >= 0) {
+                setFieldInvalid(percentChangeInput, 'Bearish predictions require a negative percent change');
+                return false;
+            }
+        }
+
+        setFieldValid(percentChangeInput, `${percentValue > 0 ? '+' : ''}${percentValue.toFixed(2)}% change`);
+        return true;
+    }
+
+    /**
+     * Enforce direction constraints by clamping values when direction changes
+     */
+    function enforceDirectionConstraints() {
+        const predictionType = document.querySelector('input[name="prediction_type"]:checked');
+        if (!predictionType || !currentStockPrice) return;
+
+        const type = predictionType.value;
+        const targetPrice = parseFloat(targetPriceInput?.value);
+
+        if (!isNaN(targetPrice) && targetPrice > 0) {
+            // Clamp or adjust invalid values based on direction
+            if (type === 'Bullish' && targetPrice <= currentStockPrice) {
+                // Set to 5% above current price for bullish
+                const newTarget = currentStockPrice * 1.05;
+                targetPriceInput.value = newTarget.toFixed(2);
+                updatePercentChangeFromTargetPrice();
+            } else if (type === 'Bearish' && targetPrice >= currentStockPrice) {
+                // Set to 5% below current price for bearish
+                const newTarget = currentStockPrice * 0.95;
+                targetPriceInput.value = newTarget.toFixed(2);
+                updatePercentChangeFromTargetPrice();
+            }
+        }
+
+        // Revalidate
+        validateTargetPrice();
+        validatePercentChange();
     }
 
     // Business day validation functions removed - no longer needed
@@ -479,9 +612,26 @@ document.addEventListener('DOMContentLoaded', function () {
      * Handle pre-populated fields from search results or edit form
      */
     function checkPrePopulatedFields() {
-        // Check if stock is pre-populated (in edit mode, the hidden input will have a value)
+        // Check if stock is pre-populated (in edit mode or from "Make Prediction" entry point)
         if (stockIdInput && stockIdInput.value) {
             validateStock(true);
+
+            // Extract symbol from the search input if available
+            if (stockSearchInput && stockSearchInput.value) {
+                const inputValue = stockSearchInput.value;
+                // Format is typically "SYMBOL - Company Name"
+                const symbolMatch = inputValue.match(/^([A-Z]+)/);
+                if (symbolMatch) {
+                    selectedStockSymbol = symbolMatch[1];
+                    // Show stock info card
+                    const parts = inputValue.split(' - ');
+                    if (parts.length >= 2) {
+                        showStockInfo(parts[0].trim(), parts.slice(1).join(' - ').trim());
+                    }
+                    // Fetch the current price for preselected stocks
+                    fetchStockPrice(selectedStockSymbol);
+                }
+            }
         }
 
         // Check if prediction type is pre-populated
@@ -509,12 +659,28 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add event listeners for real-time validation
     const predictionTypeRadios = document.querySelectorAll('input[name="prediction_type"]');
     predictionTypeRadios.forEach(radio => {
-        radio.addEventListener('change', validatePredictionType);
+        radio.addEventListener('change', function() {
+            validatePredictionType();
+            // When direction changes, enforce constraints and update suggestions
+            enforceDirectionConstraints();
+            if (currentStockPrice) {
+                updatePriceSuggestion(currentStockPrice);
+            }
+        });
     });
 
     if (targetPriceInput) {
         targetPriceInput.addEventListener('input', validateTargetPrice);
         targetPriceInput.addEventListener('blur', validateTargetPrice);
+    }
+
+    // Add event listener for percent change input
+    if (percentChangeInput) {
+        percentChangeInput.addEventListener('input', function() {
+            validatePercentChange();
+            updateTargetPriceFromPercentChange();
+        });
+        percentChangeInput.addEventListener('blur', validatePercentChange);
     }
 
     if (endDateInput) {
@@ -537,11 +703,16 @@ document.addEventListener('DOMContentLoaded', function () {
             validateReasoning();
             validateTargetPrice();
 
+            // Check confirmation checkbox
+            const confirmCheckbox = document.getElementById('confirm-checkbox');
+            const isConfirmed = confirmCheckbox && confirmCheckbox.checked;
+
             // Check if form is valid
             if (!validationState.stock ||
                 !validationState.predictionType ||
                 !validationState.endDate ||
-                !validationState.reasoning) {
+                !validationState.reasoning ||
+                !isConfirmed) {
 
                 event.preventDefault();
 
@@ -571,6 +742,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (!validationState.reasoning) {
                     errorMessages.push('Please provide detailed reasoning for your prediction (minimum 30 characters)');
+                }
+
+                if (!isConfirmed) {
+                    errorMessages.push('Please confirm that you understand predictions cannot be edited after submission');
                 }
 
                 // Add error messages to summary
@@ -663,7 +838,7 @@ document.addEventListener('DOMContentLoaded', function () {
             currentStepEl.classList.add('active');
         }
 
-        // Update step indicators
+        // Update step indicators (all 5 steps including confirmation)
         stepIndicators.forEach((indicator, index) => {
             const stepNum = index + 1;
             if (stepNum < step) {
@@ -685,14 +860,80 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (step === totalSteps) {
+            // On confirmation step
             nextBtn.style.display = 'none';
             submitBtn.style.display = 'inline-flex';
+            // Populate confirmation details
+            populateConfirmationScreen();
         } else {
             nextBtn.style.display = 'inline-flex';
             submitBtn.style.display = 'none';
         }
 
         currentStep = step;
+    }
+
+    /**
+     * Populate the confirmation screen with prediction details
+     */
+    function populateConfirmationScreen() {
+        // Stock info
+        const confirmStock = document.getElementById('confirm-stock');
+        if (confirmStock && stockSearchInput) {
+            confirmStock.textContent = stockSearchInput.value || 'Not selected';
+        }
+
+        // Current price
+        const confirmCurrentPrice = document.getElementById('confirm-current-price');
+        if (confirmCurrentPrice) {
+            confirmCurrentPrice.textContent = currentStockPrice ? `$${currentStockPrice.toFixed(2)}` : 'N/A';
+        }
+
+        // Direction
+        const confirmDirection = document.getElementById('confirm-direction');
+        const predictionType = document.querySelector('input[name="prediction_type"]:checked');
+        if (confirmDirection && predictionType) {
+            confirmDirection.textContent = predictionType.value;
+            confirmDirection.className = 'confirm-value direction-' + predictionType.value.toLowerCase();
+        }
+
+        // Target price
+        const confirmTargetPrice = document.getElementById('confirm-target-price');
+        if (confirmTargetPrice) {
+            const targetPrice = parseFloat(targetPriceInput?.value);
+            confirmTargetPrice.textContent = !isNaN(targetPrice) ? `$${targetPrice.toFixed(2)}` : 'Not set';
+        }
+
+        // Percent change
+        const confirmPercentChange = document.getElementById('confirm-percent-change');
+        if (confirmPercentChange) {
+            const percentChange = parseFloat(percentChangeInput?.value);
+            if (!isNaN(percentChange)) {
+                const sign = percentChange > 0 ? '+' : '';
+                confirmPercentChange.textContent = `${sign}${percentChange.toFixed(2)}%`;
+                confirmPercentChange.className = 'confirm-value ' + (percentChange > 0 ? 'positive' : 'negative');
+            } else {
+                confirmPercentChange.textContent = 'N/A';
+            }
+        }
+
+        // Timeframe
+        const confirmTimeframe = document.getElementById('confirm-timeframe');
+        if (confirmTimeframe && endDateInput?.value) {
+            const endDate = new Date(endDateInput.value);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            confirmTimeframe.textContent = endDate.toLocaleDateString('en-US', options);
+        }
+
+        // Reasoning preview
+        const confirmReasoning = document.getElementById('confirm-reasoning');
+        if (confirmReasoning && reasoningTextarea) {
+            const reasoning = reasoningTextarea.value.trim();
+            // Show first 200 characters with ellipsis if longer
+            confirmReasoning.textContent = reasoning.length > 200
+                ? reasoning.substring(0, 200) + '...'
+                : reasoning;
+        }
     }
 
     function validateCurrentStep() {
@@ -705,6 +946,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 return validationState.endDate;
             case 4:
                 return validationState.reasoning;
+            case 5:
+                // Confirmation step - already validated
+                return true;
             default:
                 return false;
         }
@@ -712,6 +956,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (nextBtn) {
         nextBtn.addEventListener('click', function() {
+            console.log('Next button clicked, currentStep:', currentStep);
+            console.log('validationState:', JSON.stringify(validationState));
+            console.log('validateCurrentStep() returns:', validateCurrentStep());
             if (validateCurrentStep()) {
                 if (currentStep < totalSteps) {
                     showStep(currentStep + 1);
@@ -836,15 +1083,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Update price suggestion when prediction type changes
-    const predictionTypeInputs = document.querySelectorAll('input[name="prediction_type"]');
-    predictionTypeInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            if (currentStockPrice) {
-                updatePriceSuggestion(currentStockPrice);
-            }
-        });
-    });
+    // Note: prediction type change listeners are already added above with direction enforcement
 
     // Initialize tooltips
     initTooltips();

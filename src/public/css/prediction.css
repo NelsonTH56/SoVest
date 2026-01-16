@@ -231,6 +231,38 @@
     z-index: 1;
 }
 
+.percent-sign {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #3b82f6;
+    font-size: 1.2rem;
+    font-weight: 700;
+    z-index: 1;
+}
+
+/* Target input wrapper for consistent heights */
+.target-input-wrapper {
+    position: relative;
+}
+
+.target-input-wrapper .form-control-lg {
+    height: 56px;
+    padding: 15px 45px 15px 45px;
+}
+
+.target-input-wrapper input[type="date"] {
+    padding-left: 45px;
+    padding-right: 15px;
+}
+
+/* Percent change input needs right padding for the % sign */
+#percent_change {
+    padding-left: 20px;
+    padding-right: 45px;
+}
+
 .form-control-enhanced {
     width: 100%;
     padding: 15px 20px;
@@ -508,6 +540,162 @@
     font-size: 1rem;
     margin-top: 0.2rem;
     flex-shrink: 0;
+}
+
+/* ========================================
+   CONFIRMATION STEP
+   ======================================== */
+.confirmation-icon {
+    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%) !important;
+}
+
+.confirmation-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid #ef4444;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.warning-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: #ef4444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.warning-content strong {
+    display: block;
+    color: #ef4444;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.warning-content p {
+    color: #d4d4d4;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.confirmation-summary {
+    background: #2c2c2c;
+    border: 2px solid #3a3a3a;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.summary-label {
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.confirm-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.confirm-value.direction-bullish {
+    color: #10b981;
+}
+
+.confirm-value.direction-bearish {
+    color: #ef4444;
+}
+
+.confirm-value.positive {
+    color: #10b981;
+}
+
+.confirm-value.negative {
+    color: #ef4444;
+}
+
+.summary-reasoning {
+    padding-top: 1rem;
+    border-top: 1px solid #3a3a3a;
+}
+
+.confirm-reasoning-text {
+    color: #d4d4d4;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0.5rem 0 0;
+    font-style: italic;
+}
+
+.confirmation-checkbox {
+    margin-top: 1.5rem;
+}
+
+.confirm-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 1rem;
+    background: rgba(16, 185, 129, 0.05);
+    border: 2px solid #3a3a3a;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.confirm-label:hover {
+    border-color: #10b981;
+}
+
+.confirm-label input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    accent-color: #10b981;
+    cursor: pointer;
+}
+
+.confirm-text {
+    color: #d4d4d4;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 /* ========================================
@@ -809,6 +997,26 @@ button:disabled {
     .stock-price-section {
         text-align: left;
     }
+
+    /* Confirmation step responsive */
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .confirmation-warning {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .warning-icon {
+        margin: 0 auto;
+    }
+
+    .confirm-label {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
 }
 
 @media (max-width: 480px) {
@@ -935,6 +1143,41 @@ body:not(.dark-mode) #stock-suggestions .list-group-item {
 body:not(.dark-mode) #stock-suggestions .list-group-item:hover {
     background: #f3f4f6 !important;
     color: #10b981 !important;
+}
+
+/* Light mode - Confirmation step */
+body:not(.dark-mode) .confirmation-summary {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .summary-title {
+    border-bottom-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .confirm-value {
+    color: #111827;
+}
+
+body:not(.dark-mode) .summary-reasoning {
+    border-top-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .confirm-reasoning-text {
+    color: #374151;
+}
+
+body:not(.dark-mode) .warning-content p {
+    color: #374151;
+}
+
+body:not(.dark-mode) .confirm-label {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .confirm-text {
+    color: #374151;
 }
 
 /* Global text transition */

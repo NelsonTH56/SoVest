@@ -66,7 +66,7 @@ class Prediction extends Model {
 
     /**
      * Get custom validation messages for Prediction model
-     * 
+     *
      * @return array<string, string>
      */
     protected function getValidationMessages()
@@ -81,7 +81,7 @@ class Prediction extends Model {
             'target_price.numeric' => 'Target price must be a numeric value',
             'end_date.required' => 'End date is required',
             'end_date.date' => 'End date must be a valid date',
-            'end_date.futureDate' => 'End date must be a business day (Monday-Friday) within the next 5 business days',
+            'end_date.futureDate' => 'End date must be at least 7 days in the future',
             'reasoning.required' => 'Reasoning for your prediction is required'
         ];
     }
@@ -187,8 +187,8 @@ class Prediction extends Model {
     }
 
     /**
-     * Validate that a date is a business day within the acceptable range
-     * 
+     * Validate that a date is at least 7 days in the future
+     *
      * @param string $attribute Attribute name being validated
      * @param mixed $value Date value to validate
      * @param array $parameters Additional parameters
@@ -209,40 +209,24 @@ class Prediction extends Model {
 
         // Convert to a DateTime object
         $dateObj = new \DateTime($value);
-        $now = new \DateTime();
-        
+        $dateObj->setTime(0, 0, 0);
+
         // Set today's time to midnight for accurate comparison
-        $today = new \DateTime($now->format('Y-m-d'));
-        
-        // Calculate the minimum allowable date (today if it's a business day, or next business day)
-        $minDate = $this->isBusinessDay($today) ? clone $today : $this->getNextBusinessDay($today);
-        
-        // Calculate the maximum allowable date (5 business days from min date)
-        $maxDate = $this->addBusinessDays($minDate, 1095);
-        
-        // Check if the date is a business day
-        if (!$this->isBusinessDay($dateObj)) {
-            $this->addError($attribute, $this->getMessage($attribute, 'futureDate', 
-                "The $attribute must be a business day (Monday-Friday)."));
-            return false;
-        }
-        
-        // Check if the date is at least the minimum date
+        $today = new \DateTime();
+        $today->setTime(0, 0, 0);
+
+        // Calculate the minimum allowable date (7 days from today)
+        $minDate = clone $today;
+        $minDate->modify('+7 days');
+
+        // Check if the date is at least 7 days in the future
         if ($dateObj < $minDate) {
-            $this->addError($attribute, $this->getMessage($attribute, 'futureDate', 
-                "The $attribute must be today or a future business day."));
+            $minDateStr = $minDate->format('l, F j, Y');
+            $this->addError($attribute, $this->getMessage($attribute, 'futureDate',
+                "The $attribute must be at least 7 days from today ($minDateStr or later)."));
             return false;
         }
-        
-        // Check if the date is at most the maximum date
-        if ($dateObj > $maxDate) {
-            // Format dates for friendly message
-            $maxDateStr = $maxDate->format('l, F j, Y');
-            $this->addError($attribute, $this->getMessage($attribute, 'futureDate', 
-                "The $attribute must be within 5 business days from now (no later than $maxDateStr)."));
-            return false;
-        }
-        
+
         return true;
     }
 

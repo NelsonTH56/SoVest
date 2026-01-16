@@ -124,13 +124,51 @@ class PredictionController extends Controller
         $userId = Auth::id();
 
         try {
+            // Get the stock to validate and fetch current price
+            $stockId = request()->input('stock_id');
+            $stock = Stock::find($stockId);
+
+            if (!$stock) {
+                if ($this->isApiRequest()) {
+                    return $this->jsonError("Invalid stock selected");
+                } else {
+                    return back()->withInput()->withErrors(['stock_id' => 'Invalid stock selected']);
+                }
+            }
+
+            // Re-fetch current stock price server-side to ensure accuracy
+            $currentPrice = $this->stockService->getLatestPrice($stock->symbol);
+
+            // Validate target price against prediction direction
+            $targetPrice = !empty(request()->input('target_price')) ?
+                (float) request()->input('target_price') : null;
+            $predictionType = request()->input('prediction_type');
+
+            if ($targetPrice !== null && $currentPrice !== false) {
+                // Enforce direction constraints server-side
+                if ($predictionType === 'Bullish' && $targetPrice <= $currentPrice) {
+                    $errorMsg = "Bullish predictions require a target price above the current price (\${$currentPrice})";
+                    if ($this->isApiRequest()) {
+                        return $this->jsonError($errorMsg);
+                    } else {
+                        return back()->withInput()->withErrors(['target_price' => $errorMsg]);
+                    }
+                } elseif ($predictionType === 'Bearish' && $targetPrice >= $currentPrice) {
+                    $errorMsg = "Bearish predictions require a target price below the current price (\${$currentPrice})";
+                    if ($this->isApiRequest()) {
+                        return $this->jsonError($errorMsg);
+                    } else {
+                        return back()->withInput()->withErrors(['target_price' => $errorMsg]);
+                    }
+                }
+            }
+
             // Create a new Prediction model instance
             $prediction = new Prediction([
                 'user_id' => $userId,
-                'stock_id' => request()->input('stock_id'),
-                'prediction_type' => request()->input('prediction_type'),
-                'target_price' => !empty(request()->input('target_price')) ? 
-                                (float) request()->input('target_price') : null,
+                'stock_id' => $stockId,
+                'prediction_type' => $predictionType,
+                'target_price' => $targetPrice,
                 'end_date' => request()->input('end_date'),
                 'reasoning' => request()->input('reasoning'),
                 'prediction_date' => date('Y-m-d H:i:s'),
@@ -142,11 +180,11 @@ class PredictionController extends Controller
             if ($prediction->validate()) {
                 // Validation passed, save the prediction
                 $prediction->save();
-                
+
                 // Determine if this is an API request or a form submission
                 if ($this->isApiRequest()) {
-                    $this->jsonSuccess("Prediction created successfully", 
-                        ['prediction_id' => $prediction->prediction_id], 
+                    return $this->jsonSuccess("Prediction created successfully",
+                        ['prediction_id' => $prediction->prediction_id],
                         '/predictions');
                 } else {
                     $this->withSuccess("Prediction created successfully");
@@ -155,7 +193,7 @@ class PredictionController extends Controller
             } else {
                 // Get validation errors
                 $errors = $prediction->getErrors();
-                
+
                 // Determine if this is an API request or a form submission
                 if ($this->isApiRequest()) {
                     $errorMessage = "Validation failed: ";
@@ -164,30 +202,17 @@ class PredictionController extends Controller
                             $errorMessage .= $error . " ";
                         }
                     }
-                    $this->jsonError(trim($errorMessage));
+                    return $this->jsonError(trim($errorMessage));
                 } else {
                     return back()->withInput()->withErrors($errors);
-                    // $this->withModelErrors($prediction);
-                    
-                    // // Get stocks using the injected service for the form
-                    // $stocks = $this->stockService->getStocks(true);
-                    
-                    // // Re-render the form with errors
-                    // return view('predictions/create', [
-                    //     'stocks' => $stocks,
-                    //     'isEditing' => false,
-                    //     'prediction' => $_POST,
-                    //     'pageTitle' => 'Create Prediction'
-                    // ]);
                 }
             }
         } catch (Exception $e) {
             if ($this->isApiRequest()) {
-                $this->jsonError("Error creating prediction: " . $e->getMessage());
+                return $this->jsonError("Error creating prediction: " . $e->getMessage());
             } else {
                 $this->withError("Error creating prediction: " . $e->getMessage());
-                //return $this->responseFormatter->redirect('predictions/create');
-                return redirect().back()->withInput()->withErrors($errors);
+                return redirect()->back()->withInput();
             }
         }
     }
@@ -761,13 +786,35 @@ class PredictionController extends Controller
                 return $this->jsonError("Missing required field: reasoning");
             }
 
+            // Get the stock and validate direction constraints
+            $stockId = request()->input('stock_id');
+            $stock = Stock::find($stockId);
+
+            if (!$stock) {
+                return $this->jsonError("Invalid stock selected");
+            }
+
+            // Re-fetch current stock price server-side
+            $currentPrice = $this->stockService->getLatestPrice($stock->symbol);
+            $targetPrice = !empty(request()->input('target_price')) ?
+                (float) request()->input('target_price') : null;
+            $predictionType = request()->input('prediction_type');
+
+            // Enforce direction constraints
+            if ($targetPrice !== null && $currentPrice !== false) {
+                if ($predictionType === 'Bullish' && $targetPrice <= $currentPrice) {
+                    return $this->jsonError("Bullish predictions require a target price above the current price (\${$currentPrice})");
+                } elseif ($predictionType === 'Bearish' && $targetPrice >= $currentPrice) {
+                    return $this->jsonError("Bearish predictions require a target price below the current price (\${$currentPrice})");
+                }
+            }
+
             // Create a new Prediction model instance
             $prediction = new Prediction([
                 'user_id' => $userId,
-                'stock_id' => request()->input('stock_id'),
-                'prediction_type' => request()->input('prediction_type'),
-                'target_price' => !empty(request()->input('target_price')) ?
-                                (float) request()->input('target_price') : null,
+                'stock_id' => $stockId,
+                'prediction_type' => $predictionType,
+                'target_price' => $targetPrice,
                 'end_date' => request()->input('end_date'),
                 'reasoning' => request()->input('reasoning'),
                 'prediction_date' => date('Y-m-d H:i:s'),

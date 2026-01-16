@@ -366,13 +366,14 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
     public function getUserPredictionStats($userId) {
         $stats = [
             'total' => 0,
+            'total_predictions' => 0,
             'accurate' => 0,
             'inaccurate' => 0,
             'pending' => 0,
             'avg_accuracy' => 0,
             'reputation' => 0
         ];
-        
+
         try {
             // Using Eloquent for aggregations
             $total = Prediction::where('user_id', $userId)->count();
@@ -385,8 +386,14 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
             $avgAccuracy = Prediction::where('user_id', $userId)
                 ->whereNotNull('accuracy')
                 ->avg('accuracy');
-            
+
+            // Finalized predictions = those with accuracy scores (evaluated)
+            $finalized = Prediction::where('user_id', $userId)
+                ->whereNotNull('accuracy')
+                ->count();
+
             $stats['total'] = $total;
+            $stats['total_predictions'] = $finalized; // Only finalized predictions for display
             $stats['pending'] = $pending;
             $stats['accurate'] = $accurate;
             $stats['inaccurate'] = $inaccurate;
