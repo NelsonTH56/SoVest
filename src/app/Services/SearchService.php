@@ -12,7 +12,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Support\Facades\DB;
 use App\Services\Interfaces\SearchServiceInterface;
 use App\Services\Interfaces\StockDataServiceInterface;
 use App\Models\SearchHistory;

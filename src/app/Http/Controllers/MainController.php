@@ -29,12 +29,10 @@ class MainController extends Controller
     {
         // If user is already logged in, redirect to home
         if (Auth::check()) {
-            // Use route name instead of direct file reference
             return redirect()->route('user.home');
         }
-        
-        // Display the landing page with data
-        //$predictions = Prediction::with('user')->orderBy('is_active')->paginate(10);
+
+        // Display the landing page
         return view('main');
     }
 

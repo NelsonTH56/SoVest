@@ -316,8 +316,8 @@ body.dark-mode .text-body-secondary {
 
 /* Make cards stretch to fill container (same as button) */
 .user-prediction-card {
-    width: 130%; /* ✅ Make it match the button width */
-    max-width: 130%; /* Keep it consistent */
+    width: 100%;
+    max-width: 100%;
     padding: 20px;
     border-radius: 8px;
     background-color: #fff;
@@ -493,12 +493,7 @@ a.prediction-link:hover {
     color: #dc3545;
 }
 
-.stock-vote{
-    margin-left: 45px;
-    margin-top: -10px;
-    height: 25px;
-    width: 25px;
-}
+/* Vote button styles moved to home.blade.php for better component isolation */
 
 .votes{
     margin-right: 10px;
@@ -601,6 +596,18 @@ a.prediction-link:hover {
     margin-top: -10px; /* Optional: Ensures spacing between buttons */
 }
 
+/* ===========================================
+   COMPREHENSIVE DARK MODE TEXT TRANSITIONS
+   =========================================== */
+
+/* Global transition for all text elements */
+body, h1, h2, h3, h4, h5, h6, p, span, a, li, td, th, label,
+div, small, strong, em, blockquote, figcaption, .prediction-title,
+.prediction-price, .prediction-date, .reasoning-text, .bio,
+.sidebar-header h5, .company-name {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
 /* Additional Dark Mode Styles for Prediction Cards and UI Elements */
 body.dark-mode .prediction-card {
     background: linear-gradient(145deg, #2d2d2d 0%, #1f1f1f 100%);
@@ -612,10 +619,32 @@ body.dark-mode .prediction-card:hover {
     box-shadow: 0 12px 40px rgba(16, 185, 129, 0.3);
 }
 
+body.dark-mode .prediction-card h4,
+body.dark-mode .prediction-card h5,
+body.dark-mode .prediction-card h6 {
+    color: #f3f4f6;
+}
+
+body.dark-mode .prediction-card p {
+    color: #d1d5db;
+}
+
+body.dark-mode .prediction-card .fw-bold {
+    color: #f3f4f6;
+}
+
 body.dark-mode .user-prediction-card {
     background-color: #2d2d2d;
     color: #e5e7eb;
     border: 1px solid #404040;
+}
+
+body.dark-mode .user-prediction-card h6 {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .user-prediction-card p {
+    color: #9ca3af !important;
 }
 
 body.dark-mode .drop-down-menu {
@@ -655,8 +684,73 @@ body.dark-mode h1,
 body.dark-mode h2,
 body.dark-mode h3,
 body.dark-mode h4,
-body.dark-mode h5 {
+body.dark-mode h5,
+body.dark-mode h6 {
     color: #f3f4f6;
+}
+
+/* Prediction-specific text elements */
+body.dark-mode .prediction-title {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .prediction-price,
+body.dark-mode .prediction-date {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .reasoning-text {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .company-name {
+    color: #f3f4f6 !important;
+}
+
+/* Sidebar elements */
+body.dark-mode .sidebar-header {
+    border-bottom-color: #404040 !important;
+}
+
+body.dark-mode .sidebar-header h5 {
+    color: #f3f4f6 !important;
+}
+
+/* Bio and profile elements */
+body.dark-mode .bio {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .profile-header h1,
+body.dark-mode .profile-header h2 {
+    color: #f3f4f6 !important;
+}
+
+/* Vote sections */
+body.dark-mode .vote-count {
+    color: #e5e7eb !important;
+}
+
+/* Bootstrap text utility overrides */
+body.dark-mode .text-dark {
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .text-black {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .text-body {
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .fw-bold,
+body.dark-mode .fw-semibold {
+    color: inherit;
+}
+
+body.dark-mode .text-white {
+    color: #f3f4f6 !important;
 }
 
 /* Dark Mode Styles for Scoring Algorithm Page */
@@ -700,6 +794,14 @@ body.dark-mode .text-gray-800 {
     color: #e5e7eb !important;
 }
 
+body.dark-mode .text-gray-600 {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .text-gray-500 {
+    color: #6b7280 !important;
+}
+
 body.dark-mode .shadow-lg {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
 }
@@ -707,5 +809,151 @@ body.dark-mode .shadow-lg {
 body.dark-mode .text-sm,
 body.dark-mode p {
     color: #d1d5db;
+}
+
+/* Card component text colors */
+body.dark-mode .card {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+
+body.dark-mode .card-body {
+    color: #e5e7eb;
+}
+
+body.dark-mode .card-body h5,
+body.dark-mode .card-body h6 {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .card-body p {
+    color: #d1d5db;
+}
+
+body.dark-mode .card-header {
+    background-color: #252525 !important;
+    border-bottom-color: #404040 !important;
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .card-footer {
+    background-color: #252525 !important;
+    border-top-color: #404040 !important;
+    color: #d1d5db !important;
+}
+
+/* List group items */
+body.dark-mode .list-group-item {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .list-group-item:hover {
+    background-color: #353535 !important;
+}
+
+/* Alert text colors */
+body.dark-mode .alert {
+    color: #e5e7eb;
+}
+
+body.dark-mode .alert-info {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    border-color: #3b82f6 !important;
+    color: #93c5fd !important;
+}
+
+body.dark-mode .alert-success {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    border-color: #10b981 !important;
+    color: #6ee7b7 !important;
+}
+
+body.dark-mode .alert-warning {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+    border-color: #f59e0b !important;
+    color: #fcd34d !important;
+}
+
+body.dark-mode .alert-danger {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    border-color: #ef4444 !important;
+    color: #fca5a5 !important;
+}
+
+/* Form elements */
+body.dark-mode .form-control {
+    background-color: #2a2a2a !important;
+    border-color: #404040 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .form-control:focus {
+    background-color: #2d2d2d !important;
+    border-color: #10b981 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #6b7280 !important;
+}
+
+body.dark-mode .form-select {
+    background-color: #2a2a2a !important;
+    border-color: #404040 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .form-select option {
+    background-color: #2a2a2a;
+    color: #e5e7eb;
+}
+
+body.dark-mode .form-label {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .form-text {
+    color: #9ca3af !important;
+}
+
+/* Border colors */
+body.dark-mode .border {
+    border-color: #404040 !important;
+}
+
+body.dark-mode .border-top {
+    border-top-color: #404040 !important;
+}
+
+body.dark-mode .border-bottom {
+    border-bottom-color: #404040 !important;
+}
+
+body.dark-mode .border-start {
+    border-left-color: #404040 !important;
+}
+
+body.dark-mode .border-end {
+    border-right-color: #404040 !important;
+}
+
+/* Pagination */
+body.dark-mode .pagination .page-link {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .pagination .page-item.active .page-link {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .pagination .page-link:hover {
+    background-color: #353535 !important;
+    color: #10b981 !important;
 }
 

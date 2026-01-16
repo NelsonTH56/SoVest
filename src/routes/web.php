@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\CommentController;
 
 // We're not really using routes here we just want to redirect to main.php
 
@@ -57,7 +58,14 @@ Route::controller(PredictionController::class)->group(function () {
             'netvotes' => $netVotes
         ]);
     });
-    
+
+});
+
+// Comment routes
+Route::controller(CommentController::class)->group(function () {
+    Route::get('/predictions/{id}/comments', 'index')->name('comments.index');
+    Route::post('/comments', 'store')->name('comments.store')->middleware('auth');
+    Route::delete('/comments/{id}', 'destroy')->name('comments.destroy')->middleware('auth');
 });
 
 // API routes with rate limiting
