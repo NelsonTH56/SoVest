@@ -12,8 +12,9 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Support\Facades\DB;
 use App\Services\Interfaces\SearchServiceInterface;
+use App\Services\Interfaces\StockDataServiceInterface;
 use App\Models\SearchHistory;
 use App\Models\SavedSearch;
 use App\Models\Stock;
@@ -23,6 +24,19 @@ use Exception;
 
 class SearchService implements SearchServiceInterface
 {
+    /**
+     * @var StockDataServiceInterface
+     */
+    protected $stockDataService;
+
+    /**
+     * Constructor
+     */
+    public function __construct(StockDataServiceInterface $stockDataService)
+    {
+        $this->stockDataService = $stockDataService;
+    }
+
     /**
      * Perform a search based on the query and type
      * 
@@ -49,11 +63,17 @@ class SearchService implements SearchServiceInterface
             
             switch ($type) {
                 case 'stocks':
-                    // Search stocks using Eloquent
+                    // Search stocks using Eloquent - prioritize exact matches
                     $stocksQuery = Stock::where('symbol', 'LIKE', $searchParam)
                         ->orWhere('company_name', 'LIKE', $searchParam)
                         ->orWhere('sector', 'LIKE', $searchParam)
                         ->select('stock_id', 'symbol', 'company_name', 'sector')
+                        ->orderByRaw("CASE
+                            WHEN symbol = ? THEN 1
+                            WHEN symbol LIKE ? THEN 2
+                            WHEN company_name LIKE ? THEN 3
+                            ELSE 4
+                        END", [$query, $query . '%', $searchParam])
                         ->limit($limit)
                         ->offset($offset)
                         ->get();
@@ -62,6 +82,12 @@ class SearchService implements SearchServiceInterface
                     $searchResults = $stocksQuery->map(function($stock) {
                         $stockArray = $stock->toArray();
                         $stockArray['result_type'] = 'stock';
+                        $stockArray['id'] = $stock->stock_id; // Add 'id' alias for consistency
+
+                        // Only get latest price from database (no API calls during search)
+                        $latestPrice = $this->stockDataService->getLatestPrice($stock->symbol);
+                        $stockArray['current_price'] = $latestPrice !== false ? (float)$latestPrice : null;
+
                         return $stockArray;
                     })->toArray();
                     break;
@@ -128,15 +154,27 @@ class SearchService implements SearchServiceInterface
                     // For combined searches, we'll do separate smaller queries for each type
                     $results = [];
                     
-                    // Search stocks (limited to 5)
+                    // Search stocks (limited to 5) - prioritize exact matches
                     $stocksQuery = Stock::where('symbol', 'LIKE', $searchParam)
                         ->orWhere('company_name', 'LIKE', $searchParam)
+                        ->orderByRaw("CASE
+                            WHEN symbol = ? THEN 1
+                            WHEN symbol LIKE ? THEN 2
+                            WHEN company_name LIKE ? THEN 3
+                            ELSE 4
+                        END", [$query, $query . '%', $searchParam])
                         ->limit(5)
                         ->get(['stock_id', 'symbol', 'company_name', 'sector']);
                     
                     foreach($stocksQuery as $stock) {
                         $stockArray = $stock->toArray();
                         $stockArray['result_type'] = 'stock';
+                        $stockArray['id'] = $stock->stock_id; // Add 'id' alias for consistency
+
+                        // Only get latest price from database (no API calls during search)
+                        $latestPrice = $this->stockDataService->getLatestPrice($stock->symbol);
+                        $stockArray['current_price'] = $latestPrice !== false ? (float)$latestPrice : null;
+
                         $results[] = $stockArray;
                     }
                     

@@ -1,10 +1,16 @@
 /**
  * SoVest Prediction Management
- * 
+ *
  * Enhanced client-side validation for prediction forms with real-time feedback
+ * Multi-step form with stock price fetching
  */
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Multi-step form variables
+    let currentStep = 1;
+    const totalSteps = 4;
+    let selectedStockSymbol = null;
+    let currentStockPrice = null;
     // Form elements
     const predictionForm = document.getElementById('prediction-form');
     const stockSearchInput = document.getElementById('stock-search');
@@ -13,20 +19,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const predictionTypeSelect = document.getElementById('prediction_type');
     const targetPriceInput = document.getElementById('target_price');
     const endDateInput = document.getElementById('end_date');
-    //const dateHelpText = document.querySelector('#end_date').closest('.mb-4').querySelector('.form-text');
-    const endDateFeedback = document.getElementById('end-date-feedback');
     const reasoningTextarea = document.getElementById('reasoning');
     const submitButton = document.querySelector('button[type="submit"]');
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time part for date comparison
-    // Calculate min/max dates for validation
-    const minDate = isBusinessDay(today) ? today : getNextBusinessDay(today);
-    const maxDate = addBusinessDays(minDate, 5);
+    // Calculate min date - must be at least 1 week (7 days) in the future
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 7);
 
+    // No maximum date restriction - can be any date after the minimum
     if (endDateInput != null) {
-        // Set min/max attributes on the date input
+        // Set min attribute on the date input (no max restriction)
         endDateInput.min = formatDateForInput(minDate);
-        endDateInput.max = formatDateForInput(maxDate);
     }
 
     
@@ -37,12 +41,12 @@ document.addEventListener('DOMContentLoaded', function () {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
-    // Update the form text to inform users of business day constraints
+    // Update the form text to inform users of date constraints
     if (
         endDateInput != null &&
         document.querySelector('#end_date').closest('.mb-4').querySelector('.form-text') != null) {
         const dateHelpText = document.querySelector('#end_date').closest('.mb-4').querySelector('.form-text');
-        dateHelpText.innerHTML = `Select a business day (Monday-Friday) between <strong>${formatDateForDisplay(minDate)}</strong> and <strong>${formatDateForDisplay(maxDate)}</strong>. Predictions must be within 5 business days.`;
+        dateHelpText.innerHTML = `Select a date at least one week from today (on or after <strong>${formatDateForDisplay(minDate)}</strong>). Predictions must be for future dates beyond the current week.`;
     }
 
     // Validation state object to track form validity
@@ -132,6 +136,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (searchTerm.length === 0) {
                 stockSuggestions.innerHTML = '';
                 stockIdInput.value = '';
+                selectedStockSymbol = null;
+                hideStockInfo();
                 validateStock(false);
                 return;
             }
@@ -158,8 +164,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                 suggestion.addEventListener('click', function () {
                                     stockSearchInput.value = `${stock.symbol} - ${stock.name}`;
                                     stockIdInput.value = stock.id;
+                                    selectedStockSymbol = stock.symbol;
                                     stockSuggestions.innerHTML = '';
                                     validateStock(true);
+                                    showStockInfo(stock.symbol, stock.name);
+                                    fetchStockPrice(stock.symbol);
                                 });
                                 suggestionsList.appendChild(suggestion);
                             });
@@ -259,15 +268,12 @@ document.addEventListener('DOMContentLoaded', function () {
      * Validate prediction type
      */
     function validatePredictionType() {
-        if (!predictionTypeSelect) return;
+        // Check for radio buttons instead of select
+        const selectedType = document.querySelector('input[name="prediction_type"]:checked');
 
-        const predictionType = predictionTypeSelect.value;
-
-        if (predictionType === 'Bullish' || predictionType === 'Bearish') {
-            setFieldValid(predictionTypeSelect, `You selected a ${predictionType.toLowerCase()} prediction`);
+        if (selectedType && (selectedType.value === 'Bullish' || selectedType.value === 'Bearish')) {
             validationState.predictionType = true;
         } else {
-            setFieldInvalid(predictionTypeSelect, 'Please select a prediction type');
             validationState.predictionType = false;
         }
 
@@ -299,73 +305,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    /**
-     * Check if a date is a business day (Monday to Friday)
-     * @param {Date} date - The date to check
-     * @return {boolean} - True if it's a business day, false otherwise
-     */
-    function isBusinessDay(date) {
-        const dayOfWeek = date.getUTCDay(); // 0 (Sunday) to 6 (Saturday), dates from the date control are in UTC so we must use getUTCDay() here.
-        return dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
-    }
-
-    /**
-     * Get the next business day from a given date
-     * @param {Date} date - The starting date
-     * @return {Date} - The next business day
-     */
-    function getNextBusinessDay(date) {
-        const nextDay = new Date(date);
-        nextDay.setDate(nextDay.getDate() + 1);
-
-        // Keep adding days until we find a business day
-        while (!isBusinessDay(nextDay)) {
-            nextDay.setDate(nextDay.getDate() + 1);
-        }
-
-        return nextDay;
-    }
-
-    /**
-     * Calculate the date that is exactly 5 business days from today
-     * @return {Date} - Date 5 business days from today/next business day
-     */
-    function getMaxBusinessDay() {
-        //const today = new Date();
-        //today.setHours(0, 0, 0, 0);
-
-        // Start from today if it's a business day, otherwise next business day
-        const startDate = isBusinessDay(today) ? new Date(today) : getNextBusinessDay(today);
-        return addBusinessDays(startDate, 5);
-    }
-
-    /**
-     * Calculate a date that is N business days from a given date
-     * @param {Date} startDate - The starting date
-     * @param {number} businessDays - Number of business days to add
-     * @return {Date} - Resulting date after adding business days
-     */
-    function addBusinessDays(startDate, businessDays) {
-        const result = new Date(startDate);
-
-        // If the start date is not a business day, start from the next business day
-        if (!isBusinessDay(result)) {
-            const nextBusiness = getNextBusinessDay(result);
-            result.setTime(nextBusiness.getTime());
-            // We already moved to the first business day, so subtract 1
-            businessDays--;
-        }
-
-        // Add the remaining business days
-        while (businessDays > 0) {
-            result.setDate(result.getDate() + 1);
-            if (isBusinessDay(result)) {
-                businessDays--;
-            }
-        }
-
-        return result;
-    }
+    // Business day validation functions removed - no longer needed
+    // as we only require dates to be at least 7 days in the future
 
     /**
      * Format date as YYYY-MM-DD for input fields
@@ -397,31 +338,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isNaN(endDate.getTime())) {
             setFieldInvalid(endDateInput, 'Please select a valid date');
             validationState.endDate = false;
-        } else if (!isBusinessDay(endDate)) {
-            setFieldInvalid(endDateInput, 'End date must be a business day (Monday-Friday)');
-            validationState.endDate = false;
         } else if (endDate < minDate) {
-            //TODO: there is a bug here because endDate, the data that is coming from the html controler, is int UTC and the minDate and maxDate aare local time
             const minDateStr = formatDateForDisplay(minDate);
-            setFieldInvalid(endDateInput, `End date must be today or a future business day (${minDateStr} or later)`);
-            validationState.endDate = false;
-        } else if (endDate > maxDate) {
-            const maxDateStr = formatDateForDisplay(maxDate);
-            setFieldInvalid(endDateInput, `End date must be within 5 business days (no later than ${maxDateStr})`);
+            setFieldInvalid(endDateInput, `End date must be at least one week from today (${minDateStr} or later)`);
             validationState.endDate = false;
         } else {
-            // Calculate business days from today for feedback
-            let businessDays = 0;
-            let currentDate = new Date(today);
+            // Calculate days from today for feedback
+            const daysDiff = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
-            while (currentDate < endDate) {
-                currentDate.setDate(currentDate.getDate() + 1);
-                if (isBusinessDay(currentDate)) {
-                    businessDays++;
-                }
-            }
-
-            setFieldValid(endDateInput, `Prediction timeframe: ${businessDays} business day${businessDays !== 1 ? 's' : ''} from now`);
+            setFieldValid(endDateInput, `Prediction timeframe: ${daysDiff} day${daysDiff !== 1 ? 's' : ''} from now`);
             validationState.endDate = true;
         }
 
@@ -560,7 +485,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Check if prediction type is pre-populated
-        if (predictionTypeSelect && predictionTypeSelect.value) {
+        const selectedPredictionType = document.querySelector('input[name="prediction_type"]:checked');
+        if (selectedPredictionType) {
             validatePredictionType();
         }
 
@@ -581,9 +507,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Add event listeners for real-time validation
-    if (predictionTypeSelect) {
-        predictionTypeSelect.addEventListener('change', validatePredictionType);
-    }
+    const predictionTypeRadios = document.querySelectorAll('input[name="prediction_type"]');
+    predictionTypeRadios.forEach(radio => {
+        radio.addEventListener('change', validatePredictionType);
+    });
 
     if (targetPriceInput) {
         targetPriceInput.addEventListener('input', validateTargetPrice);
@@ -717,9 +644,214 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    /**
+     * Multi-step form navigation
+     */
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const formSteps = document.querySelectorAll('.form-step');
+    const stepIndicators = document.querySelectorAll('.step');
+
+    function showStep(step) {
+        // Hide all steps
+        formSteps.forEach(s => s.classList.remove('active'));
+
+        // Show current step
+        const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+        if (currentStepEl) {
+            currentStepEl.classList.add('active');
+        }
+
+        // Update step indicators
+        stepIndicators.forEach((indicator, index) => {
+            const stepNum = index + 1;
+            if (stepNum < step) {
+                indicator.classList.add('completed');
+                indicator.classList.remove('active');
+            } else if (stepNum === step) {
+                indicator.classList.add('active');
+                indicator.classList.remove('completed');
+            } else {
+                indicator.classList.remove('active', 'completed');
+            }
+        });
+
+        // Update buttons
+        if (step === 1) {
+            prevBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'inline-flex';
+        }
+
+        if (step === totalSteps) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'inline-flex';
+        } else {
+            nextBtn.style.display = 'inline-flex';
+            submitBtn.style.display = 'none';
+        }
+
+        currentStep = step;
+    }
+
+    function validateCurrentStep() {
+        switch(currentStep) {
+            case 1:
+                return validationState.stock;
+            case 2:
+                return validationState.predictionType;
+            case 3:
+                return validationState.endDate;
+            case 4:
+                return validationState.reasoning;
+            default:
+                return false;
+        }
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            if (validateCurrentStep()) {
+                if (currentStep < totalSteps) {
+                    showStep(currentStep + 1);
+                }
+            } else {
+                // Show validation errors for current step
+                switch(currentStep) {
+                    case 1:
+                        validateStock();
+                        break;
+                    case 2:
+                        validatePredictionType();
+                        break;
+                    case 3:
+                        validateEndDate();
+                        break;
+                    case 4:
+                        validateReasoning();
+                        break;
+                }
+            }
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        });
+    }
+
+    /**
+     * Stock price fetching functionality
+     */
+    function showStockInfo(symbol, name) {
+        const stockInfoCard = document.getElementById('stock-info-card');
+        const stockNameEl = document.getElementById('stock-name');
+        const stockSymbolEl = document.getElementById('stock-symbol');
+
+        if (stockInfoCard && stockNameEl && stockSymbolEl) {
+            stockNameEl.textContent = name;
+            stockSymbolEl.textContent = symbol;
+            stockInfoCard.style.display = 'block';
+
+            // Show loader, hide price
+            document.getElementById('current-price-loader').style.display = 'block';
+            document.getElementById('current-price-display').style.display = 'none';
+        }
+    }
+
+    function hideStockInfo() {
+        const stockInfoCard = document.getElementById('stock-info-card');
+        if (stockInfoCard) {
+            stockInfoCard.style.display = 'none';
+        }
+        currentStockPrice = null;
+    }
+
+    function fetchStockPrice(symbol) {
+        if (!symbol || !apiEndpoints.getStockPrice) return;
+
+        const priceUrl = `${apiEndpoints.getStockPrice}/${symbol}/price`;
+
+        fetch(priceUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data && data.data.price) {
+                    currentStockPrice = parseFloat(data.data.price);
+                    displayStockPrice(currentStockPrice);
+                    updatePriceSuggestion(currentStockPrice);
+                } else {
+                    displayStockPriceError();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching stock price:', error);
+                displayStockPriceError();
+            });
+    }
+
+    function displayStockPrice(price) {
+        const priceDisplay = document.getElementById('current-price');
+        const priceLoader = document.getElementById('current-price-loader');
+        const priceSection = document.getElementById('current-price-display');
+
+        if (priceDisplay && priceLoader && priceSection) {
+            priceDisplay.textContent = `$${price.toFixed(2)}`;
+            priceLoader.style.display = 'none';
+            priceSection.style.display = 'block';
+        }
+    }
+
+    function displayStockPriceError() {
+        const priceDisplay = document.getElementById('current-price');
+        const priceLoader = document.getElementById('current-price-loader');
+        const priceSection = document.getElementById('current-price-display');
+
+        if (priceDisplay && priceLoader && priceSection) {
+            priceDisplay.textContent = 'N/A';
+            priceLoader.style.display = 'none';
+            priceSection.style.display = 'block';
+        }
+    }
+
+    function updatePriceSuggestion(currentPrice) {
+        const priceSuggestion = document.getElementById('price-suggestion');
+        const predictionType = document.querySelector('input[name="prediction_type"]:checked');
+
+        if (priceSuggestion && currentPrice && predictionType) {
+            const type = predictionType.value;
+            const suggestedIncrease = currentPrice * 0.10; // 10% increase
+            const suggestedDecrease = currentPrice * 0.10; // 10% decrease
+
+            if (type === 'Bullish') {
+                const targetPrice = (currentPrice + suggestedIncrease).toFixed(2);
+                priceSuggestion.innerHTML = `Current: $${currentPrice.toFixed(2)}. Try $${targetPrice} (+10%) as a target`;
+            } else if (type === 'Bearish') {
+                const targetPrice = (currentPrice - suggestedDecrease).toFixed(2);
+                priceSuggestion.innerHTML = `Current: $${currentPrice.toFixed(2)}. Try $${targetPrice} (-10%) as a target`;
+            }
+        }
+    }
+
+    // Update price suggestion when prediction type changes
+    const predictionTypeInputs = document.querySelectorAll('input[name="prediction_type"]');
+    predictionTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (currentStockPrice) {
+                updatePriceSuggestion(currentStockPrice);
+            }
+        });
+    });
+
     // Initialize tooltips
     initTooltips();
 
     // Check pre-populated fields
     checkPrePopulatedFields();
+
+    // Initialize first step
+    showStep(1);
 });

@@ -3,13 +3,13 @@
 namespace Tests\Browser;
 
 use App\Models\User;
-//use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 
 class PredictionEndDateTest extends DuskTestCase
 {
-    //use DatabaseMigrations;
+    use DatabaseMigrations;
 
     /**
      * Test validation for weekend date selection

@@ -268,11 +268,21 @@ class Prediction extends Model {
 
     /**
      * Get the votes for this prediction.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function votes()
     {
         return $this->hasMany(PredictionVote::class, 'prediction_id');
+    }
+
+    /**
+     * Get the comments for this prediction.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany(PredictionComment::class, 'prediction_id', 'prediction_id');
     }
 }

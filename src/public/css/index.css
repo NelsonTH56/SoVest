@@ -1,59 +1,134 @@
 body {
     height: 100%;
     margin: 0;
-    background-image: url(images/background.png);
-    background-blend-mode: lighten;
-    background-color: #f7f2f2;
-    color: black;
+    background: linear-gradient(180deg, #f9fafb 0%, #e5e7eb 100%);
+    background-attachment: fixed;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #e5e7eb;
+}
+
+body.dark-mode .container {
+    color: #e5e7eb;
+}
+
+body.dark-mode header {
+    border-bottom-color: #404040 !important;
+}
+
+body.dark-mode footer {
+    border-top-color: #404040 !important;
+    color: #9ca3af;
+}
+
+body.dark-mode .link-body-emphasis {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .link-secondary {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .text-body-secondary {
+    color: #9ca3af !important;
 }
 
 
 .prediction-card {
     justify-self: center;
-    border: 2px solid rgb(180, 180, 180); /* Light gray border */
-    transition: background-color 0.2s easse, box-shadow 0.3s ease;
-    border-radius: 10px;    /* Rounded corners */
-    padding: 15px;          /* Optional: Adds space inside the box */
-    margin-bottom: 20px;    /* Optional: Adds space below each card */
-    background: #fff; /* Optional: Sets background color */
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
     width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: visible;
+}
+
+.prediction-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.prediction-card:hover::before {
+    opacity: 1;
 }
 
 .prediction-card:hover {
-    background-color: #a7a7a7;  /* Change to your desired highlight color */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Optional: adds a shadow effect on hover */
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
     cursor: pointer;
 }
 .search-form {
     display: flex;
     align-items: center;
     width: 100%;
-    max-width: 500px;
+    max-width: 550px;
     margin: 0 auto;
-    border-radius: 25px;
-    background-color:rgb(162, 211, 173);
-    padding: 5px 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    /*opacity: .5; */
+    border-radius: 50px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: 6px 12px;
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-form:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(16, 185, 129, 0.4);
 }
 
 .search-input {
     flex: 1;
     border: none;
-    border-radius: 25px;
-    padding: 10px 15px;
+    border-radius: 50px;
+    padding: 12px 20px;
     font-size: 16px;
     outline: none;
-    background-color: transparent;
+    background-color: white;
+    color: #111827;
+    font-weight: 500;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
 }
 
 .search-button {
-    background: none;
+    background: white;
     border: none;
     font-size: 20px;
     cursor: pointer;
-    padding: 0 10px;
-    color: #333;
+    padding: 8px 12px;
+    color: #10b981;
+    border-radius: 50%;
+    margin-left: 8px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-button:hover {
+    background: #f0fdf4;
+    transform: scale(1.1);
 }
 
 
@@ -62,24 +137,58 @@ body {
 }
 
 .btn-primary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary-2 {
     background-color: #28a745;
     border-color: #28a745;
-    margin-left: 15%;
 }
 
 .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.btn-primary-2:hover {
     background-color: #218838;
     border-color: #1e7e34;
 }
 
 .btn-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
 }
 
 .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
 } 
 
 
@@ -94,8 +203,20 @@ body {
 }
 
 .active {
-    font-weight: bold;
-    color: rgb(162, 211, 173);
+    font-weight: 700;
+    color: #10b981;
+    position: relative;
+}
+
+.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+    border-radius: 2px;
 }
 
 .prediction-header {
@@ -195,8 +316,8 @@ body {
 
 /* Make cards stretch to fill container (same as button) */
 .user-prediction-card {
-    width: 130%; /* ✅ Make it match the button width */
-    max-width: 130%; /* Keep it consistent */
+    width: 100%;
+    max-width: 100%;
     padding: 20px;
     border-radius: 8px;
     background-color: #fff;
@@ -372,12 +493,7 @@ a.prediction-link:hover {
     color: #dc3545;
 }
 
-.stock-vote{
-    margin-left: 45px;
-    margin-top: -10px;
-    height: 25px;
-    width: 25px;
-}
+/* Vote button styles moved to home.blade.php for better component isolation */
 
 .votes{
     margin-right: 10px;
@@ -478,5 +594,366 @@ a.prediction-link:hover {
 
 .save-bio {
     margin-top: -10px; /* Optional: Ensures spacing between buttons */
+}
+
+/* ===========================================
+   COMPREHENSIVE DARK MODE TEXT TRANSITIONS
+   =========================================== */
+
+/* Global transition for all text elements */
+body, h1, h2, h3, h4, h5, h6, p, span, a, li, td, th, label,
+div, small, strong, em, blockquote, figcaption, .prediction-title,
+.prediction-price, .prediction-date, .reasoning-text, .bio,
+.sidebar-header h5, .company-name {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Additional Dark Mode Styles for Prediction Cards and UI Elements */
+body.dark-mode .prediction-card {
+    background: linear-gradient(145deg, #2d2d2d 0%, #1f1f1f 100%);
+    border-color: #404040;
+    color: #e5e7eb;
+}
+
+body.dark-mode .prediction-card:hover {
+    box-shadow: 0 12px 40px rgba(16, 185, 129, 0.3);
+}
+
+body.dark-mode .prediction-card h4,
+body.dark-mode .prediction-card h5,
+body.dark-mode .prediction-card h6 {
+    color: #f3f4f6;
+}
+
+body.dark-mode .prediction-card p {
+    color: #d1d5db;
+}
+
+body.dark-mode .prediction-card .fw-bold {
+    color: #f3f4f6;
+}
+
+body.dark-mode .user-prediction-card {
+    background-color: #2d2d2d;
+    color: #e5e7eb;
+    border: 1px solid #404040;
+}
+
+body.dark-mode .user-prediction-card h6 {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .user-prediction-card p {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .drop-down-menu {
+    background-color: #2d2d2d;
+    border: 1px solid #404040;
+}
+
+body.dark-mode .drop-down-items {
+    color: #e5e7eb;
+}
+
+body.dark-mode .drop-down-items:hover {
+    background-color: #1f1f1f;
+}
+
+body.dark-mode .modal-content {
+    background-color: #2d2d2d !important;
+    color: #e5e7eb !important;
+    border: 1px solid #404040;
+}
+
+body.dark-mode .search-input {
+    background-color: #2d2d2d;
+    color: #e5e7eb;
+    border: 1px solid #404040;
+}
+
+body.dark-mode .search-input::placeholder {
+    color: #6b7280;
+}
+
+body.dark-mode .text-primary {
+    color: #10b981 !important;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+    color: #f3f4f6;
+}
+
+/* Prediction-specific text elements */
+body.dark-mode .prediction-title {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .prediction-price,
+body.dark-mode .prediction-date {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .reasoning-text {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .company-name {
+    color: #f3f4f6 !important;
+}
+
+/* Sidebar elements */
+body.dark-mode .sidebar-header {
+    border-bottom-color: #404040 !important;
+}
+
+body.dark-mode .sidebar-header h5 {
+    color: #f3f4f6 !important;
+}
+
+/* Bio and profile elements */
+body.dark-mode .bio {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .profile-header h1,
+body.dark-mode .profile-header h2 {
+    color: #f3f4f6 !important;
+}
+
+/* Vote sections */
+body.dark-mode .vote-count {
+    color: #e5e7eb !important;
+}
+
+/* Bootstrap text utility overrides */
+body.dark-mode .text-dark {
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .text-black {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .text-body {
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .fw-bold,
+body.dark-mode .fw-semibold {
+    color: inherit;
+}
+
+body.dark-mode .text-white {
+    color: #f3f4f6 !important;
+}
+
+/* Dark Mode Styles for Scoring Algorithm Page */
+body.dark-mode .text-\[\\#1A1A1A\] {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .bg-white {
+    background-color: #2d2d2d !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .bg-red-100 {
+    background-color: #7f1d1d !important;
+    color: #fecaca !important;
+}
+
+body.dark-mode .border-red-300 {
+    border-color: #b91c1c !important;
+}
+
+body.dark-mode .bg-gray-100 {
+    background-color: #374151 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .border-gray-300 {
+    border-color: #6b7280 !important;
+}
+
+body.dark-mode .bg-green-100 {
+    background-color: #14532d !important;
+    color: #bbf7d0 !important;
+}
+
+body.dark-mode .border-green-300 {
+    border-color: #16a34a !important;
+}
+
+body.dark-mode .text-gray-800 {
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .text-gray-600 {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+body.dark-mode .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .text-sm,
+body.dark-mode p {
+    color: #d1d5db;
+}
+
+/* Card component text colors */
+body.dark-mode .card {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+
+body.dark-mode .card-body {
+    color: #e5e7eb;
+}
+
+body.dark-mode .card-body h5,
+body.dark-mode .card-body h6 {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .card-body p {
+    color: #d1d5db;
+}
+
+body.dark-mode .card-header {
+    background-color: #252525 !important;
+    border-bottom-color: #404040 !important;
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode .card-footer {
+    background-color: #252525 !important;
+    border-top-color: #404040 !important;
+    color: #d1d5db !important;
+}
+
+/* List group items */
+body.dark-mode .list-group-item {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .list-group-item:hover {
+    background-color: #353535 !important;
+}
+
+/* Alert text colors */
+body.dark-mode .alert {
+    color: #e5e7eb;
+}
+
+body.dark-mode .alert-info {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    border-color: #3b82f6 !important;
+    color: #93c5fd !important;
+}
+
+body.dark-mode .alert-success {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    border-color: #10b981 !important;
+    color: #6ee7b7 !important;
+}
+
+body.dark-mode .alert-warning {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+    border-color: #f59e0b !important;
+    color: #fcd34d !important;
+}
+
+body.dark-mode .alert-danger {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    border-color: #ef4444 !important;
+    color: #fca5a5 !important;
+}
+
+/* Form elements */
+body.dark-mode .form-control {
+    background-color: #2a2a2a !important;
+    border-color: #404040 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .form-control:focus {
+    background-color: #2d2d2d !important;
+    border-color: #10b981 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #6b7280 !important;
+}
+
+body.dark-mode .form-select {
+    background-color: #2a2a2a !important;
+    border-color: #404040 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .form-select option {
+    background-color: #2a2a2a;
+    color: #e5e7eb;
+}
+
+body.dark-mode .form-label {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .form-text {
+    color: #9ca3af !important;
+}
+
+/* Border colors */
+body.dark-mode .border {
+    border-color: #404040 !important;
+}
+
+body.dark-mode .border-top {
+    border-top-color: #404040 !important;
+}
+
+body.dark-mode .border-bottom {
+    border-bottom-color: #404040 !important;
+}
+
+body.dark-mode .border-start {
+    border-left-color: #404040 !important;
+}
+
+body.dark-mode .border-end {
+    border-right-color: #404040 !important;
+}
+
+/* Pagination */
+body.dark-mode .pagination .page-link {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .pagination .page-item.active .page-link {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .pagination .page-link:hover {
+    background-color: #353535 !important;
+    color: #10b981 !important;
 }
 

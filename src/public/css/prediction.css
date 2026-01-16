@@ -1,9 +1,582 @@
 /**
- * SoVest Prediction Styles
+ * SoVest Prediction Styles - Enhanced Multi-Step Form
  */
 
+/* ========================================
+   MULTI-STEP FORM PROGRESS INDICATOR
+   ======================================== */
+.prediction-steps {
+    max-width: 700px;
+    margin: 0 auto;
+}
 
-/* Stock suggestions - Updated positioning */
+.steps-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #2c2c2c;
+    border: 3px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #888;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+    background: linear-gradient(135deg, #10b981, #3b82f6);
+    border-color: #10b981;
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    transform: scale(1.1);
+}
+
+.step.completed .step-number {
+    background: #10b981;
+    border-color: #10b981;
+    color: transparent;
+    position: relative;
+}
+
+.step.completed .step-number::after {
+    content: "✓";
+    position: absolute;
+    font-size: 1.5rem;
+    color: white;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.step-label {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 500;
+    text-align: center;
+}
+
+.step.active .step-label {
+    color: #10b981;
+    font-weight: 700;
+}
+
+.step.completed .step-label {
+    color: #10b981;
+}
+
+.step-line {
+    flex: 1;
+    height: 3px;
+    background: #444;
+    margin: 0 10px;
+    position: relative;
+    top: -20px;
+    transition: background 0.3s ease;
+}
+
+.step.completed + .step-line {
+    background: #10b981;
+}
+
+/* ========================================
+   FORM CARD & STEPS
+   ======================================== */
+.prediction-create-container {
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.prediction-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+}
+
+.prediction-form-card {
+    background: #1a1a1a;
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid #2c2c2c;
+}
+
+.form-step {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.form-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.step-content {
+    min-height: 400px;
+}
+
+.step-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #10b981, #3b82f6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: white;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.step-title {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.step-description {
+    text-align: center;
+    color: #888;
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+/* ========================================
+   ENHANCED FORM CONTROLS
+   ======================================== */
+.form-group-enhanced {
+    margin-bottom: 2rem;
+}
+
+.form-label-enhanced {
+    display: block;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #d4d4d4;
+    margin-bottom: 0.75rem;
+}
+
+.form-label-enhanced i {
+    margin-right: 0.5rem;
+}
+
+.optional-badge {
+    display: inline-block;
+    background: #3b82f6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 1.1rem;
+    z-index: 1;
+}
+
+.dollar-sign {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #f59e0b;
+    font-size: 1.2rem;
+    font-weight: 700;
+    z-index: 1;
+}
+
+.form-control-enhanced {
+    width: 100%;
+    padding: 15px 20px;
+    padding-left: 45px;
+    background: #2c2c2c;
+    border: 2px solid #3a3a3a;
+    border-radius: 12px;
+    color: #d4d4d4;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control-enhanced:focus {
+    outline: none;
+    border-color: #10b981;
+    background: #333;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.form-control-enhanced::placeholder {
+    color: #666;
+}
+
+.textarea-enhanced {
+    min-height: 150px;
+    resize: vertical;
+    padding-left: 20px !important;
+    line-height: 1.6;
+    font-family: inherit;
+}
+
+.form-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #888;
+    font-size: 0.875rem;
+}
+
+.form-hint i {
+    color: #3b82f6;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #ef4444;
+    font-size: 0.875rem;
+}
+
+.character-counter {
+    color: #888;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.character-counter.success {
+    color: #10b981;
+}
+
+.reasoning-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+/* ========================================
+   STOCK INFO CARD
+   ======================================== */
+.stock-info-card {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #2c2c2c 0%, #1f1f1f 100%);
+    border: 2px solid #10b981;
+    border-radius: 15px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stock-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stock-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.stock-symbol {
+    font-size: 0.95rem;
+    color: #888;
+    margin: 0.25rem 0 0 0;
+}
+
+.stock-price-section {
+    text-align: right;
+}
+
+.current-price-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.current-price {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #10b981;
+}
+
+.price-loader {
+    padding: 0.5rem 0;
+}
+
+/* ========================================
+   PREDICTION TYPE CARDS
+   ======================================== */
+.prediction-type-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.btn-check {
+    position: absolute;
+    clip: rect(0,0,0,0);
+    pointer-events: none;
+}
+
+.prediction-type-card {
+    padding: 2rem 1.5rem;
+    background: #2c2c2c;
+    border: 3px solid #3a3a3a;
+    border-radius: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.prediction-type-card:hover {
+    border-color: #10b981;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+}
+
+.btn-check:checked + .prediction-type-card {
+    border-color: #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+}
+
+.btn-check:checked + .bullish-card {
+    border-color: #10b981;
+}
+
+.btn-check:checked + .bearish-card {
+    border-color: #ef4444;
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+}
+
+.prediction-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.bullish-card .prediction-icon {
+    color: #10b981;
+}
+
+.bearish-card .prediction-icon {
+    color: #ef4444;
+}
+
+.prediction-type-card h4 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.prediction-type-card p {
+    color: #888;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.prediction-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.bullish-card .prediction-badge {
+    color: #10b981;
+}
+
+.bearish-card .prediction-badge {
+    color: #ef4444;
+}
+
+/* ========================================
+   TIPS CARD
+   ======================================== */
+.tips-card {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border: 2px solid #3b82f6;
+    border-radius: 15px;
+}
+
+.tips-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-bottom: 1rem;
+}
+
+.tips-title i {
+    font-size: 1.4rem;
+}
+
+.tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tips-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    color: #d4d4d4;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.tips-list li:last-child {
+    margin-bottom: 0;
+}
+
+.tips-list i {
+    color: #10b981;
+    font-size: 1rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   NAVIGATION BUTTONS
+   ======================================== */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid #2c2c2c;
+}
+
+.btn-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    background: #2c2c2c;
+    border: 2px solid #3a3a3a;
+    border-radius: 12px;
+    color: #d4d4d4;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-nav:hover {
+    background: #333;
+    border-color: #10b981;
+    color: #10b981;
+    transform: translateX(-3px);
+}
+
+.btn-next:hover {
+    transform: translateX(3px);
+}
+
+.btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    margin-left: auto;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   STOCK SUGGESTIONS DROPDOWN
+   ======================================== */
 #stock-suggestions {
     position: relative;
     z-index: 1000;
@@ -14,33 +587,44 @@
 #stock-suggestions .list-group {
     position: absolute;
     width: 100%;
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
-    border: 1px solid #444;
-    border-radius: 5px;
-    margin-top: 5px; /* Add spacing between input and dropdown */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow for better visibility */
-    z-index: 1500; /* Ensure it appears above other elements */
+    border: 2px solid #10b981;
+    border-radius: 12px;
+    margin-top: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1500;
+    background: #1a1a1a;
 }
 
-/* Ensure list-group-items are properly styled and visible */
 #stock-suggestions .list-group-item {
-    padding: 10px 15px;
+    padding: 15px 20px;
     cursor: pointer;
     transition: background-color 0.2s;
-    display: block; /* Ensure items are displayed as blocks */
-    border-bottom: 1px solid #444; /* Add separator between items */
+    display: block;
+    border-bottom: 1px solid #2c2c2c;
+    background: #1a1a1a;
+    color: #d4d4d4;
 }
 
 #stock-suggestions .list-group-item:last-child {
-    border-bottom: none; /* Remove border from last item */
+    border-bottom: none;
 }
 
-#stock-suggestions .list-group-item:hover {
-    background-color: #3a3a3a !important;
+#stock-suggestions .list-group-item:hover,
+#stock-suggestions .list-group-item.active {
+    background-color: #2c2c2c !important;
+    color: #10b981 !important;
 }
 
-/* Prediction type badges */
+#stock-suggestions .list-group-item strong {
+    color: #10b981;
+    font-weight: 700;
+}
+
+/* ========================================
+   LEGACY STYLES (kept for compatibility)
+   ======================================== */
 .badge.bullish {
     background-color: #28a745;
 }
@@ -49,7 +633,6 @@
     background-color: #dc3545;
 }
 
-/* Prediction cards */
 .prediction-card {
     transition: transform 0.2s, box-shadow 0.2s;
     border: 1px solid #3a3a3a;
@@ -60,7 +643,6 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Form styles */
 .form-select option {
     background-color: #333;
     color: #d4d4d4;
@@ -72,7 +654,7 @@ textarea.form-control {
 }
 
 .btn-green {
-    background-color: #28a745 !important; /* Bootstrap's green */
+    background-color: #28a745 !important;
     border-color: #28a745 !important;
     color: white;
 }
@@ -82,23 +664,12 @@ textarea.form-control {
     border-color: #1e7e34 !important;
 }
 
-/* Enhanced validation styles */
 .is-valid {
     border-color: #28a745 !important;
-    padding-right: calc(1.5em + 0.75rem) !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
-    background-repeat: no-repeat !important;
-    background-position: right calc(0.375em + 0.1875rem) center !important;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
 }
 
 .is-invalid {
     border-color: #dc3545 !important;
-    padding-right: calc(1.5em + 0.75rem) !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23dc3545' viewBox='-2 -2 7 7'%3e%3cpath stroke='%23dc3545' d='M0 0l3 3m0-3L0 3'/%3e%3ccircle r='.5'/%3e%3ccircle cx='3' r='.5'/%3e%3ccircle cy='3' r='.5'/%3e%3ccircle cx='3' cy='3' r='.5'/%3e%3c/svg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: right calc(0.375em + 0.1875rem) center !important;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
 }
 
 .valid-feedback, .invalid-feedback {
@@ -116,7 +687,6 @@ textarea.form-control {
     color: #dc3545;
 }
 
-/* Dynamic tooltips */
 .validation-tooltip {
     display: none;
     background-color: #2c2c2c;
@@ -136,12 +706,6 @@ textarea.form-control {
     color: #17a2b8;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Error summary */
 #error-summary {
     margin-bottom: 1rem;
     border-left: 4px solid #dc3545;
@@ -160,30 +724,224 @@ textarea.form-control {
     margin-bottom: 0.25rem;
 }
 
-/* Field states */
 .field-pending {
     border-color: #ffc107;
 }
 
-/* Button states */
 button:disabled {
     cursor: not-allowed;
     opacity: 0.65;
-
 }
 
-/* Responsive adjustments */
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
 @media (max-width: 768px) {
-    .prediction-header {
+    .prediction-form-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .step-title {
+        font-size: 1.5rem;
+    }
+
+    .step-description {
+        font-size: 0.9rem;
+    }
+
+    .prediction-type-options {
+        grid-template-columns: 1fr;
+    }
+
+    .prediction-title {
+        font-size: 2rem;
+    }
+
+    .step-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    .form-navigation {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-nav {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .step-content {
+        min-height: 300px;
+    }
+
+    .steps-container {
+        padding: 0 10px;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+
+    .step-label {
+        font-size: 0.7rem;
+    }
+
+    .step-line {
+        margin: 0 5px;
+    }
+
+    .stock-info-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 1rem;
     }
-    
-    .prediction-header .badge {
-        margin-top: 10px;
+
+    .stock-price-section {
+        text-align: left;
     }
-    
-    .validation-tooltip {
-        font-size: 12px;
+}
+
+@media (max-width: 480px) {
+    .prediction-steps {
+        margin-bottom: 2rem;
     }
+
+    .step-label {
+        display: none;
+    }
+
+    .prediction-form-card {
+        padding: 1.5rem 1rem;
+    }
+}
+
+/* ===========================================
+   LIGHT MODE STYLES FOR PREDICTION FORM
+   =========================================== */
+
+/* Light mode overrides for prediction form card */
+body:not(.dark-mode) .prediction-form-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .step-number {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .step-label {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .step-line {
+    background: #d1d5db;
+}
+
+body:not(.dark-mode) .step-title {
+    color: #111827;
+}
+
+body:not(.dark-mode) .step-description {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .form-label-enhanced {
+    color: #374151;
+}
+
+body:not(.dark-mode) .form-control-enhanced {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+body:not(.dark-mode) .form-control-enhanced:focus {
+    background: #ffffff;
+    border-color: #10b981;
+}
+
+body:not(.dark-mode) .form-hint {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .prediction-type-card {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+body:not(.dark-mode) .prediction-type-card h4 {
+    color: #111827;
+}
+
+body:not(.dark-mode) .prediction-type-card p {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .tips-list li {
+    color: #374151;
+}
+
+body:not(.dark-mode) .stock-info-card {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+body:not(.dark-mode) .stock-name {
+    color: #111827;
+}
+
+body:not(.dark-mode) .stock-symbol {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .btn-nav {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+body:not(.dark-mode) .btn-nav:hover {
+    background: #e5e7eb;
+    border-color: #10b981;
+    color: #10b981;
+}
+
+body:not(.dark-mode) .form-navigation {
+    border-top-color: #e5e7eb;
+}
+
+body:not(.dark-mode) #stock-suggestions .list-group {
+    background: #ffffff;
+    border-color: #10b981;
+}
+
+body:not(.dark-mode) #stock-suggestions .list-group-item {
+    background: #ffffff;
+    color: #374151;
+    border-bottom-color: #e5e7eb;
+}
+
+body:not(.dark-mode) #stock-suggestions .list-group-item:hover {
+    background: #f3f4f6 !important;
+    color: #10b981 !important;
+}
+
+/* Global text transition */
+.prediction-form-card, .step-number, .step-label, .step-line,
+.step-title, .step-description, .form-label-enhanced,
+.form-control-enhanced, .form-hint, .prediction-type-card,
+.prediction-type-card h4, .prediction-type-card p, .tips-list li,
+.stock-info-card, .stock-name, .stock-symbol, .btn-nav {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }

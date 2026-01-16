@@ -4,6 +4,115 @@
 
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/prediction.css') }}">
+    <style>
+        .comment-section {
+            margin-top: 2rem;
+        }
+        .comment-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .comment-author-name {
+            font-weight: 600;
+            color: #fff;
+        }
+        .comment-reputation {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .comment-reputation .badge {
+            font-size: 0.75rem;
+        }
+        .comment-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .comment-content {
+            color: #e0e0e0;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+        .comment-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .comment-actions button {
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0;
+        }
+        .comment-actions button:hover {
+            color: #667eea;
+        }
+        .reply-container {
+            margin-left: 2rem;
+            padding-left: 1rem;
+            border-left: 2px solid rgba(102, 126, 234, 0.3);
+        }
+        .reply-form {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .reply-form.show {
+            display: block;
+        }
+        .comment-form textarea {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            resize: vertical;
+            min-height: 80px;
+        }
+        .comment-form textarea:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #667eea;
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .comment-form textarea::placeholder {
+            color: #6c757d;
+        }
+        .char-counter {
+            font-size: 0.8rem;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+        .char-counter.warning {
+            color: #ffc107;
+        }
+        .char-counter.danger {
+            color: #dc3545;
+        }
+        .no-comments {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        .no-comments i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -11,25 +120,25 @@
     // Functions from prediction_score_display.php
     function getAccuracyClass($accuracy) {
         if ($accuracy === null) {
-            return 'text-secondary';  // Pending
+            return 'text-secondary';
         } else if ($accuracy >= 70) {
-            return 'text-success';    // Good
+            return 'text-success';
         } else if ($accuracy >= 40) {
-            return 'text-warning';    // Average
+            return 'text-warning';
         } else {
-            return 'text-danger';     // Poor
+            return 'text-danger';
         }
     }
 
     function getAccuracyIcon($accuracy) {
         if ($accuracy === null) {
-            return '<i class="bi bi-hourglass"></i>';  // Pending
+            return '<i class="bi bi-hourglass"></i>';
         } else if ($accuracy >= 70) {
-            return '<i class="bi bi-check-circle-fill"></i>';  // Good
+            return '<i class="bi bi-check-circle-fill"></i>';
         } else if ($accuracy >= 40) {
-            return '<i class="bi bi-exclamation-circle-fill"></i>';  // Average
+            return '<i class="bi bi-exclamation-circle-fill"></i>';
         } else {
-            return '<i class="bi bi-x-circle-fill"></i>';  // Poor
+            return '<i class="bi bi-x-circle-fill"></i>';
         }
     }
 
@@ -44,29 +153,29 @@
         $class = getAccuracyClass($accuracy);
         $icon = getAccuracyIcon($accuracy);
         $text = formatAccuracy($accuracy);
-        
+
         return "<span class=\"badge $class\">$icon $text</span>";
     }
 
     function renderReputationScore($reputation, $avgAccuracy = null) {
-        $reputationClass = $reputation >= 20 ? 'text-success' : 
-                          ($reputation >= 10 ? 'text-info' : 
+        $reputationClass = $reputation >= 20 ? 'text-success' :
+                          ($reputation >= 10 ? 'text-info' :
                           ($reputation >= 0 ? 'text-warning' : 'text-danger'));
-        
+
         $accuracyHtml = '';
         if ($avgAccuracy !== null) {
             $accuracyClass = getAccuracyClass($avgAccuracy);
-            $accuracyHtml = "<div class=\"mt-2\">Average Accuracy: <span class=\"$accuracyClass\">" . 
+            $accuracyHtml = "<div class=\"mt-2\">Average Accuracy: <span class=\"$accuracyClass\">" .
                            formatAccuracy($avgAccuracy) . "</span></div>";
         }
-        
+
         $html = <<<HTML
 <div class="reputation-score">
     <h4>REP SCORE: <span class="$reputationClass">$reputation</span></h4>
     $accuracyHtml
 </div>
 HTML;
-        
+
         return $html;
     }
 
@@ -79,8 +188,8 @@ HTML;
 
     // Generate prediction class and icon
     $predictionClass = $prediction['prediction_type'] == 'Bullish' ? 'text-success' : 'text-danger';
-    $predictionIcon = $prediction['prediction_type'] == 'Bullish' ? 
-        '<i class="bi bi-graph-up-arrow"></i>' : 
+    $predictionIcon = $prediction['prediction_type'] == 'Bullish' ?
+        '<i class="bi bi-graph-up-arrow"></i>' :
         '<i class="bi bi-graph-down-arrow"></i>';
 
     // Generate badge for accuracy
@@ -91,168 +200,211 @@ HTML;
     $userVoteType = null;
     @endphp
 
-    <div class="row">
-        <!-- Main prediction content -->
-        <div class="col-md-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">
-                        <span class="{{ $predictionClass }}">{!! $predictionIcon !!} {{ $prediction['prediction_type'] }}</span>
-                        on <strong>{{ $prediction['symbol'] }}</strong>
-                    </h3>
-                    <div>
-                        {!! $accuracyBadge !!}
-                    </div>
-                </div>
-                
-                <div class="card-body">
-                    <!-- Prediction details -->
-                    <div class="mb-4">
-                        <h5>Prediction by {{ $prediction['username'] }}</h5>
-                        <div class="text-muted mb-3">
-                            <small>
-                                Created: {{ date('M j, Y', strtotime($prediction['prediction_date'])) }} • 
-                                @if ($isPending)
-                                    Ends: {{ date('M j, Y', strtotime($prediction['end_date'])) }}
-                                    ({{ $daysRemaining }} days remaining)
-                                @else
-                                    Ended: {{ date('M j, Y', strtotime($prediction['end_date'])) }}
-                                @endif
-                            </small>
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Main prediction content -->
+            <div class="col-md-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">
+                            <span class="{{ $predictionClass }}">{!! $predictionIcon !!} {{ $prediction['prediction_type'] }}</span>
+                            on <strong>{{ $prediction['symbol'] }}</strong>
+                        </h3>
+                        <div>
+                            {!! $accuracyBadge !!}
                         </div>
-                        
-                        @if ($prediction['target_price'])
-                        <div class="mb-3">
-                            <h6>Target Price:</h6>
-                            <p class="fs-4 {{ $predictionClass }}">
-                                ${{ number_format($prediction['target_price'], 2) }}
-                            </p>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Prediction details -->
+                        <div class="mb-4">
+                            <h5>Prediction by {{ $prediction['username'] }}</h5>
+                            <div class="text-muted mb-3">
+                                <small>
+                                    Created: {{ date('M j, Y', strtotime($prediction['prediction_date'])) }} |
+                                    @if ($isPending)
+                                        Ends: {{ date('M j, Y', strtotime($prediction['end_date'])) }}
+                                        ({{ $daysRemaining }} days remaining)
+                                    @else
+                                        Ended: {{ date('M j, Y', strtotime($prediction['end_date'])) }}
+                                    @endif
+                                </small>
+                            </div>
+
+                            @if ($prediction['target_price'])
+                            <div class="mb-3">
+                                <h6>Target Price:</h6>
+                                <p class="fs-4 {{ $predictionClass }}">
+                                    ${{ number_format($prediction['target_price'], 2) }}
+                                </p>
+                            </div>
+                            @endif
+
+                            <div class="mb-3">
+                                <h6>Reasoning:</h6>
+                                <div class="p-3 bg-light rounded">
+                                    {!! nl2br(e($prediction['reasoning'])) !!}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Voting section -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Prediction Voting</h5>
+                                <p class="text-muted">Do you agree with this prediction?</p>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        @auth
+                                        <button class="btn {{ $userVoteType == 'upvote' ? 'btn-success' : 'btn-outline-success' }} me-2 vote-btn"
+                                                data-prediction-id="{{ $prediction['prediction_id'] }}"
+                                                data-vote-type="upvote">
+                                            <i class="bi bi-hand-thumbs-up"></i> Agree
+                                        </button>
+                                        @else
+                                        <a href="{{ route('login') }}" class="btn btn-outline-success me-2">
+                                            <i class="bi bi-hand-thumbs-up"></i> Agree
+                                        </a>
+                                        @endauth
+                                        <span class="badge bg-success ms-1">{{ $prediction['upvotes'] }}</span>
+                                    </div>
+
+                                    <div class="d-flex align-items-center">
+                                        @auth
+                                        <button class="btn {{ $userVoteType == 'downvote' ? 'btn-danger' : 'btn-outline-danger' }} me-2 vote-btn"
+                                                data-prediction-id="{{ $prediction['prediction_id'] }}"
+                                                data-vote-type="downvote">
+                                            <i class="bi bi-hand-thumbs-down"></i> Disagree
+                                        </button>
+                                        @else
+                                        <a href="{{ route('login') }}" class="btn btn-outline-danger me-2">
+                                            <i class="bi bi-hand-thumbs-down"></i> Disagree
+                                        </a>
+                                        @endauth
+                                        <span class="badge bg-danger ms-1">{{ $prediction['downvotes'] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Owner actions -->
+                        @if (Auth::check() && Auth::id() == $prediction['user_id'] && $isActive)
+                        <div class="d-flex justify-content-end">
+                            <a href="{{ route('predictions.edit', ['id' => $prediction['prediction_id']]) }}"
+                               class="btn btn-outline-primary me-2">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <button type="button" class="btn btn-outline-danger delete-prediction"
+                                    data-id="{{ $prediction['prediction_id'] }}"
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
                         </div>
                         @endif
-                        
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="card shadow-sm mb-4 comment-section">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Comments ({{ isset($comments) ? $comments->count() : 0 }})</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- New Comment Form -->
+                        @auth
+                        <div class="comment-form mb-4">
+                            <form id="new-comment-form" data-prediction-id="{{ $prediction['prediction_id'] }}">
+                                @csrf
+                                <div class="mb-2">
+                                    <textarea class="form-control" id="new-comment-content" name="content"
+                                              placeholder="Share your thoughts on this prediction..."
+                                              maxlength="600" rows="3"></textarea>
+                                    <div class="char-counter">
+                                        <span id="char-count">0</span>/600 characters
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send me-1"></i>Post Comment
+                                </button>
+                            </form>
+                        </div>
+                        @else
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <a href="{{ route('login') }}">Log in</a> to join the discussion.
+                        </div>
+                        @endauth
+
+                        <!-- Comments List -->
+                        <div id="comments-list">
+                            @if(isset($comments) && $comments->count() > 0)
+                                @foreach($comments as $comment)
+                                    @include('predictions.partials.comment', ['comment' => $comment, 'depth' => 0])
+                                @endforeach
+                            @else
+                                <div class="no-comments">
+                                    <i class="bi bi-chat-square-text"></i>
+                                    <p>No comments yet. Be the first to share your thoughts!</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Back button -->
+                <div class="mb-4">
+                    <a href="{{ route('predictions.trending') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Trending
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <!-- Stock information -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Stock Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <h3>{{ $prediction['stock']['symbol'] }}</h3>
+                        <p class="text-muted">{{ $prediction['stock']['company_name'] }}</p>
+
+                        @if (isset($prediction['stock']['sector']))
                         <div class="mb-3">
-                            <h6>Reasoning:</h6>
-                            <div class="p-3 bg-light rounded">
-                                {!! nl2br(e($prediction['reasoning'])) !!}
-                            </div>
+                            <strong>Sector:</strong> {{ $prediction['stock']['sector'] }}
+                        </div>
+                        @endif
+
+                        @if (isset($prediction['stock']['current_price']))
+                        <div class="mb-3">
+                            <strong>Current Price:</strong> ${{ number_format($prediction['stock']['current_price'], 2) }}
+                        </div>
+                        @endif
+
+                        <div class="mt-4">
+                            <a href="{{ route('search', ['query' => $prediction['stock']['symbol']]) }}" class="btn btn-outline-primary btn-sm">
+                                View Stock Details
+                            </a>
                         </div>
                     </div>
-                    
-                    <!-- Voting section -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Prediction Voting</h5>
-                            <p class="text-muted">Do you agree with this prediction?</p>
-                            
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    @auth
-                                    <button class="btn {{ $userVoteType == 'upvote' ? 'btn-success' : 'btn-outline-success' }} me-2 vote-btn" 
-                                            data-prediction-id="{{ $prediction['prediction_id'] }}" 
-                                            data-vote-type="upvote">
-                                        <i class="bi bi-hand-thumbs-up"></i> Agree
-                                    </button>
-                                    @else
-                                    <a href="{{ route('login.form') }}" class="btn btn-outline-success me-2">
-                                        <i class="bi bi-hand-thumbs-up"></i> Agree
-                                    </a>
-                                    @endauth
-                                    <span class="badge bg-success ms-1">{{ $prediction['upvotes'] }}</span>
-                                </div>
-                                
-                                <div class="d-flex align-items-center">
-                                    @auth
-                                    <button class="btn {{ $userVoteType == 'downvote' ? 'btn-danger' : 'btn-outline-danger' }} me-2 vote-btn" 
-                                            data-prediction-id="{{ $prediction['prediction_id'] }}" 
-                                            data-vote-type="downvote">
-                                        <i class="bi bi-hand-thumbs-down"></i> Disagree
-                                    </button>
-                                    @else
-                                    <a href="{{ route('login.form') }}" class="btn btn-outline-danger me-2">
-                                        <i class="bi bi-hand-thumbs-down"></i> Disagree
-                                    </a>
-                                    @endauth
-                                    <span class="badge bg-danger ms-1">{{ $prediction['downvotes'] }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Owner actions -->
-                    @if (Auth::check() && Auth::id() == $prediction['user_id'] && $isActive)
-                    <div class="d-flex justify-content-end">
-                        <a href="{{ route('prediction.edit', ['id' => $prediction['prediction_id']]) }}" 
-                           class="btn btn-outline-primary me-2">
-                            <i class="bi bi-pencil"></i> Edit
-                        </a>
-                        <button type="button" class="btn btn-outline-danger delete-prediction" 
-                                data-id="{{ $prediction['prediction_id'] }}" 
-                                data-bs-toggle="modal" data-bs-target="#deleteModal">
-                            <i class="bi bi-trash"></i> Delete
-                        </button>
-                    </div>
-                    @endif
                 </div>
-            </div>
-            
-            <!-- Back button -->
-            <div class="mb-4">
-                <a href="{{ route('prediction.trending') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Trending
-                </a>
-            </div>
-        </div>
-        
-        <!-- Sidebar -->
-        <div class="col-md-4">
-            <!-- Stock information -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Stock Information</h5>
-                </div>
-                <div class="card-body">
-                    <h3>{{ $prediction['stock']['symbol'] }}</h3>
-                    <p class="text-muted">{{ $prediction['stock']['company_name'] }}</p>
-                    
-                    @if (isset($prediction['stock']['sector']))
-                    <div class="mb-3">
-                        <strong>Sector:</strong> {{ $prediction['stock']['sector'] }}
+
+                <!-- User information -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Predictor Profile</h5>
                     </div>
-                    @endif
-                    
-                    @if (isset($prediction['stock']['current_price']))
-                    <div class="mb-3">
-                        <strong>Current Price:</strong> ${{ number_format($prediction['stock']['current_price'], 2) }}
+                    <div class="card-body">
+                        <h5>{{ $prediction['username'] }}</h5>
+
+                        <!-- Display user reputation if available -->
+                        @if (isset($prediction['user']['reputation_score']))
+                            {!! renderReputationScore($prediction['user']['reputation_score']) !!}
+                        @endif
                     </div>
-                    @endif
-                    
-                    <div class="mt-4">
-                        <a href="{{ route('search', ['symbol' => $prediction['stock']['symbol']]) }}" class="btn btn-outline-primary btn-sm">
-                            View Stock Details
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- User information -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Predictor Profile</h5>
-                </div>
-                <div class="card-body">
-                    <h5>{{ $prediction['username'] }}</h5>
-                    
-                    <!-- Display user reputation if available -->
-                    @if (isset($prediction['user']['reputation_score']))
-                        {!! renderReputationScore($prediction['user']['reputation_score']) !!}
-                    @endif
-                    
-                    <!-- If user has other predictions, show link -->
-                    <div class="mt-3">
-                        <a href="{{ route('user.predictions', ['id' => $prediction['user_id']]) }}" class="btn btn-outline-secondary btn-sm">
-                            View User's Predictions
-                        </a>
-                    </div>
+                    --}}
                 </div>
             </div>
         </div>
@@ -281,21 +433,19 @@ HTML;
 @section('scripts')
     <script src="{{ asset('js/prediction.js') }}"></script>
     <script>
-    // Handle voting
     document.addEventListener('DOMContentLoaded', function() {
+        // Handle voting
         const voteButtons = document.querySelectorAll('.vote-btn');
-        
+
         voteButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const predictionId = this.getAttribute('data-prediction-id');
                 const voteType = this.getAttribute('data-vote-type');
-                
-                // Create form data
+
                 const formData = new FormData();
                 formData.append('prediction_id', predictionId);
                 formData.append('vote_type', voteType);
-                
-                // Send vote request
+
                 fetch('{{ route('prediction.vote') }}', {
                     method: 'POST',
                     body: formData,
@@ -306,7 +456,6 @@ HTML;
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Reload page to update vote counts
                         window.location.reload();
                     } else {
                         alert('Error: ' + data.message);
@@ -318,6 +467,163 @@ HTML;
                 });
             });
         });
+
+        // Character counter for comment textarea
+        const commentTextarea = document.getElementById('new-comment-content');
+        const charCount = document.getElementById('char-count');
+
+        if (commentTextarea && charCount) {
+            commentTextarea.addEventListener('input', function() {
+                const count = this.value.length;
+                charCount.textContent = count;
+
+                const counter = charCount.parentElement;
+                counter.classList.remove('warning', 'danger');
+                if (count >= 550) {
+                    counter.classList.add('danger');
+                } else if (count >= 450) {
+                    counter.classList.add('warning');
+                }
+            });
+        }
+
+        // Handle new comment submission
+        const newCommentForm = document.getElementById('new-comment-form');
+        if (newCommentForm) {
+            newCommentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const predictionId = this.getAttribute('data-prediction-id');
+                const content = document.getElementById('new-comment-content').value.trim();
+
+                if (!content) {
+                    alert('Please enter a comment');
+                    return;
+                }
+
+                submitComment(predictionId, content, null);
+            });
+        }
+
+        // Handle reply button clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.reply-btn')) {
+                const btn = e.target.closest('.reply-btn');
+                const commentId = btn.getAttribute('data-comment-id');
+                const replyForm = document.getElementById('reply-form-' + commentId);
+
+                // Hide all other reply forms
+                document.querySelectorAll('.reply-form').forEach(form => {
+                    if (form.id !== 'reply-form-' + commentId) {
+                        form.classList.remove('show');
+                    }
+                });
+
+                // Toggle this reply form
+                replyForm.classList.toggle('show');
+
+                if (replyForm.classList.contains('show')) {
+                    replyForm.querySelector('textarea').focus();
+                }
+            }
+
+            // Handle reply form submission
+            if (e.target.closest('.submit-reply-btn')) {
+                const btn = e.target.closest('.submit-reply-btn');
+                const commentId = btn.getAttribute('data-parent-id');
+                const predictionId = btn.getAttribute('data-prediction-id');
+                const textarea = document.querySelector('#reply-form-' + commentId + ' textarea');
+                const content = textarea.value.trim();
+
+                if (!content) {
+                    alert('Please enter a reply');
+                    return;
+                }
+
+                submitComment(predictionId, content, commentId);
+            }
+
+            // Handle delete comment button
+            if (e.target.closest('.delete-comment-btn')) {
+                const btn = e.target.closest('.delete-comment-btn');
+                const commentId = btn.getAttribute('data-comment-id');
+
+                if (confirm('Are you sure you want to delete this comment?')) {
+                    deleteComment(commentId);
+                }
+            }
+        });
+
+        // Handle reply form character counter
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('.reply-textarea')) {
+                const count = e.target.value.length;
+                const counter = e.target.closest('.reply-form').querySelector('.reply-char-count');
+                if (counter) {
+                    counter.textContent = count;
+
+                    const counterParent = counter.parentElement;
+                    counterParent.classList.remove('warning', 'danger');
+                    if (count >= 550) {
+                        counterParent.classList.add('danger');
+                    } else if (count >= 450) {
+                        counterParent.classList.add('warning');
+                    }
+                }
+            }
+        });
+
+        function submitComment(predictionId, content, parentCommentId) {
+            const formData = new FormData();
+            formData.append('prediction_id', predictionId);
+            formData.append('content', content);
+            if (parentCommentId) {
+                formData.append('parent_comment_id', parentCommentId);
+            }
+
+            fetch('{{ route('comments.store') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload page to show new comment
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error posting comment:', error);
+                alert('An error occurred while posting your comment');
+            });
+        }
+
+        function deleteComment(commentId) {
+            fetch('/comments/' + commentId, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting comment:', error);
+                alert('An error occurred while deleting the comment');
+            });
+        }
     });
     </script>
 @endsection

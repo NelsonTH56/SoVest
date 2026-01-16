@@ -7,26 +7,298 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>@yield('title', $pageTitle ?? 'SoVest')</title>
 
-	<!-- Bootstrap CSS -->
+	<!-- Vite Assets -->
+	@vite(['resources/css/app.css', 'resources/js/app.js'])
+
+	<!-- Bootstrap CSS (for backward compatibility) -->
 	<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+
+	<!-- Bootstrap Icons -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 	<!-- Favicon -->
 	<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
 	<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo.png') }}">
 	<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logo.png') }}">
 	<link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
-    <!--main css file -->
-    <link rel="stylesheet" href = "css/index.css">
+
+    <!-- Main CSS file (legacy) -->
+    <link rel="stylesheet" href="css/index.css">
+
     <!-- Page-specific CSS -->
-     
 	@if (isset($pageCss))
 		<link href="{{ asset($pageCss) }}" rel="stylesheet">
-	@endif 
+	@endif
 
 	<!-- Yield and stack for styles -->
 	@yield('styles')
 	@stack('styles')
 
+    <!-- Layout Dark Mode Styles -->
+    <style>
+        /* Global text transition for smooth dark/light mode switching */
+        *, *::before, *::after {
+            transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Header and Navigation */
+        header .border-bottom {
+            border-color: #e5e7eb !important;
+        }
+
+        body.dark-mode header .border-bottom {
+            border-color: #404040 !important;
+        }
+
+        header .fs-4 {
+            color: #111827;
+            font-weight: 700;
+        }
+
+        body.dark-mode header .fs-4 {
+            color: #f3f4f6;
+        }
+
+        nav .link-body-emphasis {
+            color: #374151;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        nav .link-body-emphasis:hover {
+            color: #10b981;
+        }
+
+        body.dark-mode nav .link-body-emphasis {
+            color: #d1d5db;
+        }
+
+        body.dark-mode nav .link-body-emphasis:hover {
+            color: #6ee7b7;
+        }
+
+        nav .link-body-emphasis.active {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        body.dark-mode nav .link-body-emphasis.active {
+            color: #6ee7b7;
+        }
+
+        /* Dropdown Menu */
+        .drop-down-menu {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .drop-down-menu {
+            background: #2d2d2d;
+            border-color: #404040;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .drop-down-items {
+            color: #374151;
+            transition: all 0.2s ease;
+        }
+
+        .drop-down-items:hover {
+            background: #f3f4f6;
+            color: #10b981;
+        }
+
+        body.dark-mode .drop-down-items {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .drop-down-items:hover {
+            background: #404040;
+            color: #6ee7b7;
+        }
+
+        /* Page Header */
+        .pricing-header h1 {
+            color: #111827;
+        }
+
+        body.dark-mode .pricing-header h1 {
+            color: #f3f4f6;
+        }
+
+        .pricing-header .text-body-secondary {
+            color: #6b7280 !important;
+        }
+
+        body.dark-mode .pricing-header .text-body-secondary {
+            color: #9ca3af !important;
+        }
+
+        /* Footer */
+        footer.border-top {
+            border-color: #e5e7eb !important;
+        }
+
+        body.dark-mode footer.border-top {
+            border-color: #404040 !important;
+        }
+
+        footer h5 {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        body.dark-mode footer h5 {
+            color: #f3f4f6;
+        }
+
+        footer .text-body-secondary {
+            color: #6b7280 !important;
+        }
+
+        body.dark-mode footer .text-body-secondary {
+            color: #9ca3af !important;
+        }
+
+        footer .link-secondary {
+            color: #6b7280 !important;
+            transition: color 0.2s ease;
+        }
+
+        footer .link-secondary:hover {
+            color: #10b981 !important;
+        }
+
+        body.dark-mode footer .link-secondary {
+            color: #9ca3af !important;
+        }
+
+        body.dark-mode footer .link-secondary:hover {
+            color: #6ee7b7 !important;
+        }
+
+        footer li {
+            color: #6b7280;
+        }
+
+        body.dark-mode footer li {
+            color: #9ca3af;
+        }
+
+        /* Modals */
+        .modal-content {
+            background: white;
+            color: #111827;
+        }
+
+        body.dark-mode .modal-content {
+            background: #2d2d2d !important;
+            color: #e5e7eb !important;
+            border: 1px solid #404040;
+        }
+
+        body.dark-mode .modal-header {
+            border-bottom-color: #404040;
+        }
+
+        body.dark-mode .modal-title {
+            color: #f3f4f6;
+        }
+
+        body.dark-mode .modal-body {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .modal-body p {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .modal-body a {
+            color: #6ee7b7;
+        }
+
+        body.dark-mode .modal-body a:hover {
+            color: #10b981;
+        }
+
+        body.dark-mode .modal-footer {
+            border-top-color: #404040;
+        }
+
+        /* Profile Picture */
+        .pfp {
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            transition: border-color 0.2s ease;
+        }
+
+        body.dark-mode .pfp {
+            border-color: #10b981;
+        }
+
+        .pfp:hover {
+            border-color: #10b981;
+        }
+
+        /* Container text colors */
+        .container {
+            color: #111827;
+        }
+
+        body.dark-mode .container {
+            color: #e5e7eb;
+        }
+
+        /* Inline style overrides for dark mode */
+        body.dark-mode [style*="color: #111827"],
+        body.dark-mode [style*="color:#111827"] {
+            color: #f3f4f6 !important;
+        }
+
+        body.dark-mode [style*="color: #333"],
+        body.dark-mode [style*="color:#333"] {
+            color: #f3f4f6 !important;
+        }
+
+        body.dark-mode [style*="color: #374151"],
+        body.dark-mode [style*="color:#374151"] {
+            color: #d1d5db !important;
+        }
+
+        body.dark-mode [style*="color: #6b7280"],
+        body.dark-mode [style*="color:#6b7280"] {
+            color: #9ca3af !important;
+        }
+
+        body.dark-mode [style*="color: #555"],
+        body.dark-mode [style*="color:#555"] {
+            color: #9ca3af !important;
+        }
+
+        /* Background overrides */
+        body.dark-mode [style*="background: white"],
+        body.dark-mode [style*="background:white"],
+        body.dark-mode [style*="background-color: white"],
+        body.dark-mode [style*="background-color:white"],
+        body.dark-mode [style*="background: #fff"],
+        body.dark-mode [style*="background:#fff"],
+        body.dark-mode [style*="background-color: #fff"],
+        body.dark-mode [style*="background-color:#fff"],
+        body.dark-mode [style*="background: #ffffff"],
+        body.dark-mode [style*="background:#ffffff"],
+        body.dark-mode [style*="background-color: #ffffff"],
+        body.dark-mode [style*="background-color:#ffffff"] {
+            background-color: #2d2d2d !important;
+        }
+
+        /* Border overrides */
+        body.dark-mode [style*="border-color: #e5e7eb"],
+        body.dark-mode [style*="border-color:#e5e7eb"] {
+            border-color: #404040 !important;
+        }
+    </style>
 
 </head>
 
@@ -52,6 +324,10 @@
                         <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('predictions/trending') ? 'active' : '' }}"
                             href="{{ route('predictions.trending') }}">Trending</a>
                     </li>
+                    <li class="nav-item me-3">
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('scoring-algorithm') ? 'active' : '' }}"
+                            href="{{ route('scoring.algorithm') }}">Scoring Algo 101</a>
+                    </li>
                     <!-- REDIRECTING TO HOME PAGE FOR SOME REASON
                     <li class="nav-item me-3">
                         <a class="py-2 link-body-emphasis text-decoration-none {{ Route::is('user.leaderboard') ? 'active' : '' }}"
@@ -74,6 +350,7 @@
                         <div id="dropdownMenu" class="drop-down-menu d-none">
                             <a href="{{ route('user.account') }}" class="drop-down-items">My Account</a>
                             <a href="{{ route('predictions.index') }}" class="drop-down-items">My Predictions</a>
+                            <a href="{{ route('user.settings') }}" class="drop-down-items">Settings</a>
                             <a href="{{ route('logout') }}" class="drop-down-items logout">Logout</a>
                         </div>
                     </div>
@@ -219,6 +496,16 @@
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 
+    <!-- Global Dark Mode Script -->
+    <script>
+        // Apply dark mode on page load if enabled
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+    </script>
 
     <!-- Page-specific JavaScript -->
     @if (isset($pageJs))

@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 
 class AuthenticationTest extends TestCase
 {
-    use WithFaker;
+    use RefreshDatabase, WithFaker;
 
     /**
      * Test that the registration page loads correctly.
@@ -31,17 +32,17 @@ class AuthenticationTest extends TestCase
     public function test_new_users_can_register_with_valid_data()
     {
         $email = $this->faker->unique()->safeEmail();
-        
+
         $response = $this->post(route('register.submit'), [
+            'firstName' => $this->faker->firstName(),
+            'lastName' => $this->faker->lastName(),
             'newEmail' => $email,
             'newPass' => 'password123',
-            'newMajor' => 'Computer Science',
-            'newYear' => '2025',
-            'newScholarship' => 'Merit',
+            'confirmPass' => 'password123',
         ]);
 
-        // Check that the user was created and redirected
-        $response->assertRedirect(route('login'));
+        // Check that the user was created and redirected to user home (since auto-login occurs)
+        $response->assertRedirect(route('user.home'));
     }
 
     /**

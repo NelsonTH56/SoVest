@@ -12,8 +12,15 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('bio', 300)->nullable();  // Add bio column
+            if(!Schema::hasColumn('users', 'bio')) {
+                $table->string('bio', 300)->nullable();  // Add bio column
+            }
         });
+        if (!Schema::hasColumn('users', 'bio')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('bio', 300)->nullable();  // Add bio column
+            });
+        }
     }
     
     public function down()
