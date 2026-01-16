@@ -73,16 +73,6 @@
                                 <p>{{ $prediction['reasoning'] }}</p>
                             </div>
                         @endif
-
-                        @if($prediction['is_active'] == 1 && strtotime($prediction['end_date']) > time())
-                            <div class="action-buttons mt-3">
-                                <a href="{{ route('predictions.edit', ['id' => $prediction['prediction_id']]) }}"
-                                    class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">Edit</a>
-                                <button class="btn btn-sm btn-outline-danger delete-prediction"
-                                    data-id="{{ $prediction['prediction_id'] }}" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal" onclick="event.stopPropagation();">Delete</button>
-                            </div>
-                        @endif
                         </div>
                     </div>
                 </a>
@@ -116,8 +106,7 @@
     <script type="text/javascript">
         // Update API endpoint for prediction.js to use Laravel routes
         const apiEndpoints = {
-            searchStocks: '{{ route('api.search.stocks') }}',
-            deletePrediction: '{{ route('api.predictions.delete', 0) }}'
+            searchStocks: '{{ route('api.search.stocks') }}'
         };
     </script>
 @endsection
