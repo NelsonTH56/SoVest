@@ -138,7 +138,7 @@ window.api = {
     },
 
     /**
-     * Delete a prediction
+     * Delete a prediction. THIS FUNCTIONALITY IS DEPRECIATED BUT KEEP FUNCTION INCASE IMPLEMENTATION HAPPENS IN FUTURE
      */
     async deletePrediction(id) {
         try {
