@@ -41,19 +41,23 @@ class UserController extends Controller
             ->orderBy('prediction_date', 'desc')
             ->paginate(10);
 
-        // Get user's predictions with vote counts
-        $Userpredictions = Prediction::with(['user', 'stock'])
-            ->withCount([
-                'votes as upvotes' => function ($query) {
-                    $query->where('vote_type', 'upvote');
-                },
-                'votes as downvotes' => function ($query) {
-                    $query->where('vote_type', 'downvote');
-                }
-            ])
-            ->where('user_id', $userID)
-            ->orderBy('prediction_date', 'desc')
-            ->paginate(10);
+        // Get user's predictions with vote counts (limited to 5 for sidebar)
+        $Userpredictions = collect();
+        if ($userID) {
+            $Userpredictions = Prediction::with(['user', 'stock'])
+                ->withCount([
+                    'votes as upvotes' => function ($query) {
+                        $query->where('vote_type', 'upvote');
+                    },
+                    'votes as downvotes' => function ($query) {
+                        $query->where('vote_type', 'downvote');
+                    }
+                ])
+                ->where('user_id', $userID)
+                ->orderBy('prediction_date', 'desc')
+                ->limit(5)
+                ->get();
+        }
 
         return view('home', compact('Curruser', 'predictions', 'Userpredictions'));
     }

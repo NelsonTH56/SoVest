@@ -34,7 +34,7 @@
 
     <div class="row">
     {{-- Left Column: Main Content Feed --}}
-    <div class="col-lg-8 col-md-7">
+    <div class="col-12 col-md-7 col-lg-8">
         {{-- Quick Search Bar --}}
         <div class="quick-search-container mb-4">
             <form action="{{ url('search') }}" method="GET" class="d-flex gap-2">
@@ -368,6 +368,253 @@
         .reply-form.show {
             display: block;
         }
+
+        /* ========== ENHANCED MOBILE-SPECIFIC STYLES ========== */
+        @media (max-width: 767.98px) {
+            /* Welcome header - responsive sizing */
+            .animate-fade-in {
+                padding: 0 0.5rem;
+                margin-bottom: 1.5rem !important;
+            }
+
+            .animate-fade-in h1 {
+                font-size: 1.75rem !important;
+                line-height: 1.3;
+            }
+
+            .welcome-subtext {
+                font-size: 1rem !important;
+                line-height: 1.5;
+                margin-top: 0.5rem;
+            }
+
+            /* Search bar mobile optimization */
+            .quick-search-container {
+                margin-bottom: 1.5rem !important;
+                padding: 0;
+            }
+
+            .quick-search-container .d-flex {
+                flex-direction: row;
+                gap: 0.75rem !important;
+            }
+
+            .quick-search-container .search-input-modern {
+                flex: 1;
+                min-height: 48px;
+                font-size: 1rem;
+            }
+
+            .quick-search-container button[type="submit"] {
+                min-width: 48px;
+                min-height: 48px;
+                padding: 0.75rem;
+            }
+
+            /* Feed header - mobile optimized */
+            .feed-header {
+                font-size: 1.15rem !important;
+                margin-bottom: 1.25rem !important;
+                padding-bottom: 1rem;
+            }
+
+            /* Prediction cards - generous spacing */
+            .prediction-card {
+                margin: 0 0 1.25rem 0 !important;
+                width: 100% !important;
+                padding: 1.25rem !important;
+                border-radius: 1rem !important;
+            }
+
+            /* Profile section in prediction cards */
+            .prediction-card .d-flex.justify-content-between.align-items-start {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .prediction-card .d-flex.justify-content-between.align-items-start > div:last-child {
+                align-self: flex-start;
+            }
+
+            /* Profile image and info */
+            .prediction-card .rounded-circle {
+                width: 44px !important;
+                height: 44px !important;
+            }
+
+            .prediction-card .ms-3 {
+                margin-left: 0.875rem !important;
+            }
+
+            .prediction-card .fw-bold {
+                font-size: 0.95rem !important;
+            }
+
+            /* Target price and badge layout */
+            .prediction-card .d-flex.align-items-center.gap-3 {
+                flex-wrap: wrap;
+                gap: 0.75rem !important;
+            }
+
+            /* Reasoning text - better readability */
+            .prediction-card .reasoning-text {
+                font-size: 0.95rem;
+                line-height: 1.7;
+                margin-bottom: 1rem !important;
+            }
+
+            /* Engagement bar - improved mobile layout */
+            .prediction-card .border-top {
+                margin-top: 1rem !important;
+                padding-top: 1rem !important;
+            }
+
+            .prediction-card .border-top .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .prediction-card .border-top .d-flex.justify-content-between > div {
+                justify-content: flex-start !important;
+            }
+
+            /* Vote buttons - touch friendly */
+            .vote-btn {
+                padding: 0.5rem 0.875rem !important;
+                font-size: 0.85rem;
+                min-height: 44px;
+                border-radius: 22px !important;
+            }
+
+            .vote-btn i {
+                font-size: 1.1rem !important;
+            }
+
+            /* Comments toggle - touch friendly */
+            .comments-toggle {
+                min-height: 44px;
+                padding: 0.5rem 0.875rem !important;
+            }
+
+            /* Comments section - improved spacing */
+            .comments-section {
+                margin-top: 1rem;
+            }
+
+            .comments-section .d-flex.gap-2 {
+                flex-direction: row;
+                gap: 0.75rem !important;
+            }
+
+            .comments-section .comment-input {
+                flex: 1;
+                min-height: 44px;
+            }
+
+            .comments-section .submit-comment,
+            .comments-section .btn-primary.btn-sm {
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            /* Comment items - better touch targets */
+            .comment-item {
+                padding: 0.875rem !important;
+                margin-bottom: 0.75rem !important;
+                border-radius: 0.75rem;
+            }
+
+            .comment-author {
+                font-size: 0.9rem;
+            }
+
+            .comment-content {
+                font-size: 0.9rem;
+                line-height: 1.6;
+            }
+
+            .reply-item {
+                margin-left: 1rem !important;
+                padding-left: 0.875rem;
+            }
+
+            .reply-btn {
+                padding: 0.5rem 0;
+                min-height: 44px;
+            }
+
+            /* Reply form */
+            .reply-form .d-flex.gap-2 {
+                flex-direction: row;
+            }
+
+            .reply-form .reply-input {
+                flex: 1;
+                min-height: 40px;
+            }
+
+            /* Container padding - breathing room */
+            .container.mt-4 {
+                margin-top: 1rem !important;
+            }
+
+            /* Row padding */
+            .row {
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+            }
+
+            .row > [class*="col-"] {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+        }
+
+        /* Small mobile (under 480px) additional tweaks */
+        @media (max-width: 479.98px) {
+            .animate-fade-in h1 {
+                font-size: 1.5rem !important;
+            }
+
+            .welcome-subtext {
+                font-size: 0.9rem !important;
+            }
+
+            /* Search stacks vertically on very small screens */
+            .quick-search-container .d-flex {
+                flex-direction: column;
+            }
+
+            .quick-search-container button[type="submit"] {
+                width: 100%;
+            }
+
+            /* Prediction cards */
+            .prediction-card {
+                padding: 1rem !important;
+            }
+
+            .prediction-card h5 {
+                font-size: 1rem !important;
+            }
+
+            .prediction-card .badge {
+                font-size: 0.75rem !important;
+                padding: 0.35rem 0.7rem !important;
+            }
+
+            /* Engagement bar stacks */
+            .vote-btn {
+                padding: 0.4rem 0.75rem !important;
+            }
+        }
+
+        /* Tablet optimization (768px - 991px) */
+        @media (min-width: 768px) and (max-width: 991.98px) {
+            .prediction-card {
+                padding: 1.5rem !important;
+            }
+        }
         </style>
 
         {{-- Feed Header --}}
@@ -605,56 +852,84 @@
         @endif
     </div>
 
-    {{-- Right Sidebar --}}
-    <div class="col-lg-4 col-md-5">
+    {{-- Right Sidebar - Desktop Only --}}
+    <div class="col-md-5 col-lg-4 d-none d-md-block">
         <div class="sticky-top" style="top: 1rem;">
             {{-- Create Prediction CTA --}}
-            <a href="{{ route('predictions.create') }}" class="btn btn-primary w-100 mb-4" style="padding: 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.05rem; display: flex; align-items-center; justify-content: center; gap: 0.5rem;">
+            <a href="{{ route('predictions.create') }}" class="btn btn-primary w-100 mb-4" style="padding: 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                 <i class="bi bi-plus-circle-fill" style="font-size: 1.2rem;"></i>
                 Create New Prediction
             </a>
 
-            {{-- Active Predictions Widget --}}
-            <div class="card mb-4">
-                <div class="card-body" style="padding: 1.5rem;">
-                    <h5 class="mb-3" style="font-weight: 700; display: flex; align-items-center; gap: 0.5rem;">
-                        <i class="bi bi-lightning-charge" style="color: #10b981;"></i>
-                        Your Active Predictions
-                    </h5>
+            {{-- My Predictions Section Header --}}
+            <h2 class="feed-header">
+                <i class="bi bi-person-fill me-2" style="color: #3b82f6;"></i>
+                My Predictions
+            </h2>
 
-                    @if(!empty($Userpredictions) && count($Userpredictions) > 0)
-                        @foreach($Userpredictions as $index => $prediction)
-                            <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="text-decoration-none">
-                                <div class="user-prediction-card mb-3" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; transition: all 0.2s;">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div style="flex-grow: 1;">
-                                            <h6 class="mb-1" style="font-weight: 700; font-size: 0.95rem;">{{ $prediction->stock->symbol }}</h6>
-                                            <p class="mb-1 text-muted" style="font-size: 0.85rem;">{{ $prediction->stock->company_name }}</p>
-                                            <div class="d-flex align-items-center gap-2 mt-2">
-                                                <span class="badge {{ $prediction->prediction_type == 'Bullish' ? 'bg-success' : 'bg-danger' }}" style="font-size: 0.75rem;">
-                                                    {{ $prediction->prediction_type }}
-                                                </span>
-                                                <span style="font-weight: 700; font-size: 0.9rem; color: #10b981;">${{ number_format($prediction->target_price, 2) }}</span>
-                                            </div>
+            {{-- My Predictions List --}}
+            @auth
+                @if($Userpredictions->count() > 0)
+                    @foreach($Userpredictions as $index => $prediction)
+                        <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="text-decoration-none">
+                            <div class="user-prediction-card mb-3" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; transition: all 0.2s;">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div style="flex-grow: 1;">
+                                        <h6 class="mb-1" style="font-weight: 700; font-size: 0.95rem;">{{ $prediction->stock->symbol }}</h6>
+                                        <p class="mb-1 text-muted" style="font-size: 0.85rem;">{{ $prediction->stock->company_name }}</p>
+                                        <div class="d-flex align-items-center gap-2 mt-2">
+                                            <span class="badge {{ $prediction->prediction_type == 'Bullish' ? 'bg-success' : 'bg-danger' }}" style="font-size: 0.75rem;">
+                                                {{ $prediction->prediction_type }}
+                                            </span>
+                                            <span style="font-weight: 700; font-size: 0.9rem; color: #10b981;">${{ number_format($prediction->target_price, 2) }}</span>
                                         </div>
                                     </div>
-                                    <div class="mt-2 pt-2 border-top" style="border-color: #e5e7eb !important;">
+                                    {{-- Status Badge --}}
+                                    @php
+                                        $isActive = $prediction->is_active == 1 && strtotime($prediction->end_date) > time();
+                                        $isExpired = $prediction->is_active == 1 && strtotime($prediction->end_date) <= time();
+                                    @endphp
+                                    <span class="badge {{ $isActive ? 'bg-success' : ($isExpired ? 'bg-warning text-dark' : 'bg-secondary') }}" style="font-size: 0.7rem;">
+                                        {{ $isActive ? 'Active' : ($isExpired ? 'Expired' : 'Inactive') }}
+                                    </span>
+                                </div>
+                                <div class="mt-2 pt-2 border-top" style="border-color: #e5e7eb !important;">
+                                    <div class="d-flex justify-content-between align-items-center">
                                         <small class="text-muted">
                                             <i class="bi bi-clock"></i> Ends {{ \Carbon\Carbon::parse($prediction->end_date)->format('M j, Y') }}
                                         </small>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <small class="text-success"><i class="bi bi-arrow-up"></i> {{ $prediction->upvotes ?? 0 }}</small>
+                                            <small class="text-danger"><i class="bi bi-arrow-down"></i> {{ $prediction->downvotes ?? 0 }}</small>
+                                        </div>
                                     </div>
                                 </div>
-                            </a>
-                        @endforeach
-                    @else
-                        <p class="text-muted text-center" style="padding: 2rem 1rem;">
-                            <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
-                            No active predictions yet
-                        </p>
-                    @endif
-                </div>
-            </div>
+                            </div>
+                        </a>
+                    @endforeach
 
+                    {{-- View All Link --}}
+                    <a href="{{ route('user.account') }}" class="btn btn-outline-primary w-100 mt-2" style="border-radius: 0.75rem;">
+                        View All My Predictions
+                    </a>
+                @else
+                    <div class="user-prediction-card text-center" style="padding: 2rem 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb;">
+                        <i class="bi bi-graph-up-arrow" style="font-size: 2.5rem; color: #9ca3af; display: block; margin-bottom: 0.75rem;"></i>
+                        <p class="text-muted mb-3" style="font-size: 0.95rem;">You haven't made any predictions yet</p>
+                        <a href="{{ route('predictions.create') }}" class="btn btn-primary btn-sm" style="border-radius: 0.5rem;">
+                            Make Your First Prediction
+                        </a>
+                    </div>
+                @endif
+            @else
+                <div class="user-prediction-card text-center" style="padding: 2rem 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb;">
+                    <i class="bi bi-person-circle" style="font-size: 2.5rem; color: #9ca3af; display: block; margin-bottom: 0.75rem;"></i>
+                    <p class="text-muted mb-3" style="font-size: 0.95rem;">Log in to see your predictions</p>
+                    <a href="{{ route('login') }}" class="btn btn-primary btn-sm" style="border-radius: 0.5rem;">
+                        Log In
+                    </a>
+                </div>
+            @endauth
         </div>
     </div>
 </div>
