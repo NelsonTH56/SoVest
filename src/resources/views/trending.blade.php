@@ -423,6 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <input type="text" class="form-control comment-input reply-input"
                                placeholder="Write a reply..."
                                id="reply-input-${comment.comment_id}"
+                               onkeypress="if(event.key === 'Enter') { event.preventDefault(); submitReply(${comment.comment_id}, ${predictionId}); }"
                                style="border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
                         <button class="btn btn-primary btn-sm" onclick="submitReply(${comment.comment_id}, ${predictionId})" style="border-radius: 20px;">
                             <i class="bi bi-send"></i>
@@ -597,6 +598,7 @@ function renderCommentGlobal(comment, predictionId, isReply = false) {
                     <input type="text" class="form-control comment-input reply-input"
                            placeholder="Write a reply..."
                            id="reply-input-${comment.comment_id}"
+                           onkeypress="if(event.key === 'Enter') { event.preventDefault(); submitReply(${comment.comment_id}, ${predictionId}); }"
                            style="border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
                     <button class="btn btn-primary btn-sm" onclick="submitReply(${comment.comment_id}, ${predictionId})" style="border-radius: 20px;">
                         <i class="bi bi-send"></i>

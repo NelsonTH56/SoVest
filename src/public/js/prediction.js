@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!isNaN(targetPrice) && targetPrice > 0 && currentStockPrice > 0) {
             const percentChange = ((targetPrice - currentStockPrice) / currentStockPrice) * 100;
-            percentChangeInput.value = percentChange.toFixed(2);
+            percentChangeInput.value = Math.round(percentChange);
         } else {
             percentChangeInput.value = '';
         }
@@ -369,11 +369,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (predictionType === 'Bearish' && percentChange > 0) {
                 // For bearish, make it negative
                 percentChange = -Math.abs(percentChange);
-                percentChangeInput.value = percentChange.toFixed(2);
+                percentChangeInput.value = Math.round(percentChange);
             } else if (predictionType === 'Bullish' && percentChange < 0) {
                 // For bullish, make it positive
                 percentChange = Math.abs(percentChange);
-                percentChangeInput.value = percentChange.toFixed(2);
+                percentChangeInput.value = Math.round(percentChange);
             }
 
             const targetPrice = currentStockPrice * (1 + percentChange / 100);
@@ -405,12 +405,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // Automatically apply correct sign based on prediction type
         if (predictionType === 'Bearish' && percentChange > 0) {
             // For bearish, make it negative
-            percentChangeInput.value = (-Math.abs(percentChange)).toFixed(2);
+            percentChangeInput.value = Math.round(-Math.abs(percentChange));
             // Update target price with the corrected percent change
             updateTargetPriceFromPercentChange();
         } else if (predictionType === 'Bullish' && percentChange < 0) {
             // For bullish, make it positive
-            percentChangeInput.value = Math.abs(percentChange).toFixed(2);
+            percentChangeInput.value = Math.round(Math.abs(percentChange));
             // Update target price with the corrected percent change
             updateTargetPriceFromPercentChange();
         }
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        setFieldValid(percentChangeInput, `${percentValue > 0 ? '+' : ''}${percentValue.toFixed(2)}% change`);
+        setFieldValid(percentChangeInput, `${percentValue > 0 ? '+' : ''}${Math.round(percentValue)}% change`);
         return true;
     }
 
@@ -941,7 +941,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const percentChange = parseFloat(percentChangeInput?.value);
             if (!isNaN(percentChange)) {
                 const sign = percentChange > 0 ? '+' : '';
-                confirmPercentChange.textContent = `${sign}${percentChange.toFixed(2)}%`;
+                confirmPercentChange.textContent = `${sign}${Math.round(percentChange)}%`;
                 confirmPercentChange.className = 'confirm-value ' + (percentChange > 0 ? 'positive' : 'negative');
             } else {
                 confirmPercentChange.textContent = 'N/A';

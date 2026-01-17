@@ -573,6 +573,27 @@ HTML;
             }
         });
 
+        // Handle Enter key for reply textarea
+        document.addEventListener('keypress', function(e) {
+            if (e.target.matches('.reply-textarea') && e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const replyForm = e.target.closest('.reply-form');
+                const btn = replyForm.querySelector('.submit-reply-btn');
+                if (btn) {
+                    const commentId = btn.getAttribute('data-parent-id');
+                    const predictionId = btn.getAttribute('data-prediction-id');
+                    const content = e.target.value.trim();
+
+                    if (!content) {
+                        alert('Please enter a reply');
+                        return;
+                    }
+
+                    submitComment(predictionId, content, commentId);
+                }
+            }
+        });
+
         function submitComment(predictionId, content, parentCommentId) {
             const formData = new FormData();
             formData.append('prediction_id', predictionId);
