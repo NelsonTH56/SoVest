@@ -7,40 +7,60 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>@yield('title', $pageTitle ?? 'SoVest')</title>
 
-    <!-- CRITICAL: Dark mode must be applied BEFORE any CSS loads to prevent FOUC -->
+    <!-- CRITICAL: Apply dark mode IMMEDIATELY before any rendering -->
     <script>
+        // This runs SYNCHRONOUSLY during HTML parsing, before any rendering
         (function() {
-            const darkMode = localStorage.getItem('darkMode');
-            if (darkMode === 'enabled') {
-                document.documentElement.classList.add('dark-mode');
+            var darkMode = localStorage.getItem('darkMode');
+            var isDark = darkMode === 'enabled';
+            var bgColor = isDark ? '#1a1a1a' : '#ffffff';
+            var textColor = isDark ? '#e5e7eb' : '#111827';
+            var html = document.documentElement;
+
+            // Add no-transition class FIRST to prevent any flash/animation on page load
+            html.classList.add('no-transition');
+
+            // Add dark-mode class to html immediately if needed
+            if (isDark) {
+                html.classList.add('dark-mode');
             }
+
+            // Inject critical CSS immediately using document.write (runs synchronously)
+            document.write('<style>html,body{background-color:' + bgColor + ' !important;color:' + textColor + ' !important;}</style>');
         })();
+    </script>
+
+    <!-- Apply to body once it's available, then enable transitions -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+            }
+
+            // Remove no-transition class after browser has painted to enable smooth transitions for future toggles
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    document.documentElement.classList.remove('no-transition');
+                });
+            });
+        });
     </script>
 
 	<!-- Vite Assets -->
 	@vite(['resources/css/app.css', 'resources/js/app.js'])
 
-	<!-- Bootstrap CSS (for backward compatibility) -->
+	
 	<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
-
-	<!-- Bootstrap Icons -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-	<!-- Favicon -->
 	<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
 	<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo.png') }}">
 	<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logo.png') }}">
 	<link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
-
-    <!-- Main CSS file (legacy) -->
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
-
-    <!-- Page-specific CSS -->
 	@if (isset($pageCss))
 		<link href="{{ asset($pageCss) }}" rel="stylesheet">
 	@endif
-
-	<!-- Yield and stack for styles -->
 	@yield('styles')
 	@stack('styles')
 
@@ -80,8 +100,6 @@
                             href="{{ route('user.leaderboard') }}">Leaderboard</a>
                     </li>  -->
                 </ul>
-
-                {{-- Right: Profile Dropdown --}}
                 @auth
                 @php
                     $profilePicture = $Curruser['profile_picture']
@@ -100,8 +118,6 @@
                             <a href="{{ route('logout') }}" class="drop-down-items logout">Logout</a>
                         </div>
                     </div>
-
-                    {{-- JS: Toggle dropdown --}}
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
                             const button = document.getElementById('dropdownButton');
@@ -241,18 +257,6 @@
     </div>
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-
-    <!-- Global Dark Mode Script -->
-    <script>
-        // Apply dark mode to body once DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            const darkMode = localStorage.getItem('darkMode');
-            if (darkMode === 'enabled') {
-                document.body.classList.add('dark-mode');
-            }
-        });
-    </script>
-
     <!-- Page-specific JavaScript -->
     @if (isset($pageJs))
         <script src="{{ asset($pageJs) }}"></script>

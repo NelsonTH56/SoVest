@@ -972,8 +972,19 @@ body.dark-mode .pagination .page-link:hover {
    ============================================================================= */
 
 /* Global text transition for smooth dark/light mode switching */
-*, *::before, *::after {
+/* Only apply transitions when not in no-transition mode (prevents flash on page load) */
+html:not(.no-transition) *,
+html:not(.no-transition) *::before,
+html:not(.no-transition) *::after {
     transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Disable ALL transitions during initial page load */
+html.no-transition,
+html.no-transition *,
+html.no-transition *::before,
+html.no-transition *::after {
+    transition: none !important;
 }
 
 /* Header and Navigation */

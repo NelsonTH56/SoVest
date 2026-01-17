@@ -47,7 +47,6 @@ body {
   color: #111827;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
-  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /**
@@ -58,9 +57,27 @@ body.dark-mode {
   color: #e5e7eb;
 }
 
-/* All text elements with smooth transitions */
-body, h1, h2, h3, h4, h5, h6, p, span, a, li, td, th, label,
-div, small, strong, em, blockquote, figcaption {
+/* All text elements with smooth transitions (only when not in no-transition mode) */
+html:not(.no-transition) body,
+html:not(.no-transition) h1,
+html:not(.no-transition) h2,
+html:not(.no-transition) h3,
+html:not(.no-transition) h4,
+html:not(.no-transition) h5,
+html:not(.no-transition) h6,
+html:not(.no-transition) p,
+html:not(.no-transition) span,
+html:not(.no-transition) a,
+html:not(.no-transition) li,
+html:not(.no-transition) td,
+html:not(.no-transition) th,
+html:not(.no-transition) label,
+html:not(.no-transition) div,
+html:not(.no-transition) small,
+html:not(.no-transition) strong,
+html:not(.no-transition) em,
+html:not(.no-transition) blockquote,
+html:not(.no-transition) figcaption {
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
