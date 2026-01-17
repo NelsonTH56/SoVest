@@ -1,0 +1,419 @@
+/**
+ * SoVest Unified Prediction Card Styles
+ * This file contains all styles for the prediction card component
+ * used across the entire application for visual consistency.
+ */
+
+/* ========================================
+   BASE PREDICTION CARD STYLES
+   ======================================== */
+.prediction-card-unified {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.prediction-card-unified:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #10b981;
+}
+
+/* Clickable card styling */
+a .prediction-card-unified {
+    cursor: pointer;
+}
+
+a:hover .prediction-card-unified {
+    text-decoration: none;
+}
+
+/* ========================================
+   COMPACT MODE (for sidebars/widgets)
+   ======================================== */
+.prediction-card-compact {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.prediction-card-compact .prediction-card-avatar {
+    width: 36px !important;
+    height: 36px !important;
+}
+
+.prediction-card-compact .prediction-card-username {
+    font-size: 0.9rem;
+}
+
+.prediction-card-compact .prediction-card-meta {
+    font-size: 0.75rem;
+}
+
+.prediction-card-compact .prediction-card-stock {
+    font-size: 1rem;
+}
+
+.prediction-card-compact .prediction-badge-vibrant {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.75rem;
+}
+
+/* ========================================
+   AVATAR & USER INFO
+   ======================================== */
+.prediction-card-avatar {
+    object-fit: cover;
+    border: 2px solid #10b981;
+}
+
+.prediction-card-username {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: #111827;
+}
+
+.prediction-card-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* ========================================
+   DATE BADGE
+   ======================================== */
+.prediction-card-date-badge {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid #10b981;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* ========================================
+   STOCK INFO
+   ======================================== */
+.prediction-card-stock {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.prediction-card-company {
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+}
+
+/* ========================================
+   PREDICTION BADGES
+   ======================================== */
+.prediction-badge-vibrant {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    animation: badgeBounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.badge-bullish {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.badge-bearish {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+@keyframes badgeBounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   PRICE DISPLAY
+   ======================================== */
+.prediction-card-label {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.prediction-card-target-price {
+    color: #10b981;
+    font-weight: 700;
+    font-size: 1.15rem;
+}
+
+.prediction-card-current-price {
+    color: #3b82f6;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* ========================================
+   REASONING TEXT
+   ======================================== */
+.prediction-card-reasoning {
+    line-height: 1.6;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+/* ========================================
+   FOOTER / ENGAGEMENT BAR
+   ======================================== */
+.prediction-card-footer {
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Vote Buttons */
+.vote-btn {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 0.4rem 0.75rem;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.vote-btn i {
+    font-size: 1.1rem;
+}
+
+.upvote-btn {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.upvote-btn:hover {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
+    transform: scale(1.05);
+}
+
+.downvote-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.downvote-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    transform: scale(1.05);
+}
+
+.vote-btn.voted-up {
+    background: rgba(16, 185, 129, 0.25);
+    border-color: #10b981;
+}
+
+.vote-btn.voted-down {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #ef4444;
+}
+
+/* Read-only vote display */
+.prediction-card-votes {
+    color: #10b981;
+    font-size: 0.9rem;
+}
+
+/* Status Badge */
+.prediction-card-status {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+/* Accuracy Display */
+.prediction-card-accuracy {
+    color: #10b981;
+}
+
+.prediction-card-accuracy i {
+    font-size: 1.1rem;
+}
+
+.prediction-card-accuracy .fw-bold {
+    font-size: 1rem;
+}
+
+.prediction-card-accuracy-label {
+    font-size: 0.85rem;
+}
+
+/* Comments */
+.prediction-card-comments {
+    color: #3b82f6;
+    font-size: 0.9rem;
+}
+
+.comments-toggle {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    color: #3b82f6;
+    padding: 0.4rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.comments-toggle:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+}
+
+.comments-toggle i {
+    font-size: 1.1rem;
+}
+
+/* Comment Input */
+.comment-input {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* ========================================
+   DARK MODE STYLES
+   ======================================== */
+body.dark-mode .prediction-card-unified {
+    background: #1f1f1f;
+    border-color: #404040;
+}
+
+body.dark-mode .prediction-card-unified:hover {
+    background: #252525;
+    border-color: #10b981;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .prediction-card-username {
+    color: #f3f4f6;
+}
+
+body.dark-mode .prediction-card-meta {
+    color: #9ca3af;
+}
+
+body.dark-mode .prediction-card-company {
+    color: #9ca3af;
+}
+
+body.dark-mode .prediction-card-label {
+    color: #9ca3af;
+}
+
+body.dark-mode .prediction-card-reasoning {
+    color: #d1d5db;
+}
+
+body.dark-mode .prediction-card-footer {
+    border-top-color: #404040;
+}
+
+body.dark-mode .upvote-btn {
+    background: rgba(16, 185, 129, 0.15);
+}
+
+body.dark-mode .upvote-btn:hover {
+    background: rgba(16, 185, 129, 0.25);
+}
+
+body.dark-mode .downvote-btn {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+body.dark-mode .downvote-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+}
+
+body.dark-mode .comments-toggle {
+    background: rgba(59, 130, 246, 0.15);
+}
+
+body.dark-mode .comments-toggle:hover {
+    background: rgba(59, 130, 246, 0.25);
+}
+
+body.dark-mode .comment-input {
+    background-color: #2a2a2a;
+    border-color: #404040;
+    color: #e5e7eb;
+}
+
+body.dark-mode .comment-input:focus {
+    border-color: #10b981;
+    background-color: #2d2d2d;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+@media (max-width: 768px) {
+    .prediction-card-unified {
+        padding: 1rem;
+    }
+
+    .prediction-card-stock {
+        font-size: 1.1rem;
+    }
+
+    .prediction-card-company {
+        display: block;
+        margin-left: 0;
+        margin-top: 0.25rem;
+    }
+
+    .prediction-badge-vibrant {
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .prediction-card-target-price {
+        font-size: 1rem;
+    }
+
+    .prediction-card-footer .d-flex {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .prediction-card-footer .d-flex > div {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .prediction-card-avatar {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .prediction-card-username {
+        font-size: 0.9rem;
+    }
+
+    .prediction-card-date-badge {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
