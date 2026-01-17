@@ -34,8 +34,15 @@ class PredictionController extends Controller
         $userId = Auth::id();
 
         try {
-            // Get user's predictions with related stock data using Eloquent
-            $predictions = Prediction::with('stock')
+            // Get user's predictions with related stock and user data using Eloquent
+            $predictions = Prediction::with(['stock', 'user'])
+                ->withCount(['votes as upvotes' => function($query) {
+                    $query->where('vote_type', 'upvote');
+                }])
+                ->withCount(['votes as downvotes' => function($query) {
+                    $query->where('vote_type', 'downvote');
+                }])
+                ->withCount('comments as comments_count')
                 ->where('user_id', $userId)
                 ->orderBy('prediction_date', 'desc')
                 ->get();
@@ -45,6 +52,12 @@ class PredictionController extends Controller
                 $predictionData = $prediction->toArray();
                 $predictionData['symbol'] = $prediction->stock->symbol;
                 $predictionData['company_name'] = $prediction->stock->company_name;
+
+                // Include user info for the prediction card component
+                $predictionData['username'] = $prediction->user->first_name;
+                $predictionData['first_name'] = $prediction->user->first_name;
+                $predictionData['reputation_score'] = $prediction->user->reputation_score;
+                $predictionData['profile_picture'] = $prediction->user->profile_picture;
 
                 // Fetch latest stock price
                 $latestPrice = $this->stockService->getLatestPrice($prediction->stock->symbol);
@@ -478,11 +491,15 @@ class PredictionController extends Controller
             // Get trending predictions using Eloquent ORM
             $trending_predictions = Prediction::select([
                     'predictions.prediction_id',
+                    'predictions.prediction_date',
+                    'predictions.reasoning',
                     'users.id as user_id',
                     'users.reputation_score',
+                    'users.profile_picture',
                     'stocks.symbol',
                     'stocks.stock_id',
-                    'predictions.prediction_type as prediction',
+                    'stocks.company_name',
+                    'predictions.prediction_type',
                     'predictions.accuracy',
                     'predictions.target_price',
                     'predictions.end_date',
@@ -490,9 +507,13 @@ class PredictionController extends Controller
                 ])
                 ->join('users', 'predictions.user_id', '=', 'users.id')
                 ->join('stocks', 'predictions.stock_id', '=', 'stocks.stock_id')
-                ->withCount(['votes as votes' => function($query) {
+                ->withCount(['votes as upvotes' => function($query) {
                     $query->where('vote_type', 'upvote');
                 }])
+                ->withCount(['votes as downvotes' => function($query) {
+                    $query->where('vote_type', 'downvote');
+                }])
+                ->withCount('comments as comments_count')
                 ->addSelect([
                     'users.first_name',
                     'users.last_name'
@@ -504,7 +525,7 @@ class PredictionController extends Controller
                                     ->where('predictions.accuracy', '>=', 70);
                           });
                 })
-                ->orderBy('votes', 'desc')
+                ->orderBy('upvotes', 'desc')
                 ->orderBy('predictions.accuracy', 'desc')
                 ->orderBy('predictions.prediction_date', 'desc')
                 ->limit(15)
@@ -513,7 +534,8 @@ class PredictionController extends Controller
             // Map the results to include the full name as username and fetch latest stock prices
             $trending_predictions = $trending_predictions->map(function($prediction) {
                 $prediction = $prediction->toArray();
-                $prediction['username'] = $prediction['first_name'] . ' ' . $prediction['last_name'];
+                // Use first_name for username display (component checks 'username' ?? 'first_name')
+                $prediction['username'] = $prediction['first_name'];
 
                 // Fetch latest stock price
                 $latestPrice = $this->stockService->getLatestPrice($prediction['symbol']);
@@ -525,9 +547,9 @@ class PredictionController extends Controller
             // If no predictions found, use dummy data
             if (empty($trending_predictions)) {
                 $trending_predictions = [
-                    ['username' => 'Investor123', 'symbol' => 'AAPL', 'prediction' => 'Bullish', 'votes' => 120, 'accuracy' => 92],
-                    ['username' => 'MarketGuru', 'symbol' => 'TSLA', 'prediction' => 'Bearish', 'votes' => 95, 'accuracy' => 85],
-                    ['username' => 'StockSavvy', 'symbol' => 'AMZN', 'prediction' => 'Bullish', 'votes' => 75, 'accuracy' => null],
+                    ['prediction_id' => 1, 'username' => 'Investor123', 'first_name' => 'Investor123', 'symbol' => 'AAPL', 'prediction_type' => 'Bullish', 'upvotes' => 120, 'downvotes' => 5, 'accuracy' => 92, 'reputation_score' => 100, 'is_active' => 1, 'reasoning' => 'Strong earnings expected'],
+                    ['prediction_id' => 2, 'username' => 'MarketGuru', 'first_name' => 'MarketGuru', 'symbol' => 'TSLA', 'prediction_type' => 'Bearish', 'upvotes' => 95, 'downvotes' => 10, 'accuracy' => 85, 'reputation_score' => 85, 'is_active' => 1, 'reasoning' => 'Overvalued at current levels'],
+                    ['prediction_id' => 3, 'username' => 'StockSavvy', 'first_name' => 'StockSavvy', 'symbol' => 'AMZN', 'prediction_type' => 'Bullish', 'upvotes' => 75, 'downvotes' => 3, 'accuracy' => null, 'reputation_score' => 70, 'is_active' => 1, 'reasoning' => 'Cloud growth potential'],
                 ];
             }
             
@@ -541,13 +563,13 @@ class PredictionController extends Controller
         } catch (Exception $e) {
             // Fallback to dummy data if an error occurs
             $trending_predictions = [
-                ['username' => 'Investor123', 'symbol' => 'AAPL', 'prediction' => 'Bullish', 'votes' => 120, 'accuracy' => 92],
-                ['username' => 'MarketGuru', 'symbol' => 'TSLA', 'prediction' => 'Bearish', 'votes' => 95, 'accuracy' => 85],
-                ['username' => 'StockSavvy', 'symbol' => 'AMZN', 'prediction' => 'Bullish', 'votes' => 75, 'accuracy' => null],
+                ['prediction_id' => 1, 'username' => 'Investor123', 'first_name' => 'Investor123', 'symbol' => 'AAPL', 'prediction_type' => 'Bullish', 'upvotes' => 120, 'downvotes' => 5, 'accuracy' => 92, 'reputation_score' => 100, 'is_active' => 1, 'reasoning' => 'Strong earnings expected'],
+                ['prediction_id' => 2, 'username' => 'MarketGuru', 'first_name' => 'MarketGuru', 'symbol' => 'TSLA', 'prediction_type' => 'Bearish', 'upvotes' => 95, 'downvotes' => 10, 'accuracy' => 85, 'reputation_score' => 85, 'is_active' => 1, 'reasoning' => 'Overvalued at current levels'],
+                ['prediction_id' => 3, 'username' => 'StockSavvy', 'first_name' => 'StockSavvy', 'symbol' => 'AMZN', 'prediction_type' => 'Bullish', 'upvotes' => 75, 'downvotes' => 3, 'accuracy' => null, 'reputation_score' => 70, 'is_active' => 1, 'reasoning' => 'Cloud growth potential'],
             ];
-            
+
             $this->withError("Error retrieving trending predictions: " . $e->getMessage());
-            
+
             // Render the view with the fallback data
             return view('trending', ['Curruser'=> $Curruser, 'pageTitle'=>'Trending Predictions', 'trending_predictions' => $trending_predictions, 'pageCss' => 'public/css/index.css']);
         }
