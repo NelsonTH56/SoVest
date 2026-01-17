@@ -79,10 +79,11 @@ class PredictionController extends Controller
             $stockId = $request->query('stock_id');
             $symbol = $request->query('symbol');
             $companyName = $request->query('company_name');
-            
+
             // Default prediction data
             $prediction = null;
-            
+            $currentPrice = null;
+
             // If stock parameters are provided, pre-populate the form
             if ($stockId && $symbol && $companyName) {
                 $prediction = [
@@ -95,14 +96,18 @@ class PredictionController extends Controller
                     'end_date' => null,
                     'reasoning' => null
                 ];
+
+                // Fetch current price for the preselected stock
+                $currentPrice = $this->stockService->getLatestPrice($symbol);
             }
-            
+
             // Render the create prediction form
             return view('predictions/create', [
                 'isEditing' => false,
                 'prediction' => $prediction,
                 'pageTitle' => 'Create Prediction',
                 'hasPreselectedStock' => ($stockId && $symbol && $companyName),
+                'currentPrice' => $currentPrice,
                 'Curruser' => $Curruser,
                 'cssPage' => $cssPage
             ]);

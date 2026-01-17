@@ -192,30 +192,50 @@ class StockDataService implements StockDataServiceInterface
         try {
             $symbol = strtoupper($symbol);
             $price = (float) $price;
-            $timestamp = $timestamp ?: date('Y-m-d H:i:s');
+            $priceDate = $timestamp ? date('Y-m-d', strtotime($timestamp)) : date('Y-m-d');
 
             // Get the stock by symbol
             $stock = Stock::where('symbol', $symbol)->first();
 
             if (!$stock) {
                 writeApiLog("Error: Stock not found for symbol $symbol");
+                error_log("Error: Stock not found for symbol $symbol");
                 return false;
             }
 
-            // Create new stock price record
-            $stockPrice = new StockPrice();
-            $stockPrice->stock_id = $stock->stock_id;
-            $stockPrice->price_date = $timestamp;
-            $stockPrice->close_price = $price;
-            $stockPrice->save();
+            // Check if price already exists for this date
+            $existingPrice = StockPrice::where('stock_id', $stock->stock_id)
+                ->where('price_date', $priceDate)
+                ->first();
 
-            // Update last_updated in stocks table
-            $stock->updated_at = $timestamp;
-            $stock->save();
+            if ($existingPrice) {
+                // Update existing price
+                $existingPrice->close_price = $price;
+                $existingPrice->open_price = $price; // Use same price if no open price available
+                $existingPrice->high_price = $price; // Use same price if no high price available
+                $existingPrice->low_price = $price; // Use same price if no low price available
+                $existingPrice->save();
+                error_log("Updated existing price for $symbol on $priceDate: $price");
+            } else {
+                // Create new stock price record
+                $stockPrice = new StockPrice();
+                $stockPrice->stock_id = $stock->stock_id;
+                $stockPrice->price_date = $priceDate;
+                $stockPrice->close_price = $price;
+                $stockPrice->open_price = $price; // Use same price if no open price available
+                $stockPrice->high_price = $price; // Use same price if no high price available
+                $stockPrice->low_price = $price; // Use same price if no low price available
+                $stockPrice->save();
+                error_log("Stored new price for $symbol on $priceDate: $price");
+            }
+
+            // Note: stocks table doesn't have updated_at column
+            // No need to update stock record when storing prices
 
             return true;
         } catch (Exception $e) {
             writeApiLog("Error storing price: " . $e->getMessage());
+            error_log("Error storing price for $symbol: " . $e->getMessage());
             return false;
         }
     }

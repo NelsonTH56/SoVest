@@ -73,28 +73,6 @@
             </div>
 
             <div class="md:col-span-2 bg-white rounded-lg shadow-lg p-6 md:p-8">
-                <h3 class="text-2xl font-bold text-center mb-4">The "Thesis Quality" Multiplier</h3>
-                <p class="text-center mb-6">Great predictions are backed by great reasoning. Your peers can rate the quality of your analysis on a 1-to-5 star scale. A well-reasoned, 5-star thesis can significantly boost your score, while a poor one can reduce it.</p>
-                <div class="flex flex-col md:flex-row justify-around items-center text-center space-y-4 md:space-y-0">
-                    <div class="p-4 rounded-lg bg-red-100 border border-red-300">
-                        <div class="text-lg font-bold">1-Star Thesis</div>
-                        <div class="text-2xl font-black text-red-600">x 0.80</div>
-                        <div class="text-sm">20% Penalty</div>
-                    </div>
-                     <div class="p-4 rounded-lg bg-gray-100 border border-gray-300">
-                        <div class="text-lg font-bold">3-Star Thesis</div>
-                        <div class="text-2xl font-black text-gray-800">x 1.00</div>
-                        <div class="text-sm">No Change</div>
-                    </div>
-                     <div class="p-4 rounded-lg bg-green-100 border border-green-300">
-                        <div class="text-lg font-bold">5-Star Thesis</div>
-                        <div class="text-2xl font-black text-green-600">x 1.20</div>
-                        <div class="text-sm">20% Bonus</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="md:col-span-2 bg-white rounded-lg shadow-lg p-6 md:p-8">
                  <h2 class="text-3xl font-bold text-center mb-6">Part 2: Updating Your Overall Score</h2>
                  <p class="text-center max-w-3xl mx-auto mb-8">The final grade from your prediction is used to update your overall score. The Scoring Algorithm makes this process smarter and more mature.</p>
             </div>

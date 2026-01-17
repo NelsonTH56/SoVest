@@ -122,21 +122,21 @@
                                     @endif
 
                                     <!-- Stock Info Card (appears after selection) -->
-                                    <div id="stock-info-card" class="stock-info-card" style="display: none;">
+                                    <div id="stock-info-card" class="stock-info-card" style="{{ (isset($hasPreselectedStock) && $hasPreselectedStock && isset($currentPrice) && $currentPrice) ? '' : 'display: none;' }}">
                                         <div class="stock-info-header">
                                             <div>
-                                                <h4 id="stock-name" class="stock-name"></h4>
-                                                <p id="stock-symbol" class="stock-symbol"></p>
+                                                <h4 id="stock-name" class="stock-name">{{ $prediction['company_name'] ?? '' }}</h4>
+                                                <p id="stock-symbol" class="stock-symbol">{{ $prediction['symbol'] ?? '' }}</p>
                                             </div>
                                             <div class="stock-price-section">
-                                                <div id="current-price-loader" class="price-loader">
+                                                <div id="current-price-loader" class="price-loader" style="{{ (isset($currentPrice) && $currentPrice) ? 'display: none;' : '' }}">
                                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
                                                         <span class="visually-hidden">Loading...</span>
                                                     </div>
                                                 </div>
-                                                <div id="current-price-display" style="display: none;">
+                                                <div id="current-price-display" style="{{ (isset($currentPrice) && $currentPrice) ? '' : 'display: none;' }}">
                                                     <span class="current-price-label">Current Price</span>
-                                                    <span id="current-price" class="current-price">$0.00</span>
+                                                    <span id="current-price" class="current-price">${{ isset($currentPrice) && $currentPrice ? number_format($currentPrice, 2) : '0.00' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -218,7 +218,7 @@
                                                 <span class="dollar-sign">$</span>
                                                 <input type="number" class="form-control-enhanced form-control-lg ps-4 @error('target_price') is-invalid @enderror"
                                                     id="target_price" name="target_price" step="0.01" min="0.01"
-                                                    placeholder="0.00"
+                                                    placeholder="{{ isset($currentPrice) && $currentPrice ? number_format($currentPrice, 2) : 'Enter target price' }}"
                                                     value="{{ $isEditing && $prediction['target_price'] ? $prediction['target_price'] : old('target_price', '') }}">
                                             </div>
                                             @error('target_price')

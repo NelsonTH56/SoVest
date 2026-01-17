@@ -358,9 +358,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
         isUpdatingPrice = true;
 
-        const percentChange = parseFloat(percentChangeInput?.value);
+        let percentChange = parseFloat(percentChangeInput?.value);
 
         if (!isNaN(percentChange) && currentStockPrice > 0) {
+            // Get the selected prediction type
+            const selectedType = document.querySelector('input[name="prediction_type"]:checked');
+            const predictionType = selectedType ? selectedType.value : null;
+
+            // Automatically apply correct sign based on prediction type
+            if (predictionType === 'Bearish' && percentChange > 0) {
+                // For bearish, make it negative
+                percentChange = -Math.abs(percentChange);
+                percentChangeInput.value = percentChange.toFixed(2);
+            } else if (predictionType === 'Bullish' && percentChange < 0) {
+                // For bullish, make it positive
+                percentChange = Math.abs(percentChange);
+                percentChangeInput.value = percentChange.toFixed(2);
+            }
+
             const targetPrice = currentStockPrice * (1 + percentChange / 100);
             targetPriceInput.value = targetPrice.toFixed(2);
         } else {
@@ -371,6 +386,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Validate the computed target price
         validateTargetPrice();
+    }
+
+    /**
+     * Automatically adjust percent change sign based on prediction type
+     */
+    function adjustPercentChangeSign() {
+        if (!percentChangeInput || !percentChangeInput.value) return;
+
+        let percentChange = parseFloat(percentChangeInput.value);
+        if (isNaN(percentChange)) return;
+
+        const selectedType = document.querySelector('input[name="prediction_type"]:checked');
+        if (!selectedType) return;
+
+        const predictionType = selectedType.value;
+
+        // Automatically apply correct sign based on prediction type
+        if (predictionType === 'Bearish' && percentChange > 0) {
+            // For bearish, make it negative
+            percentChangeInput.value = (-Math.abs(percentChange)).toFixed(2);
+            // Update target price with the corrected percent change
+            updateTargetPriceFromPercentChange();
+        } else if (predictionType === 'Bullish' && percentChange < 0) {
+            // For bullish, make it positive
+            percentChangeInput.value = Math.abs(percentChange).toFixed(2);
+            // Update target price with the corrected percent change
+            updateTargetPriceFromPercentChange();
+        }
     }
 
     /**
@@ -666,6 +709,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (currentStockPrice) {
                 updatePriceSuggestion(currentStockPrice);
             }
+            // Automatically adjust percent change sign based on prediction type
+            adjustPercentChangeSign();
         });
     });
 
@@ -1030,11 +1075,17 @@ document.addEventListener('DOMContentLoaded', function () {
         const priceDisplay = document.getElementById('current-price');
         const priceLoader = document.getElementById('current-price-loader');
         const priceSection = document.getElementById('current-price-display');
+        const targetPriceInput = document.getElementById('target_price');
 
         if (priceDisplay && priceLoader && priceSection) {
             priceDisplay.textContent = `$${price.toFixed(2)}`;
             priceLoader.style.display = 'none';
             priceSection.style.display = 'block';
+
+            // Update the target price input placeholder with current price
+            if (targetPriceInput) {
+                targetPriceInput.placeholder = price.toFixed(2);
+            }
         }
     }
 
