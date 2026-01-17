@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('styles')
+<link rel="stylesheet" href="{{ asset('css/leaderboard-card.css') }}">
 <style>
     .prediction-card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -33,8 +34,65 @@
         </div>
 
     <div class="row">
-    {{-- Left Column: Main Content Feed --}}
-    <div class="col-lg-8 col-md-7">
+    {{-- Left Sidebar: Leaderboard --}}
+    <div class="col-lg-3 col-md-4 order-2 order-lg-1">
+        <div class="sticky-top" style="top: 1rem;">
+            {{-- Leaderboard Card --}}
+            <div class="card mb-4 leaderboard-card">
+                <div class="card-body" style="padding: 1.25rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0" style="font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="bi bi-trophy-fill" style="color: #f59e0b;"></i>
+                            Leaderboard
+                        </h5>
+                        <a href="{{ route('user.leaderboard') }}" class="btn btn-sm btn-outline-primary" style="border-radius: 20px; font-size: 0.8rem;">
+                            View All
+                        </a>
+                    </div>
+
+                    @if(!empty($leaderboardUsers) && count($leaderboardUsers) > 0)
+                        <div class="leaderboard-list">
+                            @foreach($leaderboardUsers as $index => $leader)
+                                <div class="leaderboard-item d-flex align-items-center justify-content-between" style="padding: 0.5rem 0.5rem; margin-bottom: 0.25rem;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        {{-- Rank with medal icon for top 3 --}}
+                                        @if($index === 0)
+                                            <i class="bi bi-1-circle-fill" style="color: #fbbf24; font-size: 1.25rem;"></i>
+                                        @elseif($index === 1)
+                                            <i class="bi bi-2-circle-fill" style="color: #9ca3af; font-size: 1.25rem;"></i>
+                                        @elseif($index === 2)
+                                            <i class="bi bi-3-circle-fill" style="color: #cd7f32; font-size: 1.25rem;"></i>
+                                        @else
+                                            <span class="rank-number" style="width: 1.25rem; text-align: center; font-weight: 600; font-size: 0.85rem; color: #6b7280;">{{ $index + 1 }}</span>
+                                        @endif
+                                        {{-- User Name --}}
+                                        <span class="leaderboard-name" style="font-weight: 600; font-size: 0.9rem;">
+                                            {{ $leader['first_name'] }} {{ substr($leader['last_name'], 0, 1) }}.
+                                        </span>
+                                    </div>
+                                    {{-- Reputation Score --}}
+                                    <div class="d-flex align-items-center gap-1">
+                                        <i class="bi bi-star-fill" style="color: #f59e0b; font-size: 0.75rem;"></i>
+                                        <span class="leaderboard-score" style="font-weight: 700; font-size: 0.85rem; color: #10b981;">
+                                            {{ number_format($leader['reputation_score']) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted text-center mb-0" style="padding: 1rem;">
+                            <i class="bi bi-trophy" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                            No rankings yet
+                        </p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Center Column: Main Content Feed --}}
+    <div class="col-lg-6 col-md-8 order-1 order-lg-2">
         {{-- Quick Search Bar --}}
         <div class="quick-search-container mb-4">
             <form action="{{ url('search') }}" method="GET" class="d-flex gap-2">
@@ -606,7 +664,7 @@
     </div>
 
     {{-- Right Sidebar --}}
-    <div class="col-lg-4 col-md-5">
+    <div class="col-lg-3 col-md-12 order-3">
         <div class="sticky-top" style="top: 1rem;">
             {{-- Create Prediction CTA --}}
             <a href="{{ route('predictions.create') }}" class="btn btn-primary w-100 mb-4" style="padding: 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.05rem; display: flex; align-items-center; justify-content: center; gap: 0.5rem;">
