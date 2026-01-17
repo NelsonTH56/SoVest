@@ -194,6 +194,15 @@
             background: #333333 !important;
         }
 
+        /* Dark mode: "Ends" text in user prediction cards */
+        body.dark-mode .user-prediction-card .border-top {
+            border-color: #404040 !important;
+        }
+
+        body.dark-mode .user-prediction-card .border-top small.text-muted {
+            color: #9ca3af !important;
+        }
+
         /* Prediction card text colors for dark mode */
         body.dark-mode .prediction-card .fw-bold {
             color: #f3f4f6 !important;

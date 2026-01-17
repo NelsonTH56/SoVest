@@ -298,6 +298,14 @@
         body.dark-mode [style*="border-color:#e5e7eb"] {
             border-color: #404040 !important;
         }
+
+        /* Prediction end date badges - dark mode adjustments */
+        body.dark-mode .badge[style*="background-color: rgba(16, 185, 129, 0.1)"],
+        body.dark-mode .badge[style*="background-color:rgba(16, 185, 129, 0.1)"] {
+            background-color: rgba(16, 185, 129, 0.2) !important;
+            color: #6ee7b7 !important;
+            border-color: #6ee7b7 !important;
+        }
     </style>
 
 </head>
