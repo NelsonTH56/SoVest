@@ -64,7 +64,17 @@ class UserController extends Controller
             return $this->scoringService->getTopUsers(10);
         });
 
-        return view('home', compact('Curruser', 'predictions', 'Userpredictions', 'leaderboardUsers'));
+        // Get hot predictions for mobile carousel (cached for 5 minutes)
+        $hotPredictions = cache()->remember('home:hot_predictions', 300, function () {
+            return Prediction::with(['user', 'stock'])
+                ->withCount(['votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote')])
+                ->where('is_active', 1)
+                ->orderByDesc('upvotes')
+                ->limit(8)
+                ->get();
+        });
+
+        return view('home', compact('Curruser', 'predictions', 'Userpredictions', 'leaderboardUsers', 'hotPredictions'));
     }
 
 

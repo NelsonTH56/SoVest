@@ -307,6 +307,96 @@
             border-color: #6ee7b7 !important;
         }
 
+        /* ========== MOBILE STICKY HEADER ========== */
+        @media (max-width: 767.98px) {
+            .mobile-sticky-header {
+                display: flex;
+                position: sticky;
+                top: 0;
+                z-index: 1045;
+                height: 52px;
+                padding: 0 1rem;
+                background: #ffffff;
+                border-bottom: 1px solid #e5e7eb;
+                align-items: center;
+                justify-content: space-between;
+                margin: -0.75rem -0.75rem 0.75rem -0.75rem;
+                width: calc(100% + 1.5rem);
+            }
+
+            body.dark-mode .mobile-sticky-header {
+                background: #1a1a1a;
+                border-bottom-color: #333;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                text-decoration: none;
+                color: #111827;
+                font-weight: 700;
+                font-size: 1.15rem;
+            }
+
+            body.dark-mode .mobile-brand {
+                color: #f3f4f6;
+            }
+
+            .mobile-header-right {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .mobile-icon-btn {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #374151;
+                text-decoration: none;
+                transition: background 0.2s;
+            }
+
+            .mobile-icon-btn:hover {
+                background: rgba(16, 185, 129, 0.1);
+                color: #10b981;
+            }
+
+            body.dark-mode .mobile-icon-btn {
+                color: #d1d5db;
+            }
+
+            .mobile-icon-btn i {
+                font-size: 1.25rem;
+            }
+
+            .mobile-profile-link {
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .mobile-profile-link img {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #10b981;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-sticky-header {
+                display: none !important;
+            }
+        }
+
         /* ========== ENHANCED MOBILE UI/UX STYLES ========== */
 
         /* Global mobile container improvements */
@@ -538,6 +628,162 @@
             }
         }
 
+        /* ========== MOBILE BOTTOM NAVIGATION BAR ========== */
+        @media (max-width: 767.98px) {
+            /* Add padding to body/main content to prevent overlap with bottom nav */
+            .mobile-bottom-padding {
+                padding-bottom: 80px !important;
+            }
+
+            /* Bottom Navigation Bar */
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 64px;
+                background: #ffffff;
+                border-top: 1px solid #e5e7eb;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 1050;
+                padding: 0 0.5rem;
+                padding-bottom: env(safe-area-inset-bottom, 0);
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            body.dark-mode .mobile-bottom-nav {
+                background: #1a1a1a;
+                border-top-color: #333;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+            }
+
+            /* Nav Item */
+            .mobile-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                color: #6b7280;
+                padding: 0.5rem;
+                min-width: 56px;
+                min-height: 48px;
+                border-radius: 0.5rem;
+                transition: all 0.2s ease;
+            }
+
+            .mobile-nav-item:hover,
+            .mobile-nav-item:focus {
+                color: #10b981;
+                background: rgba(16, 185, 129, 0.1);
+            }
+
+            .mobile-nav-item.active {
+                color: #10b981;
+            }
+
+            body.dark-mode .mobile-nav-item {
+                color: #9ca3af;
+            }
+
+            body.dark-mode .mobile-nav-item:hover,
+            body.dark-mode .mobile-nav-item:focus,
+            body.dark-mode .mobile-nav-item.active {
+                color: #10b981;
+                background: rgba(16, 185, 129, 0.15);
+            }
+
+            /* Nav Icon */
+            .mobile-nav-item i {
+                font-size: 1.4rem;
+                margin-bottom: 0.15rem;
+            }
+
+            /* Nav Label */
+            .mobile-nav-item span {
+                font-size: 0.65rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            /* Create Button - Prominent Center FAB Style */
+            .mobile-nav-item.create-btn {
+                position: relative;
+                color: #ffffff;
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                border-radius: 50%;
+                width: 56px;
+                height: 56px;
+                min-width: 56px;
+                margin-top: -20px;
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            }
+
+            .mobile-nav-item.create-btn:hover,
+            .mobile-nav-item.create-btn:focus {
+                color: #ffffff;
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                transform: scale(1.05);
+            }
+
+            .mobile-nav-item.create-btn i {
+                font-size: 1.75rem;
+                margin-bottom: 0;
+            }
+
+            .mobile-nav-item.create-btn span {
+                display: none;
+            }
+
+            body.dark-mode .mobile-nav-item.create-btn {
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            }
+
+            /* Footer padding to clear bottom nav */
+            footer.border-top {
+                padding-bottom: 80px !important;
+            }
+
+            /* Hide top navbar on mobile - use bottom nav instead */
+            header .d-flex.flex-column.flex-md-row {
+                display: none !important;
+            }
+
+            /* Adjust header spacing when navbar is hidden */
+            header {
+                margin-bottom: 0 !important;
+            }
+
+            /* Profile picture in mobile nav */
+            .mobile-nav-profile-pic {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid transparent;
+                transition: all 0.2s ease;
+            }
+
+            .mobile-nav-item.active .mobile-nav-profile-pic {
+                border-color: #10b981;
+            }
+
+            .mobile-nav-item:hover .mobile-nav-profile-pic,
+            .mobile-nav-item:focus .mobile-nav-profile-pic {
+                border-color: #10b981;
+            }
+        }
+
+        /* Hide mobile nav on tablet and desktop */
+        @media (min-width: 768px) {
+            .mobile-bottom-nav {
+                display: none !important;
+            }
+        }
+
         /* Mobile footer improvements */
         @media (max-width: 767.98px) {
             footer.border-top {
@@ -601,6 +847,33 @@
     <div class="container py-3 mobile-safe-area">
 
         <header>
+            {{-- Mobile-Only Sticky Header --}}
+            <div class="mobile-sticky-header">
+                <a href="{{ route('landing') }}" class="mobile-brand">
+                    <img src="{{ asset('images/logo.png') }}" alt="SoVest" width="28" height="28">
+                    <span>SoVest</span>
+                </a>
+                <div class="mobile-header-right">
+                    <a href="{{ route('search') }}" class="mobile-icon-btn" aria-label="Search">
+                        <i class="bi bi-search"></i>
+                    </a>
+                    @auth
+                        @php
+                            $mobileHeaderPic = isset($Curruser['profile_picture']) && $Curruser['profile_picture']
+                                ? asset('images/profile_pictures/' . $Curruser['profile_picture'])
+                                : asset('images/default.png');
+                        @endphp
+                        <a href="{{ route('user.account') }}" class="mobile-profile-link">
+                            <img src="{{ $mobileHeaderPic }}" alt="Profile">
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="mobile-icon-btn" aria-label="Login">
+                            <i class="bi bi-person-circle"></i>
+                        </a>
+                    @endauth
+                </div>
+            </div>
+
             <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
                 <a href="{{ route('landing') }}"
                     class="d-flex align-items-center link-body-emphasis text-decoration-none">
@@ -823,6 +1096,48 @@
             </div>
         </div>
     </div>
+
+    {{-- Mobile Bottom Navigation Bar (visible only on mobile) --}}
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+        {{-- Home --}}
+        <a href="{{ route('user.home') }}" class="mobile-nav-item {{ request()->is('home') ? 'active' : '' }}" aria-label="Home">
+            <i class="bi bi-house-fill"></i>
+            <span>Home</span>
+        </a>
+
+        {{-- Leaderboard --}}
+        <a href="{{ route('user.leaderboard') }}" class="mobile-nav-item {{ request()->is('leaderboard') ? 'active' : '' }}" aria-label="Leaderboard">
+            <i class="bi bi-trophy-fill"></i>
+            <span>Leaders</span>
+        </a>
+
+        {{-- Create Prediction (Center FAB) --}}
+        <a href="{{ route('predictions.create') }}" class="mobile-nav-item create-btn {{ request()->is('predictions/create') ? 'active' : '' }}" aria-label="Create Prediction">
+            <i class="bi bi-plus-lg"></i>
+            <span>Create</span>
+        </a>
+
+        {{-- Trending --}}
+        <a href="{{ route('predictions.trending') }}" class="mobile-nav-item {{ request()->is('predictions/trending') ? 'active' : '' }}" aria-label="Trending">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span>Trending</span>
+        </a>
+
+        {{-- Profile/Account --}}
+        <a href="{{ route('user.account') }}" class="mobile-nav-item {{ request()->is('account') ? 'active' : '' }}" aria-label="Account">
+            @auth
+                @php
+                    $mobileProfilePic = isset($Curruser['profile_picture']) && $Curruser['profile_picture']
+                        ? asset('images/profile_pictures/' . $Curruser['profile_picture'])
+                        : asset('images/default.png');
+                @endphp
+                <img src="{{ $mobileProfilePic }}" alt="Profile" class="mobile-nav-profile-pic">
+            @else
+                <i class="bi bi-person-circle"></i>
+            @endauth
+            <span>Profile</span>
+        </a>
+    </nav>
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 

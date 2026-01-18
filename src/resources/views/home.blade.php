@@ -33,9 +33,43 @@
             <p class="welcome-subtext" style="font-size: 1.1rem; font-weight: 500;">Your community for market predictions and insights</p>
         </div>
 
-    <div class="row">
+        {{-- Mobile Hot Predictions Carousel --}}
+        <div class="mobile-hot-carousel-wrapper">
+            <div class="mobile-hot-carousel">
+                {{-- Create New Prediction --}}
+                <a href="{{ route('predictions.create') }}" class="hot-prediction-item">
+                    <div class="hot-avatar-wrapper create-new">
+                        <div class="hot-avatar create-avatar">
+                            <i class="bi bi-plus-lg"></i>
+                        </div>
+                    </div>
+                    <span class="hot-ticker">New</span>
+                </a>
+
+                {{-- Hot Predictions --}}
+                @if(isset($hotPredictions))
+                    @foreach($hotPredictions as $hot)
+                        <a href="{{ route('predictions.view', ['id' => $hot->prediction_id]) }}" class="hot-prediction-item">
+                            <div class="hot-avatar-wrapper {{ $hot->prediction_type == 'Bullish' ? 'ring-bullish' : 'ring-bearish' }}">
+                                <div class="hot-avatar">
+                                    @php
+                                        $hotUserPic = $hot->user->profile_picture
+                                            ? asset('images/profile_pictures/' . $hot->user->profile_picture)
+                                            : asset('images/default.png');
+                                    @endphp
+                                    <img src="{{ $hotUserPic }}" alt="{{ $hot->user->first_name }}">
+                                </div>
+                            </div>
+                            <span class="hot-ticker">{{ $hot->stock->symbol }}</span>
+                        </a>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
+    <div class="row mobile-bottom-padding">
     {{-- Left Sidebar: Leaderboard --}}
-    <div class="col-lg-3 col-md-4 order-2 order-lg-1">
+    <div class="col-lg-3 col-md-4 order-2 order-lg-1 mobile-hide-sidebar">
         <div class="sticky-top" style="top: 1rem;">
             {{-- Leaderboard Card --}}
             <div class="card mb-4 leaderboard-card">
@@ -673,6 +707,135 @@
                 padding: 1.5rem !important;
             }
         }
+
+        /* Hide sidebar content on mobile - now accessed via bottom nav */
+        @media (max-width: 767.98px) {
+            .mobile-hide-sidebar {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-hide-sidebar {
+                display: block !important;
+            }
+        }
+
+        /* ========== MOBILE HOT PREDICTIONS CAROUSEL ========== */
+        @media (max-width: 767.98px) {
+            .mobile-hot-carousel-wrapper {
+                margin: 0 -0.5rem 1.5rem -0.5rem;
+                padding: 0 0.5rem;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            body.dark-mode .mobile-hot-carousel-wrapper {
+                border-bottom-color: #404040;
+            }
+
+            .mobile-hot-carousel {
+                display: flex;
+                gap: 1rem;
+                padding: 0.75rem 0;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .mobile-hot-carousel::-webkit-scrollbar {
+                display: none;
+            }
+
+            .hot-prediction-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.35rem;
+                text-decoration: none;
+                flex-shrink: 0;
+            }
+
+            .hot-avatar-wrapper {
+                width: 62px;
+                height: 62px;
+                border-radius: 50%;
+                padding: 3px;
+                background: #e5e7eb;
+            }
+
+            /* Animated gradient ring for bullish */
+            .hot-avatar-wrapper.ring-bullish {
+                background: linear-gradient(45deg, #10b981, #3b82f6, #10b981);
+                background-size: 300% 300%;
+                animation: gradientRotate 3s ease infinite;
+            }
+
+            /* Animated gradient ring for bearish */
+            .hot-avatar-wrapper.ring-bearish {
+                background: linear-gradient(45deg, #ef4444, #f59e0b, #ef4444);
+                background-size: 300% 300%;
+                animation: gradientRotate 3s ease infinite;
+            }
+
+            @keyframes gradientRotate {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+
+            /* Create new button style */
+            .hot-avatar-wrapper.create-new {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            }
+
+            .hot-avatar {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                overflow: hidden;
+                background: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            body.dark-mode .hot-avatar {
+                background: #1a1a1a;
+            }
+
+            .hot-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .hot-avatar.create-avatar {
+                background: transparent;
+                color: white;
+                font-size: 1.75rem;
+            }
+
+            .hot-ticker {
+                font-size: 0.7rem;
+                font-weight: 600;
+                color: #6b7280;
+                max-width: 62px;
+                text-align: center;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            body.dark-mode .hot-ticker {
+                color: #9ca3af;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-hot-carousel-wrapper {
+                display: none !important;
+            }
+        }
         </style>
 
         {{-- Feed Header --}}
@@ -911,7 +1074,7 @@
     </div>
 
     {{-- Right Sidebar --}}
-    <div class="col-lg-3 col-md-12 order-3">
+    <div class="col-lg-3 col-md-12 order-3 mobile-hide-sidebar">
         <div class="sticky-top" style="top: 1rem;">
             {{-- Create Prediction CTA --}}
             <a href="{{ route('predictions.create') }}" class="btn btn-primary w-100 mb-4" style="padding: 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
@@ -992,6 +1155,7 @@
     </div>
 </div>
 </div>
+
             @push('scripts')
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
