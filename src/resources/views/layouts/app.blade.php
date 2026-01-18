@@ -900,6 +900,10 @@
                         <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('leaderboard') ? 'active' : '' }}"
                             href="{{ route('user.leaderboard') }}">Leaderboard</a>
                     </li>
+                    <li class="nav-item me-3">
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('groups*') ? 'active' : '' }}"
+                            href="{{ route('groups.index') }}">Groups</a>
+                    </li>
                 </ul>
 
                 {{-- Right: Profile Dropdown with Mobile Actions --}}

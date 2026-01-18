@@ -19,6 +19,32 @@
     .text-decoration-none:hover {
         color: inherit;
     }
+
+    /* Unread prediction indicator */
+    .unread-indicator {
+        width: 10px;
+        height: 10px;
+        background-color: #3b82f6;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-right: 0.75rem;
+        animation: pulse-unread 2s infinite;
+    }
+
+    @keyframes pulse-unread {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.7;
+            transform: scale(0.9);
+        }
+    }
+
+    body.dark-mode .unread-indicator {
+        background-color: #60a5fa;
+    }
 </style>
 @endsection
 
@@ -1088,6 +1114,36 @@
                 My Predictions
             </h2>
 
+<<<<<<< HEAD
+                    @if(!empty($Userpredictions) && count($Userpredictions) > 0)
+                        @foreach($Userpredictions as $index => $prediction)
+                            <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="text-decoration-none">
+                                <div class="user-prediction-card mb-3" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; transition: all 0.2s;">
+                                    <div class="d-flex align-items-start">
+                                        @if($prediction->isUnread())
+                                            <div class="unread-indicator" title="New prediction"></div>
+                                        @endif
+                                        <div style="flex-grow: 1;">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1" style="font-weight: 700; font-size: 0.95rem;">{{ $prediction->stock->symbol }}</h6>
+                                                    <p class="mb-1 text-muted" style="font-size: 0.85rem;">{{ $prediction->stock->company_name }}</p>
+                                                    <div class="d-flex align-items-center gap-2 mt-2">
+                                                        <span class="badge {{ $prediction->prediction_type == 'Bullish' ? 'bg-success' : 'bg-danger' }}" style="font-size: 0.75rem;">
+                                                            {{ $prediction->prediction_type }}
+                                                        </span>
+                                                        <span style="font-weight: 700; font-size: 0.9rem; color: #10b981;">${{ number_format($prediction->target_price, 2) }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 pt-2 border-top" style="border-color: #e5e7eb !important;">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-clock"></i> Ends {{ \Carbon\Carbon::parse($prediction->end_date)->format('M j, Y') }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+=======
             {{-- My Predictions List --}}
             @auth
                 @if($Userpredictions->count() > 0)
@@ -1124,6 +1180,7 @@
                                             <small class="text-danger"><i class="bi bi-arrow-down"></i> {{ $prediction->downvotes ?? 0 }}</small>
                                         </div>
                                     </div>
+>>>>>>> 42ff0ee53e75f41f28bd09aa84a4ba0bb3dd39b5
                                 </div>
                             </div>
                         </a>

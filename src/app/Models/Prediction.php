@@ -28,7 +28,8 @@ class Prediction extends Model {
         'is_active',
         'accuracy',
         'reasoning',
-        'upvotes'
+        'upvotes',
+        'viewed_at'
     ];
 
     /**
@@ -44,7 +45,36 @@ class Prediction extends Model {
             'target_price' => 'float',
             'accuracy' => 'float',
             'is_active' => 'boolean',
+            'viewed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Check if this prediction has been viewed by its owner
+     */
+    public function isViewed(): bool
+    {
+        return $this->viewed_at !== null;
+    }
+
+    /**
+     * Check if this prediction is unread (not viewed)
+     */
+    public function isUnread(): bool
+    {
+        return $this->viewed_at === null;
+    }
+
+    /**
+     * Mark this prediction as viewed
+     */
+    public function markAsViewed(): bool
+    {
+        if ($this->viewed_at === null) {
+            $this->viewed_at = now();
+            return $this->save();
+        }
+        return true;
     }
 
     /**

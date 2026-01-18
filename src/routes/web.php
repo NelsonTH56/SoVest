@@ -8,6 +8,7 @@ use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\GroupController;
 
 // We're not really using routes here we just want to redirect to main.php
 
@@ -70,9 +71,26 @@ Route::controller(CommentController::class)->group(function () {
     Route::delete('/comments/{id}', 'destroy')->name('comments.destroy')->middleware('auth');
 });
 
+// Group routes
+Route::prefix('groups')->middleware('auth')->name('groups.')->group(function () {
+    Route::get('/', [GroupController::class, 'index'])->name('index');
+    Route::get('/create', [GroupController::class, 'create'])->name('create');
+    Route::post('/store', [GroupController::class, 'store'])->name('store');
+    Route::get('/{id}', [GroupController::class, 'show'])->name('show')->middleware('group.member');
+    Route::get('/{id}/join', [GroupController::class, 'join'])->name('join');
+    Route::post('/{id}/join', [GroupController::class, 'processJoin'])->name('processJoin');
+    Route::post('/{id}/leave', [GroupController::class, 'leave'])->name('leave');
+    Route::get('/{id}/settings', [GroupController::class, 'settings'])->name('settings')->middleware('group.admin');
+    Route::post('/{id}/passcode', [GroupController::class, 'updatePasscode'])->name('updatePasscode')->middleware('group.admin');
+    Route::delete('/{id}/members/{userId}', [GroupController::class, 'removeMember'])->name('removeMember')->middleware('group.admin');
+});
+
 // API routes with rate limiting
 // 60 requests per 1 minute for general API endpoints
 Route::prefix('api')->middleware(['api', 'throttle:120,1'])->name('api.')->group(function () {
+    // Group lookup by code
+    Route::get('/groups/lookup', [GroupController::class, 'lookupByCode'])->name('groups.lookup');
+
     Route::match(['GET', 'POST'], '/predictions', [PredictionController::class, 'apiHandler'])->name('predictions');
     Route::post('/predictions/create', [PredictionController::class, 'store'])->name('predictions.create');
     Route::post('/predictions/update', [PredictionController::class, 'update'])->name('predictions.update')->middleware('prediction.owner');

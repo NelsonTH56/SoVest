@@ -11,6 +11,8 @@ use App\Services\Interfaces\SearchServiceInterface;
 use App\Services\SearchService;
 use App\Services\Interfaces\StockDataServiceInterface;
 use App\Services\StockDataService;
+use App\Services\Interfaces\GroupServiceInterface;
+use App\Services\GroupService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SearchServiceInterface::class, SearchService::class);
         $this->app->bind(StockDataServiceInterface::class, StockDataService::class);
         $this->app->bind(ResponseFormatterInterface::class, ResponseFormatter::class);
+        $this->app->bind(GroupServiceInterface::class, GroupService::class);
     }
 
     /**
