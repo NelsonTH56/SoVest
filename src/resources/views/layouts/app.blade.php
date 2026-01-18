@@ -94,11 +94,10 @@
                         <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('scoring-algorithm') ? 'active' : '' }}"
                             href="{{ route('scoring.algorithm') }}">Scoring Algo 101</a>
                     </li>
-                    <!-- REDIRECTING TO HOME PAGE FOR SOME REASON
                     <li class="nav-item me-3">
-                        <a class="py-2 link-body-emphasis text-decoration-none {{ Route::is('user.leaderboard') ? 'active' : '' }}"
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('leaderboard') ? 'active' : '' }}"
                             href="{{ route('user.leaderboard') }}">Leaderboard</a>
-                    </li>  -->
+                    </li>
                 </ul>
                 @auth
                 @php
