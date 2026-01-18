@@ -27,7 +27,8 @@ class User extends Authenticatable {
         'last_name',
         'reputation_score',
         'bio',
-        'profile_picture'
+        'profile_picture',
+        'terms_accepted_at'
     ];
 
     /**
@@ -51,6 +52,7 @@ class User extends Authenticatable {
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'reputation_score' => 'integer',
+            'terms_accepted_at' => 'datetime',
         ];
     }
 

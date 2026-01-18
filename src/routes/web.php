@@ -28,6 +28,11 @@ Route::middleware('throttle:10,1')->group(function () {
 });
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Terms of Service routes
+Route::get('/terms', [AuthController::class, 'showTerms'])->name('terms.show')->middleware('auth');
+Route::post('/terms/accept', [AuthController::class, 'acceptTerms'])->name('terms.accept')->middleware('auth');
+
 Route::patch('/user/update-bio', [UserController::class, 'updateBio'])->name('user.updateBio');
 
 

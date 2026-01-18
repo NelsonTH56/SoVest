@@ -59,7 +59,12 @@ class UserController extends Controller
                 ->get();
         }
 
-        return view('home', compact('Curruser', 'predictions', 'Userpredictions'));
+        // Get top 10 users for leaderboard card (cached for 5 minutes)
+        $leaderboardUsers = cache()->remember('home:leaderboard', 300, function () {
+            return $this->scoringService->getTopUsers(10);
+        });
+
+        return view('home', compact('Curruser', 'predictions', 'Userpredictions', 'leaderboardUsers'));
     }
 
 

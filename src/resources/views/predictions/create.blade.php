@@ -237,8 +237,8 @@
                                             </label>
                                             <div class="input-with-icon target-input-wrapper">
                                                 <input type="number" class="form-control-enhanced form-control-lg"
-                                                    id="percent_change" step="0.01"
-                                                    placeholder="0.00">
+                                                    id="percent_change" step="1"
+                                                    placeholder="0">
                                                 <span class="percent-sign">%</span>
                                             </div>
                                             <div class="form-hint">

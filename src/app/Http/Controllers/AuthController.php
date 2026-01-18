@@ -120,7 +120,8 @@ class AuthController extends Controller
             if (Auth::check()) {
                 $request->session()->regenerate();
 
-                return redirect()->route('user.home');
+                // Redirect new users to terms of service page
+                return redirect()->route('terms.show');
             }
 
             // Redirect to login page with success message for web request
@@ -134,7 +135,7 @@ class AuthController extends Controller
 
     /**
      * Handle user logout
-     * 
+     *
      * @return void
      */
     public function logout(Request $request): RedirectResponse
@@ -143,5 +144,33 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+
+    /**
+     * Display the terms of service page
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showTerms()
+    {
+        return view('auth.terms');
+    }
+
+    /**
+     * Handle terms acceptance
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function acceptTerms(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            $user->terms_accepted_at = now();
+            $user->save();
+        }
+
+        return redirect()->route('user.home');
     }
 }
