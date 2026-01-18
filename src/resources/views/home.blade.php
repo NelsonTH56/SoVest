@@ -34,10 +34,6 @@
         </div>
 
     <div class="row">
-<<<<<<< HEAD
-    {{-- Left Column: Main Content Feed --}}
-    <div class="col-12 col-md-7 col-lg-8">
-=======
     {{-- Left Sidebar: Leaderboard --}}
     <div class="col-lg-3 col-md-4 order-2 order-lg-1">
         <div class="sticky-top" style="top: 1rem;">
@@ -97,7 +93,6 @@
 
     {{-- Center Column: Main Content Feed --}}
     <div class="col-lg-6 col-md-8 order-1 order-lg-2">
->>>>>>> 14c7a62598dacab7d92c3139e29689691add2620
         {{-- Quick Search Bar --}}
         <div class="quick-search-container mb-4">
             <form action="{{ url('search') }}" method="GET" class="d-flex gap-2">
@@ -915,13 +910,8 @@
         @endif
     </div>
 
-<<<<<<< HEAD
-    {{-- Right Sidebar - Desktop Only --}}
-    <div class="col-md-5 col-lg-4 d-none d-md-block">
-=======
     {{-- Right Sidebar --}}
     <div class="col-lg-3 col-md-12 order-3">
->>>>>>> 14c7a62598dacab7d92c3139e29689691add2620
         <div class="sticky-top" style="top: 1rem;">
             {{-- Create Prediction CTA --}}
             <a href="{{ route('predictions.create') }}" class="btn btn-primary w-100 mb-4" style="padding: 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
