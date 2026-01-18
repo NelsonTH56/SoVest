@@ -231,7 +231,7 @@ body.dark-mode {
 }
 
 .profile-header-banner {
-    height: 100px;
+    height: 160px;
     background: linear-gradient(135deg, var(--account-accent) 0%, #3b82f6 100%);
     opacity: 0.85;
 }
@@ -793,7 +793,7 @@ body.dark-mode .accuracy-display.accuracy-medium {
     }
 
     .profile-header-banner {
-        height: 80px;
+        height: 120px;
     }
 
     .profile-header-content {

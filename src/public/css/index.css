@@ -432,6 +432,7 @@ a.prediction-link:hover {
 
 .menu {
     position: relative;
+    z-index: 9999;
 }
 
 .h2{
@@ -477,7 +478,7 @@ a.prediction-link:hover {
     background-color: #ffffff;
     border-radius: 0.5rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    z-index: 999;
+    z-index: 9999;
     flex-direction: column;  /* Ensure it's vertically aligned */
     display: flex;           /* Use flex for vertical stacking */
 }
