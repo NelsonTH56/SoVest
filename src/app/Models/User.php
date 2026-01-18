@@ -140,7 +140,18 @@ class User extends Authenticatable {
     {
         return $this->hasMany(SavedSearch::class, 'user_id');
     }
-    
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_members')
+                    ->withPivot('joined_at');
+    }
+
+    public function adminGroups()
+    {
+        return $this->hasMany(Group::class, 'admin_id');
+    }
+
     // Full name accessor
     public function getFullNameAttribute()
     {

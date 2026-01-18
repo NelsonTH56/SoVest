@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 use App\Models\Prediction;
+use App\Models\PredictionVote;
 use App\Models\Stock;
 use App\Models\User;
-use App\Models\PredictionVote;
-use App\Models\PredictionComment;
-use App\Services\Interfaces\StockDataServiceInterface;
 use App\Services\Interfaces\ResponseFormatterInterface;
+use App\Services\Interfaces\StockDataServiceInterface;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Auth Controller
- * 
+ *
  * Handles authentication and user registration.
  */
 class PredictionController extends Controller
@@ -36,10 +35,10 @@ class PredictionController extends Controller
         try {
             // Get user's predictions with related stock and user data using Eloquent
             $predictions = Prediction::with(['stock', 'user'])
-                ->withCount(['votes as upvotes' => function($query) {
+                ->withCount(['votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
                 }])
-                ->withCount(['votes as downvotes' => function($query) {
+                ->withCount(['votes as downvotes' => function ($query) {
                     $query->where('vote_type', 'downvote');
                 }])
                 ->withCount('comments as comments_count')
@@ -70,20 +69,20 @@ class PredictionController extends Controller
             return view('predictions/my_predictions', [
                 'predictions' => $formattedPredictions,
                 'pageTitle' => 'My Predictions',
-                'Curruser' => $Curruser
+                'Curruser' => $Curruser,
             ]);
         } catch (Exception $e) {
-            error_log("Error retrieving predictions: " . $e->getMessage());
+            error_log('Error retrieving predictions: '.$e->getMessage());
+
             return view('my_predictions', [
                 'predictions' => [],
                 'pageTitle' => 'My Predictions',
-                'Curruser' => $Curruser
+                'Curruser' => $Curruser,
             ]);
         }
     }
 
     public function create(Request $request)
-
     {
         $Curruser = Auth::user();
         $cssPage = 'public/css/index.css';
@@ -107,7 +106,7 @@ class PredictionController extends Controller
                     'prediction_type' => null,
                     'target_price' => null,
                     'end_date' => null,
-                    'reasoning' => null
+                    'reasoning' => null,
                 ];
 
                 // Fetch current price for the preselected stock
@@ -122,11 +121,12 @@ class PredictionController extends Controller
                 'hasPreselectedStock' => ($stockId && $symbol && $companyName),
                 'currentPrice' => $currentPrice,
                 'Curruser' => $Curruser,
-                'cssPage' => $cssPage
+                'cssPage' => $cssPage,
             ]);
         } catch (Exception $e) {
-            error_log("Error loading stock data: " . $e->getMessage());
-            $this->withError("Error loading stock data: " . $e->getMessage());
+            error_log('Error loading stock data: '.$e->getMessage());
+            $this->withError('Error loading stock data: '.$e->getMessage());
+
             return $this->responseFormatter->redirect('home');
         }
     }
@@ -141,9 +141,9 @@ class PredictionController extends Controller
             $stockId = request()->input('stock_id');
             $stock = Stock::find($stockId);
 
-            if (!$stock) {
+            if (! $stock) {
                 if ($this->isApiRequest()) {
-                    return $this->jsonError("Invalid stock selected");
+                    return $this->jsonError('Invalid stock selected');
                 } else {
                     return back()->withInput()->withErrors(['stock_id' => 'Invalid stock selected']);
                 }
@@ -153,7 +153,7 @@ class PredictionController extends Controller
             $currentPrice = $this->stockService->getLatestPrice($stock->symbol);
 
             // Validate target price against prediction direction
-            $targetPrice = !empty(request()->input('target_price')) ?
+            $targetPrice = ! empty(request()->input('target_price')) ?
                 (float) request()->input('target_price') : null;
             $predictionType = request()->input('prediction_type');
 
@@ -186,9 +186,9 @@ class PredictionController extends Controller
                 'reasoning' => request()->input('reasoning'),
                 'prediction_date' => date('Y-m-d H:i:s'),
                 'is_active' => 1,
-                'accuracy' => null
+                'accuracy' => null,
             ]);
-            
+
             // Use model validation
             if ($prediction->validate()) {
                 // Validation passed, save the prediction
@@ -196,11 +196,12 @@ class PredictionController extends Controller
 
                 // Determine if this is an API request or a form submission
                 if ($this->isApiRequest()) {
-                    return $this->jsonSuccess("Prediction created successfully",
+                    return $this->jsonSuccess('Prediction created successfully',
                         ['prediction_id' => $prediction->prediction_id],
                         '/predictions');
                 } else {
-                    $this->withSuccess("Prediction created successfully");
+                    $this->withSuccess('Prediction created successfully');
+
                     return $this->responseFormatter->redirect('/predictions');
                 }
             } else {
@@ -209,12 +210,13 @@ class PredictionController extends Controller
 
                 // Determine if this is an API request or a form submission
                 if ($this->isApiRequest()) {
-                    $errorMessage = "Validation failed: ";
+                    $errorMessage = 'Validation failed: ';
                     foreach ($errors as $field => $fieldErrors) {
                         foreach ($fieldErrors as $error) {
-                            $errorMessage .= $error . " ";
+                            $errorMessage .= $error.' ';
                         }
                     }
+
                     return $this->jsonError(trim($errorMessage));
                 } else {
                     return back()->withInput()->withErrors($errors);
@@ -222,9 +224,10 @@ class PredictionController extends Controller
             }
         } catch (Exception $e) {
             if ($this->isApiRequest()) {
-                return $this->jsonError("Error creating prediction: " . $e->getMessage());
+                return $this->jsonError('Error creating prediction: '.$e->getMessage());
             } else {
-                $this->withError("Error creating prediction: " . $e->getMessage());
+                $this->withError('Error creating prediction: '.$e->getMessage());
+
                 return redirect()->back()->withInput();
             }
         }
@@ -237,52 +240,56 @@ class PredictionController extends Controller
     {
         // Get user data
         $userId = Auth::id();
-  
-        if (!$id) {
-            $this->withError("Missing prediction ID");
+
+        if (! $id) {
+            $this->withError('Missing prediction ID');
+
             return $this->responseFormatter->redirect('/predictions');
         }
-        
+
         try {
             // Fetch the prediction with its related stock using Eloquent
             $predictionModel = Prediction::with('stock')
                 ->where('prediction_id', $id)
                 ->where('user_id', $userId)
                 ->first();
-            
-            if (!$predictionModel) {
+
+            if (! $predictionModel) {
                 $this->withError("Prediction not found or you don't have permission to edit it");
+
                 return $this->responseFormatter->redirect('/predictions');
             }
-            
+
             // Check if prediction is still active
-            if (!$predictionModel->is_active) {
-                $this->withError("Cannot edit inactive predictions");
+            if (! $predictionModel->is_active) {
+                $this->withError('Cannot edit inactive predictions');
+
                 return $this->responseFormatter->redirect('/predictions');
             }
-            
+
             // Convert to array format to maintain compatibility with the view
             $prediction = $predictionModel->toArray();
             // Add stock attributes that were previously fetched by JOIN
             $prediction['symbol'] = $predictionModel->stock->symbol;
             $prediction['company_name'] = $predictionModel->stock->company_name;
-            
+
             // Get all active stocks for the dropdown using the injected service
             $stocks = $this->stockService->getStocks(true);
-            
+
             // Render the edit form
             return view('predictions/create', [
                 'stocks' => $stocks,
                 'isEditing' => true,
                 'prediction' => $prediction,
-                'pageTitle' => 'Edit Prediction'
+                'pageTitle' => 'Edit Prediction',
             ]);
         } catch (Exception $e) {
-            $this->withError("Error loading prediction: " . $e->getMessage());
+            $this->withError('Error loading prediction: '.$e->getMessage());
+
             return $this->responseFormatter->redirect('/predictions');
         }
     }
-    
+
     /**
      * Handle prediction update form submission
      */
@@ -290,77 +297,84 @@ class PredictionController extends Controller
     {
         // Get user data
         $userId = Auth::id();
-        
-        if (!$id) {
+
+        if (! $id) {
             if ($this->isApiRequest()) {
-                $this->jsonError("Missing prediction ID");
+                $this->jsonError('Missing prediction ID');
             } else {
-                $this->withError("Missing prediction ID");
+                $this->withError('Missing prediction ID');
+
                 return $this->responseFormatter->redirect('/predictions');
             }
+
             return;
         }
 
         try {
             // Check if prediction exists and belongs to user using Eloquent
             $prediction = Prediction::where('prediction_id', $id)
-                                  ->where('user_id', $userId)
-                                  ->first();
-            
-            if (!$prediction) {
+                ->where('user_id', $userId)
+                ->first();
+
+            if (! $prediction) {
                 if ($this->isApiRequest()) {
                     $this->jsonError("Prediction not found or you don't have permission to edit it");
                 } else {
                     $this->withError("Prediction not found or you don't have permission to edit it");
+
                     return $this->responseFormatter->redirect('/predictions');
                 }
+
                 return;
             }
-            
+
             // Check if prediction can be edited (is still active)
-            if (!$prediction->is_active) {
+            if (! $prediction->is_active) {
                 if ($this->isApiRequest()) {
-                    $this->jsonError("Cannot edit inactive predictions");
+                    $this->jsonError('Cannot edit inactive predictions');
                 } else {
-                    $this->withError("Cannot edit inactive predictions");
+                    $this->withError('Cannot edit inactive predictions');
+
                     return $this->responseFormatter->redirect('/predictions');
                 }
+
                 return;
             }
-            
+
             // Update prediction attributes
-            $prediction->prediction_type = $request->has('prediction_type') && !empty($request->input('prediction_type')) ? 
+            $prediction->prediction_type = $request->has('prediction_type') && ! empty($request->input('prediction_type')) ?
                             $request->input('prediction_type') : $prediction->prediction_type;
-            
-            $prediction->target_price = $request->has('target_price') && $request->input('target_price') !== '' ? 
+
+            $prediction->target_price = $request->has('target_price') && $request->input('target_price') !== '' ?
                             (float) $request->input('target_price') : $prediction->target_price;
-            
-            $prediction->end_date = $request->has('end_date') && !empty($request->input('end_date')) ? 
+
+            $prediction->end_date = $request->has('end_date') && ! empty($request->input('end_date')) ?
                         $request->input('end_date') : $prediction->end_date;
-            
-            $prediction->reasoning = $request->has('reasoning') && !empty($request->input('reasoning')) ? 
+
+            $prediction->reasoning = $request->has('reasoning') && ! empty($request->input('reasoning')) ?
                         $request->input('reasoning') : $prediction->reasoning;
-            
+
             // Use model validation
             if ($prediction->validate()) {
                 // Validation passed, save the prediction
                 $prediction->save();
-                
+
                 if ($this->isApiRequest()) {
-                    $this->jsonSuccess("Prediction updated successfully", [], '/predictions');
+                    $this->jsonSuccess('Prediction updated successfully', [], '/predictions');
                 } else {
-                    $this->withSuccess("Prediction updated successfully");
+                    $this->withSuccess('Prediction updated successfully');
+
                     return $this->responseFormatter->redirect('/predictions');
                 }
             } else {
                 // Get validation errors
                 $errors = $prediction->getErrors();
-                
+
                 if ($this->isApiRequest()) {
-                    $errorMessage = "Validation failed: ";
+                    $errorMessage = 'Validation failed: ';
                     foreach ($errors as $field => $fieldErrors) {
                         foreach ($fieldErrors as $error) {
-                            $errorMessage .= $error . " ";
+                            $errorMessage .= $error.' ';
                         }
                     }
                     $this->jsonError(trim($errorMessage));
@@ -370,93 +384,107 @@ class PredictionController extends Controller
             }
         } catch (Exception $e) {
             if ($this->isApiRequest()) {
-                $this->jsonError("Error updating prediction: " . $e->getMessage());
+                $this->jsonError('Error updating prediction: '.$e->getMessage());
             } else {
-                $this->withError("Error updating prediction: " . $e->getMessage());
+                $this->withError('Error updating prediction: '.$e->getMessage());
+
                 return $this->responseFormatter->redirect('/predictions');
             }
         }
     }
-    
+
     /**
      * Handle prediction deletion
      */
     public function delete(Request $request, int $id)
     {
         $userId = Auth::id();
-        
-        if (!$id) {
+
+        if (! $id) {
             if ($this->isApiRequest()) {
-                $this->jsonError("Missing prediction ID");
+                $this->jsonError('Missing prediction ID');
             } else {
-                $this->withError("Missing prediction ID");
+                $this->withError('Missing prediction ID');
+
                 return $this->responseFormatter->redirect('/predictions');
             }
+
             return;
         }
-        
+
         try {
             // Check if prediction exists and belongs to user using Eloquent
             $prediction = Prediction::where('prediction_id', $id)
-                                  ->where('user_id', $userId)
-                                  ->first();
-            
-            if (!$prediction) {
+                ->where('user_id', $userId)
+                ->first();
+
+            if (! $prediction) {
                 if ($this->isApiRequest()) {
                     $this->jsonError("Prediction not found or you don't have permission to delete it");
                 } else {
                     $this->withError("Prediction not found or you don't have permission to delete it");
+
                     return $this->responseFormatter->redirect('/predictions');
                 }
+
                 return;
             }
-            
+
             // Delete prediction using Eloquent
             $prediction->delete();
-            
+
             if ($this->isApiRequest()) {
-                $this->jsonSuccess("Prediction deleted successfully");
+                $this->jsonSuccess('Prediction deleted successfully');
             } else {
-                $this->withSuccess("Prediction deleted successfully");
+                $this->withSuccess('Prediction deleted successfully');
+
                 return $this->responseFormatter->redirect('/predictions');
             }
         } catch (Exception $e) {
             if ($this->isApiRequest()) {
-                $this->jsonError("Error deleting prediction: " . $e->getMessage());
+                $this->jsonError('Error deleting prediction: '.$e->getMessage());
             } else {
-                $this->withError("Error deleting prediction: " . $e->getMessage());
+                $this->withError('Error deleting prediction: '.$e->getMessage());
+
                 return $this->responseFormatter->redirect('/predictions');
             }
         }
     }
-    
+
     /**
      * Show a specific prediction
      */
-    public function view(Request $request, int $id = null)
+    public function view(Request $request, ?int $id = null)
     {
         // Get the prediction ID from route parameter or request input
         $predictionId = $id ?? $request->input('id');
 
-        if (!$predictionId) {
-            $this->withError("Missing prediction ID");
+        if (! $predictionId) {
+            $this->withError('Missing prediction ID');
+
             return $this->responseFormatter->redirect('/predictions/trending');
         }
 
         try {
             // Use Eloquent with eager loading to get prediction with related data
             $prediction = Prediction::with(['stock', 'user', 'votes'])
-                                  ->where('prediction_id', $predictionId)
-                                  ->first();
+                ->where('prediction_id', $predictionId)
+                ->first();
 
-            if (!$prediction) {
-                $this->withError("Prediction not found");
+            if (! $prediction) {
+                $this->withError('Prediction not found');
+
                 return $this->responseFormatter->redirect('/predictions/trending');
+            }
+
+            // Mark prediction as viewed if the current user is the owner
+            if (Auth::check() && $prediction->user_id === Auth::id()) {
+                $prediction->markAsViewed();
             }
 
             // Format data for the view
             $predictionData = $prediction->toArray();
-            $predictionData['username'] = $prediction->user->first_name . ' ' . $prediction->user->last_name;
+            $predictionData['username'] = $prediction->user->first_name.' '.$prediction->user->last_name;
             $predictionData['upvotes'] = $prediction->votes->where('vote_type', 'upvote')->count();
             $predictionData['downvotes'] = $prediction->votes->where('vote_type', 'downvote')->count();
 
@@ -467,20 +495,21 @@ class PredictionController extends Controller
             }
 
             // Include prediction score display component
-            require_once __DIR__ . '/../../includes/prediction_score_display.php';
+            require_once __DIR__.'/../../includes/prediction_score_display.php';
 
             // Render the view with the prediction data
             return view('predictions/view', [
                 'prediction' => $predictionData,
-                'pageTitle' => $prediction->stock->symbol . ' ' . $prediction->prediction_type . ' Prediction',
-                'Curruser' => Auth::user()
+                'pageTitle' => $prediction->stock->symbol.' '.$prediction->prediction_type.' Prediction',
+                'Curruser' => Auth::user(),
             ]);
         } catch (Exception $e) {
-            $this->withError("Error retrieving prediction: " . $e->getMessage());
+            $this->withError('Error retrieving prediction: '.$e->getMessage());
+
             return $this->responseFormatter->redirect('/predictions/trending');
         }
     }
-    
+
     /**
      * Show trending predictions
      */
@@ -490,40 +519,40 @@ class PredictionController extends Controller
             $Curruser = Auth::user();
             // Get trending predictions using Eloquent ORM
             $trending_predictions = Prediction::select([
-                    'predictions.prediction_id',
-                    'predictions.prediction_date',
-                    'predictions.reasoning',
-                    'users.id as user_id',
-                    'users.reputation_score',
-                    'users.profile_picture',
-                    'stocks.symbol',
-                    'stocks.stock_id',
-                    'stocks.company_name',
-                    'predictions.prediction_type',
-                    'predictions.accuracy',
-                    'predictions.target_price',
-                    'predictions.end_date',
-                    'predictions.is_active'
-                ])
+                'predictions.prediction_id',
+                'predictions.prediction_date',
+                'predictions.reasoning',
+                'users.id as user_id',
+                'users.reputation_score',
+                'users.profile_picture',
+                'stocks.symbol',
+                'stocks.stock_id',
+                'stocks.company_name',
+                'predictions.prediction_type',
+                'predictions.accuracy',
+                'predictions.target_price',
+                'predictions.end_date',
+                'predictions.is_active',
+            ])
                 ->join('users', 'predictions.user_id', '=', 'users.id')
                 ->join('stocks', 'predictions.stock_id', '=', 'stocks.stock_id')
-                ->withCount(['votes as upvotes' => function($query) {
+                ->withCount(['votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
                 }])
-                ->withCount(['votes as downvotes' => function($query) {
+                ->withCount(['votes as downvotes' => function ($query) {
                     $query->where('vote_type', 'downvote');
                 }])
                 ->withCount('comments as comments_count')
                 ->addSelect([
-                    'users.first_name',
-                    'users.last_name'
-                ])
-                ->where(function($query) {
+                        'users.first_name',
+                        'users.last_name',
+                    ])
+                ->where(function ($query) {
                     $query->where('predictions.is_active', 1)
-                          ->orWhere(function($query) {
-                              $query->whereNotNull('predictions.accuracy')
-                                    ->where('predictions.accuracy', '>=', 70);
-                          });
+                        ->orWhere(function ($query) {
+                            $query->whereNotNull('predictions.accuracy')
+                                ->where('predictions.accuracy', '>=', 70);
+                        });
                 })
                 ->orderBy('upvotes', 'desc')
                 ->orderBy('predictions.accuracy', 'desc')
@@ -532,7 +561,7 @@ class PredictionController extends Controller
                 ->get();
 
             // Map the results to include the full name as username and fetch latest stock prices
-            $trending_predictions = $trending_predictions->map(function($prediction) {
+            $trending_predictions = $trending_predictions->map(function ($prediction) {
                 $prediction = $prediction->toArray();
                 // Use first_name for username display (component checks 'username' ?? 'first_name')
                 $prediction['username'] = $prediction['first_name'];
@@ -543,7 +572,7 @@ class PredictionController extends Controller
 
                 return $prediction;
             })->toArray();
-            
+
             // If no predictions found, use dummy data
             if (empty($trending_predictions)) {
                 $trending_predictions = [
@@ -552,13 +581,13 @@ class PredictionController extends Controller
                     ['prediction_id' => 3, 'username' => 'StockSavvy', 'first_name' => 'StockSavvy', 'symbol' => 'AMZN', 'prediction_type' => 'Bullish', 'upvotes' => 75, 'downvotes' => 3, 'accuracy' => null, 'reputation_score' => 70, 'is_active' => 1, 'reasoning' => 'Cloud growth potential'],
                 ];
             }
-            
+
             // Render the view with the trending predictions data
             return view('trending', [
                 'Curruser' => $Curruser,
                 'trending_predictions' => $trending_predictions,
                 'pageTitle' => 'Trending Predictions',
-                'pageCss' => 'css/index.css' // ← Laravel handles 'public/' automatically
+                'pageCss' => 'css/index.css', // ← Laravel handles 'public/' automatically
             ]);
         } catch (Exception $e) {
             // Fallback to dummy data if an error occurs
@@ -568,13 +597,13 @@ class PredictionController extends Controller
                 ['prediction_id' => 3, 'username' => 'StockSavvy', 'first_name' => 'StockSavvy', 'symbol' => 'AMZN', 'prediction_type' => 'Bullish', 'upvotes' => 75, 'downvotes' => 3, 'accuracy' => null, 'reputation_score' => 70, 'is_active' => 1, 'reasoning' => 'Cloud growth potential'],
             ];
 
-            $this->withError("Error retrieving trending predictions: " . $e->getMessage());
+            $this->withError('Error retrieving trending predictions: '.$e->getMessage());
 
             // Render the view with the fallback data
-            return view('trending', ['Curruser'=> $Curruser, 'pageTitle'=>'Trending Predictions', 'trending_predictions' => $trending_predictions, 'pageCss' => 'public/css/index.css']);
+            return view('trending', ['Curruser' => $Curruser, 'pageTitle' => 'Trending Predictions', 'trending_predictions' => $trending_predictions, 'pageCss' => 'public/css/index.css']);
         }
     }
-    
+
     /**
      * Handle voting on predictions
      */
@@ -583,41 +612,43 @@ class PredictionController extends Controller
 
         $user = Auth::user();
         $userId = Auth::id();
-        
+
         // Get prediction ID and vote type from the request
         $predictionId = $request->input('prediction_id');
         $voteType = $request->input('vote_type', 'upvote'); // Default to upvote
 
-        \Log::info("Vote called with ID: " . $predictionId);
-        \Log::info("Request body: ", $request->all());
-        
-        if (!$predictionId) {
+        \Log::info('Vote called with ID: '.$predictionId);
+        \Log::info('Request body: ', $request->all());
+
+        if (! $predictionId) {
             return response()->json(['success' => false, 'message' => 'Missing prediction ID'], 400);
         }
-        
+
         try {
             // Check if prediction exists
             $prediction = Prediction::find($predictionId);
-            
-            if (!$prediction) {
+
+            if (! $prediction) {
                 return response()->json(['success' => false, 'message' => 'Prediction not found'], 404);
             }
-            
+
             // Check if user has already voted on this prediction
             $existingVote = PredictionVote::where('prediction_id', $predictionId)
-                                        ->where('user_id', $userId)
-                                        ->first();
-            
+                ->where('user_id', $userId)
+                ->first();
+
             if ($existingVote) {
                 // Update existing vote if vote type is different
                 if ($existingVote->vote_type !== $voteType) {
                     $existingVote->vote_type = $voteType;
                     $existingVote->vote_date = date('Y-m-d H:i:s');
                     $existingVote->save();
+
                     return response()->json(['success' => true, 'message' => 'Vote updated successfully']);
                 } else {
                     // Remove vote if same type (toggle functionality)
                     $existingVote->delete();
+
                     return response()->json(['success' => true, 'message' => 'Vote removed successfully']);
                 }
             } else {
@@ -626,23 +657,25 @@ class PredictionController extends Controller
                     'prediction_id' => $predictionId,
                     'user_id' => $userId,
                     'vote_type' => $voteType,
-                    'vote_date' => date('Y-m-d H:i:s')
+                    'vote_date' => date('Y-m-d H:i:s'),
                 ]);
-                
+
                 $vote->save();
+
                 return response()->json(['success' => true, 'message' => 'Vote recorded successfully']);
             }
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error processing vote: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Error processing vote: '.$e->getMessage()], 500);
         }
     }
+
     /**
      * Legacy upvote method - redirects to main vote() method
      * Kept for backward compatibility with older routes
      */
     public function upvote($predictionId)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -650,7 +683,7 @@ class PredictionController extends Controller
         $request = request();
         $request->merge([
             'prediction_id' => $predictionId,
-            'vote_type' => 'upvote'
+            'vote_type' => 'upvote',
         ]);
 
         return $this->vote($request);
@@ -662,7 +695,7 @@ class PredictionController extends Controller
      */
     public function downvote($predictionId)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -670,19 +703,19 @@ class PredictionController extends Controller
         $request = request();
         $request->merge([
             'prediction_id' => $predictionId,
-            'vote_type' => 'downvote'
+            'vote_type' => 'downvote',
         ]);
 
         return $this->vote($request);
     }
-    
+
     /**
      * Handle API requests for backward compatibility with the legacy prediction_operations.php API endpoint
-     * 
+     *
      * This method provides a compatibility layer that maps legacy API operations to the appropriate
-     * controller methods. It maintains the same parameter structure and response format as the 
+     * controller methods. It maintains the same parameter structure and response format as the
      * original API to ensure existing client code continues to work during the transition to Laravel.
-     * 
+     *
      * Supported actions:
      * - create: Maps to store()
      * - update: Maps to update()
@@ -692,32 +725,35 @@ class PredictionController extends Controller
     public function apiHandler()
     {
         // Check if user is authenticated - replicating the old behavior
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $this->json([
                 'success' => false,
                 'message' => 'User not logged in',
-                'redirect' => '/login'
+                'redirect' => '/login',
             ]);
+
             return;
         }
-        
+
         $userId = Auth::id();
-        
+
         try {
             // Verify user exists using Eloquent
             $user = User::find($userId);
-            if (!$user) {
+            if (! $user) {
                 $this->jsonError('User not found');
+
                 return;
             }
         } catch (Exception $e) {
-            $this->jsonError('Database connection failed: ' . $e->getMessage());
+            $this->jsonError('Database connection failed: '.$e->getMessage());
+
             return;
         }
-        
+
         // Determine action from the request
         $action = request()->input('action', '');
-        
+
         switch ($action) {
             case 'create':
                 $this->apiStore();
@@ -736,47 +772,48 @@ class PredictionController extends Controller
                 break;
         }
     }
-    
+
     /**
      * API method to get a single prediction
-     * 
+     *
      * Retrieves a prediction by ID and returns it in a standardized API format.
      * Can be accessed both directly via API routes and through the legacy apiHandler method.
-     * 
-     * @param int $userId The ID of the user making the request
+     *
+     * @param  int  $userId  The ID of the user making the request
      * @return void Outputs JSON response directly
      */
     public function apiGetPrediction($userId)
     {
         try {
-            if (!request()->has('prediction_id') || empty(request()->input('prediction_id'))) {
-                $this->jsonError("Missing prediction ID");
+            if (! request()->has('prediction_id') || empty(request()->input('prediction_id'))) {
+                $this->jsonError('Missing prediction ID');
+
                 return;
             }
-            
+
             $predictionId = request()->input('prediction_id');
-            
+
             // Use Eloquent with eager loading to get prediction with related stock data
             $prediction = Prediction::with('stock')
-                                  ->where('prediction_id', $predictionId)
-                                  ->where('user_id', $userId)
-                                  ->first();
-            
+                ->where('prediction_id', $predictionId)
+                ->where('user_id', $userId)
+                ->first();
+
             if ($prediction) {
                 // Format data to match the old response structure
                 $predictionData = $prediction->toArray();
                 $predictionData['symbol'] = $prediction->stock->symbol;
                 $predictionData['company_name'] = $prediction->stock->company_name;
-                
-                $this->jsonSuccess("Prediction retrieved successfully", $predictionData);
+
+                $this->jsonSuccess('Prediction retrieved successfully', $predictionData);
             } else {
                 $this->jsonError("Prediction not found or you don't have permission to view it");
             }
         } catch (Exception $e) {
-            $this->jsonError("Error retrieving prediction: " . $e->getMessage());
+            $this->jsonError('Error retrieving prediction: '.$e->getMessage());
         }
     }
-    
+
     /**
      * API method to create a prediction
      *
@@ -791,30 +828,30 @@ class PredictionController extends Controller
             $userId = Auth::id();
 
             // Validate required fields for API
-            if (!request()->has('stock_id') || empty(request()->input('stock_id'))) {
-                return $this->jsonError("Missing required field: stock_id");
+            if (! request()->has('stock_id') || empty(request()->input('stock_id'))) {
+                return $this->jsonError('Missing required field: stock_id');
             }
-            if (!request()->has('prediction_type') || empty(request()->input('prediction_type'))) {
-                return $this->jsonError("Missing required field: prediction_type");
+            if (! request()->has('prediction_type') || empty(request()->input('prediction_type'))) {
+                return $this->jsonError('Missing required field: prediction_type');
             }
-            if (!request()->has('end_date') || empty(request()->input('end_date'))) {
-                return $this->jsonError("Missing required field: end_date");
+            if (! request()->has('end_date') || empty(request()->input('end_date'))) {
+                return $this->jsonError('Missing required field: end_date');
             }
-            if (!request()->has('reasoning') || empty(request()->input('reasoning'))) {
-                return $this->jsonError("Missing required field: reasoning");
+            if (! request()->has('reasoning') || empty(request()->input('reasoning'))) {
+                return $this->jsonError('Missing required field: reasoning');
             }
 
             // Get the stock and validate direction constraints
             $stockId = request()->input('stock_id');
             $stock = Stock::find($stockId);
 
-            if (!$stock) {
-                return $this->jsonError("Invalid stock selected");
+            if (! $stock) {
+                return $this->jsonError('Invalid stock selected');
             }
 
             // Re-fetch current stock price server-side
             $currentPrice = $this->stockService->getLatestPrice($stock->symbol);
-            $targetPrice = !empty(request()->input('target_price')) ?
+            $targetPrice = ! empty(request()->input('target_price')) ?
                 (float) request()->input('target_price') : null;
             $predictionType = request()->input('prediction_type');
 
@@ -837,7 +874,7 @@ class PredictionController extends Controller
                 'reasoning' => request()->input('reasoning'),
                 'prediction_date' => date('Y-m-d H:i:s'),
                 'is_active' => 1,
-                'accuracy' => null
+                'accuracy' => null,
             ]);
 
             // Use model validation
@@ -845,25 +882,26 @@ class PredictionController extends Controller
                 // Validation passed, save the prediction
                 $prediction->save();
 
-                return $this->jsonSuccess("Prediction created successfully",
+                return $this->jsonSuccess('Prediction created successfully',
                     ['prediction_id' => $prediction->prediction_id]);
             } else {
                 // Get validation errors
                 $errors = $prediction->getErrors();
 
-                $errorMessage = "Validation failed: ";
+                $errorMessage = 'Validation failed: ';
                 foreach ($errors as $field => $fieldErrors) {
                     foreach ($fieldErrors as $error) {
-                        $errorMessage .= $error . " ";
+                        $errorMessage .= $error.' ';
                     }
                 }
+
                 return $this->jsonError(trim($errorMessage));
             }
         } catch (Exception $e) {
-            return $this->jsonError("Error creating prediction: " . $e->getMessage());
+            return $this->jsonError('Error creating prediction: '.$e->getMessage());
         }
     }
-    
+
     /**
      * API method to update a prediction
      *
@@ -878,28 +916,28 @@ class PredictionController extends Controller
             $userId = Auth::id();
 
             // Validate prediction_id is provided
-            if (!request()->has('prediction_id') || empty(request()->input('prediction_id'))) {
-                return $this->jsonError("Missing required field: prediction_id");
+            if (! request()->has('prediction_id') || empty(request()->input('prediction_id'))) {
+                return $this->jsonError('Missing required field: prediction_id');
             }
 
             $predictionId = request()->input('prediction_id');
 
             // Check if prediction exists and belongs to user using Eloquent
             $prediction = Prediction::where('prediction_id', $predictionId)
-                                  ->where('user_id', $userId)
-                                  ->first();
+                ->where('user_id', $userId)
+                ->first();
 
-            if (!$prediction) {
+            if (! $prediction) {
                 return $this->jsonError("Prediction not found or you don't have permission to edit it");
             }
 
             // Check if prediction can be edited (is still active)
-            if (!$prediction->is_active) {
-                return $this->jsonError("Cannot edit inactive predictions");
+            if (! $prediction->is_active) {
+                return $this->jsonError('Cannot edit inactive predictions');
             }
 
             // Update prediction attributes - only update fields that are provided
-            if (request()->has('prediction_type') && !empty(request()->input('prediction_type'))) {
+            if (request()->has('prediction_type') && ! empty(request()->input('prediction_type'))) {
                 $prediction->prediction_type = request()->input('prediction_type');
             }
 
@@ -908,11 +946,11 @@ class PredictionController extends Controller
                                 (float) request()->input('target_price') : null;
             }
 
-            if (request()->has('end_date') && !empty(request()->input('end_date'))) {
+            if (request()->has('end_date') && ! empty(request()->input('end_date'))) {
                 $prediction->end_date = request()->input('end_date');
             }
 
-            if (request()->has('reasoning') && !empty(request()->input('reasoning'))) {
+            if (request()->has('reasoning') && ! empty(request()->input('reasoning'))) {
                 $prediction->reasoning = request()->input('reasoning');
             }
 
@@ -921,25 +959,26 @@ class PredictionController extends Controller
                 // Validation passed, save the prediction
                 $prediction->save();
 
-                return $this->jsonSuccess("Prediction updated successfully",
+                return $this->jsonSuccess('Prediction updated successfully',
                     ['prediction_id' => $prediction->prediction_id]);
             } else {
                 // Get validation errors
                 $errors = $prediction->getErrors();
 
-                $errorMessage = "Validation failed: ";
+                $errorMessage = 'Validation failed: ';
                 foreach ($errors as $field => $fieldErrors) {
                     foreach ($fieldErrors as $error) {
-                        $errorMessage .= $error . " ";
+                        $errorMessage .= $error.' ';
                     }
                 }
+
                 return $this->jsonError(trim($errorMessage));
             }
         } catch (Exception $e) {
-            return $this->jsonError("Error updating prediction: " . $e->getMessage());
+            return $this->jsonError('Error updating prediction: '.$e->getMessage());
         }
     }
-    
+
     /**
      * API method to delete a prediction
      *
@@ -954,28 +993,28 @@ class PredictionController extends Controller
             $userId = Auth::id();
 
             // Validate prediction_id is provided
-            if (!request()->has('prediction_id') || empty(request()->input('prediction_id'))) {
-                return $this->jsonError("Missing required field: prediction_id");
+            if (! request()->has('prediction_id') || empty(request()->input('prediction_id'))) {
+                return $this->jsonError('Missing required field: prediction_id');
             }
 
             $predictionId = request()->input('prediction_id');
 
             // Check if prediction exists and belongs to user using Eloquent
             $prediction = Prediction::where('prediction_id', $predictionId)
-                                  ->where('user_id', $userId)
-                                  ->first();
+                ->where('user_id', $userId)
+                ->first();
 
-            if (!$prediction) {
+            if (! $prediction) {
                 return $this->jsonError("Prediction not found or you don't have permission to delete it");
             }
 
             // Delete prediction using Eloquent (cascading deletes handled by DB foreign keys)
             $prediction->delete();
 
-            return $this->jsonSuccess("Prediction deleted successfully",
+            return $this->jsonSuccess('Prediction deleted successfully',
                 ['prediction_id' => $predictionId]);
         } catch (Exception $e) {
-            return $this->jsonError("Error deleting prediction: " . $e->getMessage());
+            return $this->jsonError('Error deleting prediction: '.$e->getMessage());
         }
     }
 }
