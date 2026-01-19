@@ -9,6 +9,7 @@ use App\Http\Controllers\PredictionController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Prediction;
+use App\Models\User;
 use Exception;
 
 
@@ -67,7 +68,10 @@ class UserController extends Controller
         // Get hot predictions for mobile carousel (cached for 5 minutes)
         $hotPredictions = cache()->remember('home:hot_predictions', 300, function () {
             return Prediction::with(['user', 'stock'])
-                ->withCount(['votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote')])
+                ->withCount([
+                    'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
+                    'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
+                ])
                 ->where('is_active', 1)
                 ->orderByDesc('upvotes')
                 ->limit(8)
@@ -333,6 +337,45 @@ class UserController extends Controller
         ];
 
         return view('settings', compact('Curruser', 'userStats'));
+    }
+
+    /**
+     * Display public user profile
+     *
+     * @param int $id User ID
+     * @return \Illuminate\View\View
+     */
+    public function profile($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Get user statistics
+        $userStats = $this->scoringService->getUserPredictionStats($id);
+
+        // Get user's recent public predictions (limited to 10)
+        $recentPredictions = Prediction::with(['stock'])
+            ->withCount([
+                'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
+                'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
+            ])
+            ->where('user_id', $id)
+            ->orderBy('prediction_date', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Current logged-in user for navbar
+        $Curruser = null;
+        if (Auth::check()) {
+            $userData = Auth::user();
+            $Curruser = [
+                'username' => $userData['email'],
+                'full_name' => ($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''),
+                'profile_picture' => $userData['profile_picture'],
+                'reputation_score' => $userData['reputation_score'] ?? 0
+            ];
+        }
+
+        return view('user.profile', compact('user', 'userStats', 'recentPredictions', 'Curruser'));
     }
 
 }

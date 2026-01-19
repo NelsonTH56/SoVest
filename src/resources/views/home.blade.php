@@ -69,7 +69,7 @@
                             <i class="bi bi-plus-lg"></i>
                         </div>
                     </div>
-                    <span class="hot-ticker">New</span>
+                    <span class="hot-user-name">New</span>
                 </a>
 
                 {{-- Hot Predictions --}}
@@ -77,20 +77,87 @@
                     @foreach($hotPredictions as $hot)
                         <a href="{{ route('predictions.view', ['id' => $hot->prediction_id]) }}" class="hot-prediction-item">
                             <div class="hot-avatar-wrapper {{ $hot->prediction_type == 'Bullish' ? 'ring-bullish' : 'ring-bearish' }}">
-                                <div class="hot-avatar">
-                                    @php
-                                        $hotUserPic = $hot->user->profile_picture
-                                            ? asset('images/profile_pictures/' . $hot->user->profile_picture)
-                                            : asset('images/default.png');
-                                    @endphp
-                                    <img src="{{ $hotUserPic }}" alt="{{ $hot->user->first_name }}">
+                                <div class="hot-avatar symbol-avatar">
+                                    <span class="hot-symbol-text">{{ $hot->stock->symbol }}</span>
                                 </div>
                             </div>
-                            <span class="hot-ticker">{{ $hot->stock->symbol }}</span>
+                            <div class="hot-user-info">
+                                <span class="hot-user-name">{{ $hot->user->first_name }}</span>
+                                <span class="hot-user-score">
+                                    <i class="bi bi-star-fill"></i>
+                                    {{ number_format($hot->user->reputation_score) }}
+                                </span>
+                            </div>
                         </a>
                     @endforeach
                 @endif
             </div>
+        </div>
+
+        {{-- Story Viewer Overlay (Mobile Only) --}}
+        <div id="story-viewer" class="story-viewer" style="display: none;" aria-hidden="true" role="dialog" aria-label="Prediction Stories">
+            {{-- Progress Bars Container --}}
+            <div class="story-progress-container">
+                @if(isset($hotPredictions))
+                    @foreach($hotPredictions as $index => $hot)
+                        <div class="story-progress-bar" data-index="{{ $index }}">
+                            <div class="story-progress-fill"></div>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+
+            {{-- Header: Close button and user info --}}
+            <div class="story-header">
+                <a href="#" class="story-user-link" data-user-id="">
+                    <img src="" alt="" class="story-user-avatar">
+                    <div class="story-user-info">
+                        <span class="story-user-name"></span>
+                        <span class="story-user-rep"><i class="bi bi-star-fill"></i> <span class="rep-value"></span></span>
+                    </div>
+                </a>
+                <button class="story-close-btn" aria-label="Close stories">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            {{-- Story Content Area --}}
+            <div class="story-content">
+                <div class="story-stock-info">
+                    <span class="story-stock-symbol"></span>
+                    <span class="story-prediction-badge"></span>
+                </div>
+
+                <div class="story-price-info">
+                    <div class="story-target">
+                        <span class="label">Target Price</span>
+                        <span class="value"></span>
+                    </div>
+                </div>
+
+                <div class="story-reasoning"></div>
+
+                <div class="story-votes">
+                    <span class="story-upvotes"><i class="bi bi-hand-thumbs-up-fill"></i> <span class="count">0</span></span>
+                    <span class="story-downvotes"><i class="bi bi-hand-thumbs-down-fill"></i> <span class="count">0</span></span>
+                </div>
+
+                <div class="story-end-date">
+                    <i class="bi bi-clock"></i> Ends <span class="date"></span>
+                </div>
+            </div>
+
+            {{-- Navigation Areas (invisible touch zones) --}}
+            <div class="story-nav-prev" role="button" aria-label="Previous prediction" tabindex="0"></div>
+            <div class="story-nav-next" role="button" aria-label="Next prediction" tabindex="0"></div>
+
+            {{-- Accessibility: Previous/Next buttons --}}
+            <button class="story-btn-prev" aria-label="Previous prediction">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="story-btn-next" aria-label="Next prediction">
+                <i class="bi bi-chevron-right"></i>
+            </button>
         </div>
 
     <div class="row mobile-bottom-padding">
@@ -761,8 +828,8 @@
 
             .mobile-hot-carousel {
                 display: flex;
-                gap: 1rem;
-                padding: 0.75rem 0;
+                gap: 0.875rem;
+                padding: 0.875rem 0;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
@@ -776,37 +843,35 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 0.35rem;
+                gap: 0.375rem;
                 text-decoration: none;
                 flex-shrink: 0;
+                min-width: 68px;
             }
 
             .hot-avatar-wrapper {
-                width: 62px;
-                height: 62px;
+                width: 64px;
+                height: 64px;
                 border-radius: 50%;
                 padding: 3px;
                 background: #e5e7eb;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
 
-            /* Animated gradient ring for bullish */
+            .hot-prediction-item:active .hot-avatar-wrapper {
+                transform: scale(0.95);
+            }
+
+            /* Solid green ring for bullish */
             .hot-avatar-wrapper.ring-bullish {
-                background: linear-gradient(45deg, #10b981, #3b82f6, #10b981);
-                background-size: 300% 300%;
-                animation: gradientRotate 3s ease infinite;
+                background: #10b981;
+                box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
             }
 
-            /* Animated gradient ring for bearish */
+            /* Solid red ring for bearish */
             .hot-avatar-wrapper.ring-bearish {
-                background: linear-gradient(45deg, #ef4444, #f59e0b, #ef4444);
-                background-size: 300% 300%;
-                animation: gradientRotate 3s ease infinite;
-            }
-
-            @keyframes gradientRotate {
-                0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
+                background: #ef4444;
+                box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
             }
 
             /* Create new button style */
@@ -826,39 +891,400 @@
             }
 
             body.dark-mode .hot-avatar {
-                background: #1a1a1a;
+                background: #1f1f1f;
             }
 
-            .hot-avatar img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
+            /* Symbol displayed inside the circle */
+            .hot-avatar.symbol-avatar {
+                background: #f8fafc;
+            }
+
+            body.dark-mode .hot-avatar.symbol-avatar {
+                background: #1f1f1f;
+            }
+
+            .hot-symbol-text {
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: #1f2937;
+                letter-spacing: -0.02em;
+                text-transform: uppercase;
+            }
+
+            body.dark-mode .hot-symbol-text {
+                color: #f3f4f6;
+            }
+
+            /* Bullish symbol styling */
+            .ring-bullish .hot-symbol-text {
+                color: #059669;
+            }
+
+            body.dark-mode .ring-bullish .hot-symbol-text {
+                color: #34d399;
+            }
+
+            /* Bearish symbol styling */
+            .ring-bearish .hot-symbol-text {
+                color: #dc2626;
+            }
+
+            body.dark-mode .ring-bearish .hot-symbol-text {
+                color: #f87171;
             }
 
             .hot-avatar.create-avatar {
                 background: transparent;
                 color: white;
-                font-size: 1.75rem;
+                font-size: 1.5rem;
             }
 
-            .hot-ticker {
+            /* User info below the circle */
+            .hot-user-info {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.125rem;
+                max-width: 68px;
+            }
+
+            .hot-user-name {
                 font-size: 0.7rem;
                 font-weight: 600;
-                color: #6b7280;
-                max-width: 62px;
+                color: #374151;
+                max-width: 68px;
                 text-align: center;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                line-height: 1.2;
             }
 
-            body.dark-mode .hot-ticker {
+            body.dark-mode .hot-user-name {
+                color: #e5e7eb;
+            }
+
+            .hot-user-score {
+                display: flex;
+                align-items: center;
+                gap: 0.2rem;
+                font-size: 0.625rem;
+                font-weight: 500;
+                color: #6b7280;
+            }
+
+            .hot-user-score i {
+                font-size: 0.5rem;
+                color: #f59e0b;
+            }
+
+            body.dark-mode .hot-user-score {
                 color: #9ca3af;
+            }
+
+            /* ========== STORY VIEWER STYLES ========== */
+            .story-viewer {
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                background: #000;
+                display: flex;
+                flex-direction: column;
+                touch-action: pan-y;
+            }
+
+            /* Progress Bars */
+            .story-progress-container {
+                display: flex;
+                gap: 4px;
+                padding: 12px 12px 8px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+            }
+
+            .story-progress-bar {
+                flex: 1;
+                height: 3px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 2px;
+                overflow: hidden;
+            }
+
+            .story-progress-fill {
+                height: 100%;
+                background: #fff;
+                width: 0;
+                transition: width 0.1s linear;
+            }
+
+            .story-progress-bar.completed .story-progress-fill {
+                width: 100%;
+            }
+
+            .story-progress-bar.active .story-progress-fill {
+                animation: story-progress 8s linear forwards;
+            }
+
+            @keyframes story-progress {
+                from { width: 0; }
+                to { width: 100%; }
+            }
+
+            /* Header */
+            .story-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 48px 16px 12px;
+                position: relative;
+                z-index: 10;
+            }
+
+            .story-user-link {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-decoration: none;
+                color: #fff;
+            }
+
+            .story-user-avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #10b981;
+            }
+
+            .story-user-info {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .story-user-name {
+                font-weight: 600;
+                font-size: 0.95rem;
+                color: #fff;
+            }
+
+            .story-user-rep {
+                font-size: 0.75rem;
+                color: rgba(255, 255, 255, 0.7);
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .story-user-rep i {
+                color: #f59e0b;
+                font-size: 0.65rem;
+            }
+
+            .story-close-btn {
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                border-radius: 50%;
+                color: #fff;
+                font-size: 1.25rem;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .story-close-btn:hover,
+            .story-close-btn:active {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            /* Content Area */
+            .story-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 24px;
+                gap: 20px;
+                transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            }
+
+            .story-content.slide-left {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            .story-content.slide-right {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            .story-stock-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .story-stock-symbol {
+                font-size: 2rem;
+                font-weight: 800;
+                color: #fff;
+                font-family: ui-monospace, SFMono-Regular, monospace;
+            }
+
+            .story-prediction-badge {
+                padding: 6px 16px;
+                border-radius: 9999px;
+                font-size: 0.875rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .story-prediction-badge.bullish {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: #fff;
+            }
+
+            .story-prediction-badge.bearish {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                color: #fff;
+            }
+
+            .story-price-info {
+                display: flex;
+                gap: 24px;
+            }
+
+            .story-target {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .story-target .label {
+                font-size: 0.75rem;
+                color: rgba(255, 255, 255, 0.6);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .story-target .value {
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: #10b981;
+            }
+
+            .story-reasoning {
+                font-size: 1rem;
+                line-height: 1.7;
+                color: rgba(255, 255, 255, 0.9);
+                max-height: 200px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .story-votes {
+                display: flex;
+                gap: 20px;
+            }
+
+            .story-upvotes, .story-downvotes {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 1rem;
+                font-weight: 600;
+            }
+
+            .story-upvotes {
+                color: #10b981;
+            }
+
+            .story-downvotes {
+                color: #ef4444;
+            }
+
+            .story-end-date {
+                font-size: 0.9rem;
+                color: rgba(255, 255, 255, 0.6);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            /* Navigation Touch Zones */
+            .story-nav-prev, .story-nav-next {
+                position: absolute;
+                top: 100px;
+                bottom: 100px;
+                width: 30%;
+                z-index: 5;
+                cursor: pointer;
+            }
+
+            .story-nav-prev {
+                left: 0;
+            }
+
+            .story-nav-next {
+                right: 0;
+            }
+
+            /* Accessible Navigation Buttons */
+            .story-btn-prev, .story-btn-next {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.15);
+                border: none;
+                color: #fff;
+                font-size: 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity 0.3s;
+                z-index: 6;
+            }
+
+            .story-viewer:hover .story-btn-prev,
+            .story-viewer:hover .story-btn-next,
+            .story-btn-prev:focus,
+            .story-btn-next:focus {
+                opacity: 1;
+            }
+
+            .story-btn-prev {
+                left: 12px;
+            }
+
+            .story-btn-next {
+                right: 12px;
+            }
+
+            .story-btn-prev:disabled,
+            .story-btn-next:disabled {
+                opacity: 0.3 !important;
+                cursor: not-allowed;
             }
         }
 
         @media (min-width: 768px) {
             .mobile-hot-carousel-wrapper {
+                display: none !important;
+            }
+
+            /* Hide story viewer on desktop */
+            .story-viewer {
                 display: none !important;
             }
         }
@@ -1114,73 +1540,49 @@
                 My Predictions
             </h2>
 
-<<<<<<< HEAD
-                    @if(!empty($Userpredictions) && count($Userpredictions) > 0)
-                        @foreach($Userpredictions as $index => $prediction)
-                            <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="text-decoration-none">
-                                <div class="user-prediction-card mb-3" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; transition: all 0.2s;">
-                                    <div class="d-flex align-items-start">
-                                        @if($prediction->isUnread())
-                                            <div class="unread-indicator" title="New prediction"></div>
-                                        @endif
-                                        <div style="flex-grow: 1;">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <h6 class="mb-1" style="font-weight: 700; font-size: 0.95rem;">{{ $prediction->stock->symbol }}</h6>
-                                                    <p class="mb-1 text-muted" style="font-size: 0.85rem;">{{ $prediction->stock->company_name }}</p>
-                                                    <div class="d-flex align-items-center gap-2 mt-2">
-                                                        <span class="badge {{ $prediction->prediction_type == 'Bullish' ? 'bg-success' : 'bg-danger' }}" style="font-size: 0.75rem;">
-                                                            {{ $prediction->prediction_type }}
-                                                        </span>
-                                                        <span style="font-weight: 700; font-size: 0.9rem; color: #10b981;">${{ number_format($prediction->target_price, 2) }}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mt-2 pt-2 border-top" style="border-color: #e5e7eb !important;">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-clock"></i> Ends {{ \Carbon\Carbon::parse($prediction->end_date)->format('M j, Y') }}
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-=======
             {{-- My Predictions List --}}
             @auth
                 @if($Userpredictions->count() > 0)
                     @foreach($Userpredictions as $index => $prediction)
                         <a href="{{ route('predictions.view', ['id' => $prediction->prediction_id]) }}" class="text-decoration-none">
                             <div class="user-prediction-card mb-3" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid #e5e7eb; background: #f9fafb; transition: all 0.2s;">
-                                <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex align-items-start">
+                                    @if($prediction->isUnread())
+                                        <div class="unread-indicator" title="New prediction"></div>
+                                    @endif
                                     <div style="flex-grow: 1;">
-                                        <h6 class="mb-1" style="font-weight: 700; font-size: 0.95rem;">{{ $prediction->stock->symbol }}</h6>
-                                        <p class="mb-1 text-muted" style="font-size: 0.85rem;">{{ $prediction->stock->company_name }}</p>
-                                        <div class="d-flex align-items-center gap-2 mt-2">
-                                            <span class="badge {{ $prediction->prediction_type == 'Bullish' ? 'bg-success' : 'bg-danger' }}" style="font-size: 0.75rem;">
-                                                {{ $prediction->prediction_type }}
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1" style="font-weight: 700; font-size: 0.95rem;">{{ $prediction->stock->symbol }}</h6>
+                                                <p class="mb-1 text-muted" style="font-size: 0.85rem;">{{ $prediction->stock->company_name }}</p>
+                                                <div class="d-flex align-items-center gap-2 mt-2">
+                                                    <span class="badge {{ $prediction->prediction_type == 'Bullish' ? 'bg-success' : 'bg-danger' }}" style="font-size: 0.75rem;">
+                                                        {{ $prediction->prediction_type }}
+                                                    </span>
+                                                    <span style="font-weight: 700; font-size: 0.9rem; color: #10b981;">${{ number_format($prediction->target_price, 2) }}</span>
+                                                </div>
+                                            </div>
+                                            {{-- Status Badge --}}
+                                            @php
+                                                $isActive = $prediction->is_active == 1 && strtotime($prediction->end_date) > time();
+                                                $isExpired = $prediction->is_active == 1 && strtotime($prediction->end_date) <= time();
+                                            @endphp
+                                            <span class="badge {{ $isActive ? 'bg-success' : ($isExpired ? 'bg-warning text-dark' : 'bg-secondary') }}" style="font-size: 0.7rem;">
+                                                {{ $isActive ? 'Active' : ($isExpired ? 'Expired' : 'Inactive') }}
                                             </span>
-                                            <span style="font-weight: 700; font-size: 0.9rem; color: #10b981;">${{ number_format($prediction->target_price, 2) }}</span>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-top" style="border-color: #e5e7eb !important;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-clock"></i> Ends {{ \Carbon\Carbon::parse($prediction->end_date)->format('M j, Y') }}
+                                                </small>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <small class="text-success"><i class="bi bi-arrow-up"></i> {{ $prediction->upvotes ?? 0 }}</small>
+                                                    <small class="text-danger"><i class="bi bi-arrow-down"></i> {{ $prediction->downvotes ?? 0 }}</small>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    {{-- Status Badge --}}
-                                    @php
-                                        $isActive = $prediction->is_active == 1 && strtotime($prediction->end_date) > time();
-                                        $isExpired = $prediction->is_active == 1 && strtotime($prediction->end_date) <= time();
-                                    @endphp
-                                    <span class="badge {{ $isActive ? 'bg-success' : ($isExpired ? 'bg-warning text-dark' : 'bg-secondary') }}" style="font-size: 0.7rem;">
-                                        {{ $isActive ? 'Active' : ($isExpired ? 'Expired' : 'Inactive') }}
-                                    </span>
-                                </div>
-                                <div class="mt-2 pt-2 border-top" style="border-color: #e5e7eb !important;">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
-                                            <i class="bi bi-clock"></i> Ends {{ \Carbon\Carbon::parse($prediction->end_date)->format('M j, Y') }}
-                                        </small>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <small class="text-success"><i class="bi bi-arrow-up"></i> {{ $prediction->upvotes ?? 0 }}</small>
-                                            <small class="text-danger"><i class="bi bi-arrow-down"></i> {{ $prediction->downvotes ?? 0 }}</small>
-                                        </div>
-                                    </div>
->>>>>>> 42ff0ee53e75f41f28bd09aa84a4ba0bb3dd39b5
                                 </div>
                             </div>
                         </a>
@@ -1544,6 +1946,319 @@
                         div.textContent = text;
                         return div.innerHTML;
                     }
+
+                    // ========== STORY VIEWER FUNCTIONALITY ==========
+                    @php
+                        $storyDataArray = isset($hotPredictions) ? $hotPredictions->map(function($p) {
+                            return [
+                                'id' => $p->prediction_id,
+                                'userId' => $p->user_id,
+                                'userName' => $p->user->first_name,
+                                'userRep' => $p->user->reputation_score,
+                                'userAvatar' => $p->user->profile_picture
+                                    ? '/images/profile_pictures/' . $p->user->profile_picture
+                                    : '/images/default.png',
+                                'symbol' => $p->stock->symbol,
+                                'companyName' => $p->stock->company_name,
+                                'predictionType' => $p->prediction_type,
+                                'targetPrice' => $p->target_price,
+                                'reasoning' => $p->reasoning,
+                                'endDate' => $p->end_date,
+                                'upvotes' => $p->upvotes ?? 0,
+                                'downvotes' => $p->downvotes ?? 0,
+                            ];
+                        })->toArray() : [];
+                    @endphp
+                    (function() {
+                        // Only initialize on mobile
+                        if (window.innerWidth >= 768) return;
+
+                        // Store prediction data for stories
+                        const storyData = @json($storyDataArray);
+
+                        if (!storyData || storyData.length === 0) return;
+
+                        // State
+                        let currentIndex = 0;
+                        let isOpen = false;
+                        let autoAdvanceTimer = null;
+                        let touchStartX = 0;
+                        let touchEndX = 0;
+                        const SWIPE_THRESHOLD = 50;
+                        const AUTO_ADVANCE_DELAY = 8000;
+
+                        // DOM Elements
+                        const viewer = document.getElementById('story-viewer');
+                        if (!viewer) return;
+
+                        const progressBars = viewer.querySelectorAll('.story-progress-bar');
+                        const userLink = viewer.querySelector('.story-user-link');
+                        const userAvatar = viewer.querySelector('.story-user-avatar');
+                        const userName = viewer.querySelector('.story-user-name');
+                        const userRep = viewer.querySelector('.rep-value');
+                        const stockSymbol = viewer.querySelector('.story-stock-symbol');
+                        const predictionBadge = viewer.querySelector('.story-prediction-badge');
+                        const targetValue = viewer.querySelector('.story-target .value');
+                        const reasoning = viewer.querySelector('.story-reasoning');
+                        const upvotesCount = viewer.querySelector('.story-upvotes .count');
+                        const downvotesCount = viewer.querySelector('.story-downvotes .count');
+                        const endDate = viewer.querySelector('.story-end-date .date');
+                        const content = viewer.querySelector('.story-content');
+                        const closeBtn = viewer.querySelector('.story-close-btn');
+                        const prevBtn = viewer.querySelector('.story-btn-prev');
+                        const nextBtn = viewer.querySelector('.story-btn-next');
+                        const navPrev = viewer.querySelector('.story-nav-prev');
+                        const navNext = viewer.querySelector('.story-nav-next');
+
+                        // Open story viewer
+                        function openStory(index) {
+                            if (storyData.length === 0) return;
+
+                            currentIndex = index;
+                            isOpen = true;
+
+                            // Show viewer
+                            viewer.style.display = 'flex';
+                            viewer.setAttribute('aria-hidden', 'false');
+                            document.body.style.overflow = 'hidden';
+
+                            // Update content
+                            updateStory();
+
+                            // Start auto-advance
+                            startAutoAdvance();
+
+                            // Focus for accessibility
+                            closeBtn.focus();
+                        }
+
+                        // Close story viewer
+                        function closeStory() {
+                            isOpen = false;
+                            viewer.style.display = 'none';
+                            viewer.setAttribute('aria-hidden', 'true');
+                            document.body.style.overflow = '';
+
+                            stopAutoAdvance();
+                            resetProgress();
+                        }
+
+                        // Update story content
+                        function updateStory() {
+                            const story = storyData[currentIndex];
+                            if (!story) return;
+
+                            // Update user info
+                            userLink.setAttribute('data-user-id', story.userId);
+                            userLink.href = '/profile/' + story.userId;
+                            userAvatar.src = story.userAvatar;
+                            userAvatar.alt = story.userName;
+                            userName.textContent = story.userName;
+                            userRep.textContent = story.userRep.toLocaleString();
+
+                            // Update stock info
+                            stockSymbol.textContent = '$' + story.symbol;
+                            predictionBadge.textContent = story.predictionType;
+                            predictionBadge.className = 'story-prediction-badge ' + story.predictionType.toLowerCase();
+
+                            // Update price
+                            targetValue.textContent = '$' + parseFloat(story.targetPrice).toFixed(2);
+
+                            // Update reasoning
+                            reasoning.textContent = story.reasoning || 'No reasoning provided.';
+
+                            // Update votes
+                            upvotesCount.textContent = story.upvotes;
+                            downvotesCount.textContent = story.downvotes;
+
+                            // Update end date
+                            const date = new Date(story.endDate);
+                            endDate.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                            // Update progress bars
+                            updateProgress();
+
+                            // Update nav buttons
+                            prevBtn.disabled = currentIndex === 0;
+                            nextBtn.disabled = currentIndex === storyData.length - 1;
+                        }
+
+                        // Update progress indicators
+                        function updateProgress() {
+                            progressBars.forEach((bar, i) => {
+                                bar.classList.remove('completed', 'active');
+                                const fill = bar.querySelector('.story-progress-fill');
+                                fill.style.width = '0';
+                                fill.style.animation = 'none';
+
+                                if (i < currentIndex) {
+                                    bar.classList.add('completed');
+                                } else if (i === currentIndex) {
+                                    bar.classList.add('active');
+                                    // Trigger reflow and start animation
+                                    void fill.offsetWidth;
+                                    fill.style.animation = '';
+                                }
+                            });
+                        }
+
+                        // Reset all progress
+                        function resetProgress() {
+                            progressBars.forEach(bar => {
+                                bar.classList.remove('completed', 'active');
+                                const fill = bar.querySelector('.story-progress-fill');
+                                fill.style.width = '0';
+                                fill.style.animation = 'none';
+                            });
+                        }
+
+                        // Navigate to previous story
+                        function prevStory() {
+                            if (currentIndex > 0) {
+                                animateTransition('right', () => {
+                                    currentIndex--;
+                                    updateStory();
+                                    restartAutoAdvance();
+                                });
+                            }
+                        }
+
+                        // Navigate to next story
+                        function nextStory() {
+                            if (currentIndex < storyData.length - 1) {
+                                animateTransition('left', () => {
+                                    currentIndex++;
+                                    updateStory();
+                                    restartAutoAdvance();
+                                });
+                            } else {
+                                // Close at end
+                                closeStory();
+                            }
+                        }
+
+                        // Animate content transition
+                        function animateTransition(direction, callback) {
+                            content.classList.add('slide-' + direction);
+
+                            setTimeout(() => {
+                                callback();
+                                content.classList.remove('slide-' + direction);
+                            }, 150);
+                        }
+
+                        // Auto-advance timer
+                        function startAutoAdvance() {
+                            stopAutoAdvance();
+                            autoAdvanceTimer = setTimeout(() => {
+                                nextStory();
+                            }, AUTO_ADVANCE_DELAY);
+                        }
+
+                        function stopAutoAdvance() {
+                            if (autoAdvanceTimer) {
+                                clearTimeout(autoAdvanceTimer);
+                                autoAdvanceTimer = null;
+                            }
+                        }
+
+                        function restartAutoAdvance() {
+                            stopAutoAdvance();
+                            startAutoAdvance();
+                        }
+
+                        // Touch/Swipe handling using Pointer Events
+                        function handlePointerDown(e) {
+                            touchStartX = e.clientX;
+                            stopAutoAdvance();
+                        }
+
+                        function handlePointerUp(e) {
+                            touchEndX = e.clientX;
+                            handleSwipe();
+                            startAutoAdvance();
+                        }
+
+                        function handleSwipe() {
+                            const diff = touchStartX - touchEndX;
+
+                            if (Math.abs(diff) > SWIPE_THRESHOLD) {
+                                if (diff > 0) {
+                                    // Swipe left = next
+                                    nextStory();
+                                } else {
+                                    // Swipe right = prev
+                                    prevStory();
+                                }
+                            }
+                        }
+
+                        // Event Listeners
+
+                        // Open story from carousel items (skip the first "Create New" item)
+                        document.querySelectorAll('.mobile-hot-carousel .hot-prediction-item').forEach((item, index) => {
+                            // Skip first item which is "Create New Prediction"
+                            if (index === 0) return;
+
+                            item.addEventListener('click', function(e) {
+                                if (window.innerWidth < 768) {
+                                    e.preventDefault();
+                                    openStory(index - 1); // Adjust for skipped create button
+                                }
+                            });
+                        });
+
+                        // Close button
+                        closeBtn.addEventListener('click', closeStory);
+
+                        // Navigation buttons
+                        prevBtn.addEventListener('click', prevStory);
+                        nextBtn.addEventListener('click', nextStory);
+
+                        // Navigation touch zones
+                        navPrev.addEventListener('click', prevStory);
+                        navNext.addEventListener('click', nextStory);
+
+                        // Keyboard navigation
+                        viewer.addEventListener('keydown', function(e) {
+                            if (!isOpen) return;
+
+                            switch(e.key) {
+                                case 'ArrowLeft':
+                                    prevStory();
+                                    break;
+                                case 'ArrowRight':
+                                case ' ':
+                                    e.preventDefault();
+                                    nextStory();
+                                    break;
+                                case 'Escape':
+                                    closeStory();
+                                    break;
+                            }
+                        });
+
+                        // Swipe handling
+                        viewer.addEventListener('pointerdown', handlePointerDown);
+                        viewer.addEventListener('pointerup', handlePointerUp);
+
+                        // Prevent scroll while story is open
+                        viewer.addEventListener('touchmove', function(e) {
+                            if (e.target.closest('.story-reasoning')) return; // Allow scroll in reasoning
+                            e.preventDefault();
+                        }, { passive: false });
+
+                        // Pause auto-advance on touch
+                        viewer.addEventListener('touchstart', stopAutoAdvance);
+                        viewer.addEventListener('touchend', startAutoAdvance);
+
+                        // Handle window resize
+                        window.addEventListener('resize', function() {
+                            if (window.innerWidth >= 768 && isOpen) {
+                                closeStory();
+                            }
+                        });
+                    })();
             </script>
                 @endpush
 @endsection
