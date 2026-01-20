@@ -987,9 +987,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (nextBtn) {
         nextBtn.addEventListener('click', function() {
-            console.log('Next button clicked, currentStep:', currentStep);
-            console.log('validationState:', JSON.stringify(validationState));
-            console.log('validateCurrentStep() returns:', validateCurrentStep());
             if (validateCurrentStep()) {
                 if (currentStep < totalSteps) {
                     showStep(currentStep + 1);

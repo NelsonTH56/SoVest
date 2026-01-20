@@ -54,8 +54,7 @@ Route::controller(PredictionController::class)->group(function () {
     Route::get('/predictions/trending', 'trending')->name('predictions.trending');
     Route::get('/predictions/create', 'create')->name('predictions.create')->middleware('auth');
     Route::post('/predictions/store', 'store')->name('predictions.store')->middleware('auth');
-    //Route::post('/predictions/vote/{id}', 'vote')->name('predictions.vote')->middleware('auth');  ORIGINAL
-    Route::post('/predictions/vote/{id}', [PredictionController::class, 'vote'])->middleware('auth'); //SUGGESTED SOLUTION
+    Route::post('/predictions/vote/{id}', [PredictionController::class, 'vote'])->middleware('auth');
     Route::get('/predictions/{id}/vote-counts', function ($id) {
         $upvotes = \App\Models\PredictionVote::where('prediction_id', $id)->where('vote_type', 'upvote')->count();
         $downvotes = \App\Models\PredictionVote::where('prediction_id', $id)->where('vote_type', 'downvote')->count();
