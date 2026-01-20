@@ -1,7 +1,7 @@
 # Use PHP with Apache
 FROM php:8.2-apache
 
-# Install system dependencies
+# Install system dependencies and Node.js 20
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    nodejs \
-    npm \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
@@ -23,18 +23,21 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy composer files first and install PHP dependencies
+COPY composer.json composer.lock ./
+RUN composer install --optimize-autoloader --no-dev --no-scripts
+
+# Copy package.json and install Node dependencies (clean install for Linux)
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy the rest of the application
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Run composer scripts now that all files are present
+RUN composer dump-autoload --optimize
 
-#Install node js
-RUN curl -fsSl https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
-
-# Install Node dependencies and build assets
-RUN npm install
+# Build frontend assets
 RUN npm run build
 
 # Set permissions

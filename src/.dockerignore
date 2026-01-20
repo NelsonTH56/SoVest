@@ -1,0 +1,17 @@
+node_modules
+vendor
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+tests
+phpunit.xml
+.phpunit.result.cache
+README.md
+docker-compose*.yml
