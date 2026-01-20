@@ -34,21 +34,6 @@
                 <div class="form-text">3-100 characters. Must be unique.</div>
             </div>
 
-            {{-- Description --}}
-            <div class="mb-4">
-                <label for="description" class="form-label">Description (Optional)</label>
-                <textarea class="form-control @error('description') is-invalid @enderror"
-                          id="description"
-                          name="description"
-                          rows="3"
-                          placeholder="Describe your group..."
-                          maxlength="500">{{ old('description') }}</textarea>
-                @error('description')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-                <div class="form-text">Max 500 characters.</div>
-            </div>
-
             {{-- Passcode --}}
             <div class="mb-4">
                 <label for="passcode" class="form-label">Passcode</label>

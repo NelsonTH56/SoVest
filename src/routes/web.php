@@ -9,6 +9,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\FeedbackController;
 
 // We're not really using routes here we just want to redirect to main.php
 
@@ -35,6 +36,10 @@ Route::get('/terms', [AuthController::class, 'showTerms'])->name('terms.show')->
 Route::post('/terms/accept', [AuthController::class, 'acceptTerms'])->name('terms.accept')->middleware('auth');
 
 Route::patch('/user/update-bio', [UserController::class, 'updateBio'])->name('user.updateBio');
+
+// Feedback routes
+Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback')->middleware('auth');
+Route::post('/feedback/send', [FeedbackController::class, 'send'])->name('feedback.send')->middleware('auth');
 
 
 Route::get('/home', [UserController::class, 'home'])->name('user.home')->middleware('auth');

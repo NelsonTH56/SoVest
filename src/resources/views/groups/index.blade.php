@@ -4,24 +4,166 @@
 
 @section('content')
 <div class="groups-page">
-    {{-- Page Header --}}
-    <div class="groups-header text-center mb-4">
-        <h1 class="groups-title">
-            <i class="bi bi-people-fill" style="color: #10b981;"></i>
-            Groups
-        </h1>
-        <p class="groups-subtitle">Join groups to compete on private leaderboards</p>
-    </div>
+    {{-- Flash Messages --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
-    {{-- Action Buttons --}}
-    <div class="d-flex justify-content-center gap-3 mb-4">
-        <a href="{{ route('groups.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i> Create Group
-        </a>
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#joinGroupModal">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Join Group
-        </button>
-    </div>
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(empty($userGroups))
+        {{-- No Groups State: Centered buttons --}}
+        <div class="no-groups-state">
+            <div class="empty-state-content text-center">
+                <i class="bi bi-people" style="font-size: 4rem; color: #9ca3af;"></i>
+                <h2 class="mt-3">Welcome to Groups</h2>
+                <p class="text-muted mb-4">Join a group to compete on private leaderboards with friends, colleagues, or communities.</p>
+
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ route('groups.create') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Create Group
+                    </a>
+                    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#joinGroupModal">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Join Group
+                    </button>
+                </div>
+            </div>
+        </div>
+    @else
+        {{-- Has Groups State: Three-column layout --}}
+        <div class="groups-layout">
+            {{-- Top bar with buttons on the right --}}
+            <div class="groups-top-bar d-flex justify-content-between align-items-center mb-4">
+                <h1 class="groups-title mb-0">
+                    <i class="bi bi-people-fill" style="color: #10b981;"></i>
+                    Groups
+                </h1>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i>Create
+                    </a>
+                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#joinGroupModal">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Join
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                {{-- Left Sidebar: Group Menu --}}
+                <div class="col-lg-3 col-md-4">
+                    <div class="group-menu-sidebar">
+                        <h5 class="sidebar-title">
+                            <i class="bi bi-star-fill" style="color: #f59e0b;"></i>
+                            My Groups
+                        </h5>
+                        <div class="group-menu-list">
+                            @foreach($userGroups as $group)
+                                <a href="{{ route('groups.show', $group['id']) }}" class="group-menu-item">
+                                    <div class="group-menu-info">
+                                        <span class="group-menu-name">{{ $group['name'] }}</span>
+                                        <span class="group-menu-meta">
+                                            <i class="bi bi-people"></i> {{ $group['member_count'] }}
+                                            @if($group['is_admin'])
+                                                <span class="admin-indicator">Admin</span>
+                                            @endif
+                                        </span>
+                                    </div>
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Main Content: Group Feed --}}
+                <div class="col-lg-9 col-md-8">
+                    <div class="group-feed-section">
+                        <h4 class="section-title mb-3">
+                            <i class="bi bi-lightning-fill" style="color: #10b981;"></i>
+                            Group Activity
+                        </h4>
+
+                        <div class="group-feed-cards">
+                            @foreach($userGroups as $group)
+                                <div class="group-feed-card">
+                                    <div class="group-feed-header">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h5 class="group-name mb-1">{{ $group['name'] }}</h5>
+                                                @if(!empty($group['description']))
+                                                    <p class="group-description mb-2">{{ Str::limit($group['description'], 100) }}</p>
+                                                @endif
+                                            </div>
+                                            @if($group['is_admin'])
+                                                <span class="admin-badge">Admin</span>
+                                            @endif
+                                        </div>
+                                        <div class="group-meta">
+                                            <span class="member-count">
+                                                <i class="bi bi-people"></i> {{ $group['member_count'] }} members
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="group-feed-actions">
+                                        <a href="{{ route('groups.show', $group['id']) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-trophy me-1"></i>View Leaderboard
+                                        </a>
+                                        @if($group['is_admin'])
+                                            <a href="{{ route('groups.settings', $group['id']) }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-gear"></i>
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        {{-- Discover More Groups --}}
+                        @php
+                            $nonMemberGroups = array_filter($allGroups, fn($g) => !$g['is_member']);
+                        @endphp
+
+                        @if(!empty($nonMemberGroups))
+                            <div class="discover-section mt-4">
+                                <h4 class="section-title mb-3">
+                                    <i class="bi bi-globe"></i>
+                                    Discover More Groups
+                                </h4>
+                                <div class="discover-groups-grid">
+                                    @foreach($nonMemberGroups as $group)
+                                        <div class="discover-group-card">
+                                            <div class="group-card-body">
+                                                <h6 class="group-name">{{ $group['name'] }}</h6>
+                                                @if(!empty($group['description']))
+                                                    <p class="group-description">{{ Str::limit($group['description'], 60) }}</p>
+                                                @endif
+                                                <div class="group-meta">
+                                                    <span class="member-count">
+                                                        <i class="bi bi-people"></i> {{ $group['member_count'] }}
+                                                    </span>
+                                                </div>
+                                                <a href="{{ route('groups.join', $group['id']) }}" class="btn btn-sm btn-success w-100 mt-2">
+                                                    <i class="bi bi-box-arrow-in-right"></i> Join
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- Join Group Modal --}}
     <div class="modal fade" id="joinGroupModal" tabindex="-1" aria-labelledby="joinGroupModalLabel" aria-hidden="true">
@@ -62,160 +204,145 @@
             </div>
         </div>
     </div>
-
-    {{-- Flash Messages --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    {{-- My Groups Section --}}
-    @if(!empty($userGroups))
-        <div class="my-groups-section mb-5">
-            <h4 class="section-title mb-3">
-                <i class="bi bi-star-fill" style="color: #f59e0b;"></i>
-                My Groups
-            </h4>
-            <div class="groups-grid">
-                @foreach($userGroups as $group)
-                    <div class="group-card my-group">
-                        <div class="group-card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="group-name">{{ $group['name'] }}</h5>
-                                @if($group['is_admin'])
-                                    <span class="admin-badge">Admin</span>
-                                @endif
-                            </div>
-                            @if(!empty($group['description']))
-                                <p class="group-description">{{ Str::limit($group['description'], 100) }}</p>
-                            @endif
-                            <div class="group-meta">
-                                <span class="member-count">
-                                    <i class="bi bi-people"></i> {{ $group['member_count'] }} members
-                                </span>
-                            </div>
-                            <div class="group-actions mt-3">
-                                <a href="{{ route('groups.show', $group['id']) }}" class="btn btn-sm btn-primary">
-                                    View Leaderboard
-                                </a>
-                                @if($group['is_admin'])
-                                    <a href="{{ route('groups.settings', $group['id']) }}" class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-gear"></i> Settings
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-
-    {{-- All Groups Section --}}
-    <div class="all-groups-section">
-        <h4 class="section-title mb-3">
-            <i class="bi bi-globe"></i>
-            Discover Groups
-        </h4>
-
-        @if(!empty($allGroups))
-            <div class="groups-grid">
-                @foreach($allGroups as $group)
-                    @if(!$group['is_member'])
-                        <div class="group-card">
-                            <div class="group-card-body">
-                                <h5 class="group-name">{{ $group['name'] }}</h5>
-                                @if(!empty($group['description']))
-                                    <p class="group-description">{{ Str::limit($group['description'], 100) }}</p>
-                                @endif
-                                <div class="group-meta">
-                                    <span class="member-count">
-                                        <i class="bi bi-people"></i> {{ $group['member_count'] }} members
-                                    </span>
-                                    <span class="admin-name">
-                                        <i class="bi bi-person"></i> {{ $group['admin_name'] }}
-                                    </span>
-                                </div>
-                                <div class="group-actions mt-3">
-                                    <a href="{{ route('groups.join', $group['id']) }}" class="btn btn-sm btn-success">
-                                        <i class="bi bi-box-arrow-in-right"></i> Join Group
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                @endforeach
-            </div>
-
-            @php
-                $nonMemberGroups = array_filter($allGroups, fn($g) => !$g['is_member']);
-            @endphp
-
-            @if(empty($nonMemberGroups))
-                <div class="empty-state text-center py-4">
-                    <i class="bi bi-check-circle" style="font-size: 2rem; color: #10b981;"></i>
-                    <p class="mt-2 text-muted">You're a member of all available groups!</p>
-                </div>
-            @endif
-        @else
-            <div class="empty-state text-center py-5">
-                <i class="bi bi-people" style="font-size: 3rem; color: #9ca3af;"></i>
-                <h4 class="mt-3">No Groups Yet</h4>
-                <p class="text-muted">Be the first to create a group!</p>
-                <a href="{{ route('groups.create') }}" class="btn btn-primary mt-2">Create a Group</a>
-            </div>
-        @endif
-    </div>
 </div>
 @endsection
 
 @section('styles')
 <style>
 .groups-page {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
 }
 
-.groups-header {
-    margin-bottom: 2rem;
+/* No Groups State */
+.no-groups-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
 }
 
+.empty-state-content h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+body.dark-mode .empty-state-content h2 {
+    color: #f3f4f6;
+}
+
+/* Groups Layout (with groups) */
 .groups-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 800;
     color: #111827;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 body.dark-mode .groups-title {
     color: #f3f4f6;
 }
 
-.groups-subtitle {
-    color: #6b7280;
-    font-size: 1rem;
-    margin-top: 0.5rem;
+/* Sidebar */
+.group-menu-sidebar {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    padding: 1rem;
+    position: sticky;
+    top: 1rem;
 }
 
-body.dark-mode .groups-subtitle {
+body.dark-mode .group-menu-sidebar {
+    background: #2a2a2a;
+    border-color: #404040;
+}
+
+.sidebar-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+body.dark-mode .sidebar-title {
+    color: #f3f4f6;
+    border-bottom-color: #404040;
+}
+
+.group-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.group-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: #374151;
+    background: #f9fafb;
+    transition: all 0.2s ease;
+}
+
+body.dark-mode .group-menu-item {
+    background: #1f1f1f;
+    color: #d1d5db;
+}
+
+.group-menu-item:hover {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.group-menu-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.group-menu-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.group-menu-meta {
+    font-size: 0.75rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+body.dark-mode .group-menu-meta {
     color: #9ca3af;
 }
 
+.admin-indicator {
+    background: #f59e0b;
+    color: white;
+    font-size: 0.6rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Section Title */
 .section-title {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #111827;
     display: flex;
@@ -227,49 +354,34 @@ body.dark-mode .section-title {
     color: #f3f4f6;
 }
 
-.groups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+/* Group Feed Cards */
+.group-feed-cards {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
 }
 
-.group-card {
+.group-feed-card {
     background: #ffffff;
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 1.25rem;
+    transition: box-shadow 0.2s;
 }
 
-body.dark-mode .group-card {
+body.dark-mode .group-feed-card {
     background: #2a2a2a;
     border-color: #404040;
 }
 
-.group-card:hover {
-    transform: translateY(-2px);
+.group-feed-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.group-card.my-group {
-    border-color: #10b981;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
-}
-
-body.dark-mode .group-card.my-group {
-    border-color: #10b981;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
-}
-
-.group-card-body {
-    padding: 1.25rem;
 }
 
 .group-name {
     font-size: 1.1rem;
     font-weight: 700;
     color: #111827;
-    margin-bottom: 0.5rem;
 }
 
 body.dark-mode .group-name {
@@ -279,7 +391,6 @@ body.dark-mode .group-name {
 .group-description {
     font-size: 0.9rem;
     color: #6b7280;
-    margin-bottom: 0.75rem;
 }
 
 body.dark-mode .group-description {
@@ -297,7 +408,7 @@ body.dark-mode .group-meta {
     color: #9ca3af;
 }
 
-.member-count, .admin-name {
+.member-count {
     display: flex;
     align-items: center;
     gap: 0.25rem;
@@ -313,23 +424,54 @@ body.dark-mode .group-meta {
     border-radius: 9999px;
 }
 
-.group-actions {
+.group-feed-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
     display: flex;
     gap: 0.5rem;
 }
 
-.empty-state h4 {
-    color: #111827;
+body.dark-mode .group-feed-actions {
+    border-top-color: #404040;
 }
 
-body.dark-mode .empty-state h4 {
-    color: #f3f4f6;
+/* Discover Groups */
+.discover-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
 }
 
-@media (max-width: 640px) {
-    .groups-grid {
-        grid-template-columns: 1fr;
-    }
+.discover-group-card {
+    background: #ffffff;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+body.dark-mode .discover-group-card {
+    background: #2a2a2a;
+    border-color: #404040;
+}
+
+.discover-group-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.discover-group-card .group-card-body {
+    padding: 1rem;
+}
+
+.discover-group-card .group-name {
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.discover-group-card .group-description {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
 }
 
 /* Modal Styles */
@@ -365,6 +507,28 @@ body.dark-mode .btn-close {
 #groupCode::placeholder {
     letter-spacing: normal;
     font-weight: 400;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .groups-layout .row {
+        flex-direction: column;
+    }
+
+    .group-menu-sidebar {
+        position: static;
+        margin-bottom: 1.5rem;
+    }
+
+    .group-menu-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .discover-groups-grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 @endsection
