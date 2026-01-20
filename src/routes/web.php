@@ -46,6 +46,7 @@ Route::get('/home', [UserController::class, 'home'])->name('user.home')->middlew
 Route::get('/account', [UserController::class, 'account'])->name('user.account')->middleware('auth');
 Route::get('/settings', [UserController::class, 'settings'])->name('user.settings')->middleware('auth');
 Route::get('/leaderboard', [UserController::class, 'leaderboard'])->name('user.leaderboard')->middleware('auth');
+Route::get('/profile/{id}', [UserController::class, 'profile'])->name('user.profile')->where('id', '[0-9]+');
 Route::post('/profile/upload-photo', [UserController::class, 'uploadPhoto'])->name('user.profile.uploadPhoto');
 Route::controller(PredictionController::class)->group(function () {
     Route::get('/predictions', 'index')->name('predictions.index')->middleware('auth');
