@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nodejs \
-    npm
+    npm \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
@@ -36,17 +37,19 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Configure Apache
+# Configure Apache to use PORT env variable (Render sets this)
 RUN a2enmod rewrite
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
-# Laravel optimizations
-RUN php artisan config:cache \
-    && php artisan route:cache \
+# Cache routes and views (NOT config - needs runtime env vars)
+RUN php artisan route:cache \
     && php artisan view:cache
 
-# Expose port
-EXPOSE 80
+# Expose port (Render uses PORT env var, typically 10000)
+EXPOSE 10000
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Start script to handle dynamic port and run migrations
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+CMD ["/usr/local/bin/start.sh"]

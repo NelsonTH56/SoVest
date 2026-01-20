@@ -3,6 +3,7 @@ services:
     name: sovest
     runtime: docker
     dockerfilePath: ./Dockerfile
+    healthCheckPath: /
     envVars:
       - key: APP_NAME
         value: SoVest
@@ -12,6 +13,10 @@ services:
         value: "false"
       - key: APP_URL
         value: https://sovest.co
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
       - key: APP_KEY
         sync: false
       - key: DB_CONNECTION
@@ -29,8 +34,8 @@ services:
       - key: SESSION_DRIVER
         value: database
       - key: QUEUE_CONNECTION
-        value: database
+        value: sync
       - key: CACHE_STORE
-        value: database
+        value: file
       - key: ALPHA_VANTAGE_API_KEY
         sync: false
