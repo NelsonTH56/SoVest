@@ -13,7 +13,7 @@
     </div>
 
     <div class="form-container">
-        <form action="{{ route('groups.store') }}" method="POST">
+        <form action="{{ route('groups.store') }}" method="POST" autocomplete="off">
             @csrf
 
             {{-- Group Name --}}
@@ -27,25 +27,27 @@
                        placeholder="Enter a unique group name"
                        required
                        minlength="3"
-                       maxlength="100">
+                       maxlength="100"
+                       autocomplete="off">
                 @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
                 <div class="form-text">3-100 characters. Must be unique.</div>
             </div>
 
-            {{-- Passcode --}}
+            {{-- Group Passcode --}}
             <div class="mb-4">
-                <label for="passcode" class="form-label">Passcode</label>
+                <label for="passcode" class="form-label">Group Passcode</label>
                 <div class="input-group">
-                    <input type="password"
+                    <input type="text"
                            class="form-control @error('passcode') is-invalid @enderror"
                            id="passcode"
                            name="passcode"
-                           placeholder="Enter a passcode for members to join"
+                           placeholder="Create a passcode for others to join"
                            required
                            minlength="4"
-                           maxlength="50">
+                           maxlength="50"
+                           autocomplete="off">
                     <button class="btn btn-outline-secondary" type="button" id="togglePasscode">
                         <i class="bi bi-eye"></i>
                     </button>

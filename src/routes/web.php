@@ -82,6 +82,7 @@ Route::prefix('groups')->middleware('auth')->name('groups.')->group(function () 
     Route::get('/', [GroupController::class, 'index'])->name('index');
     Route::get('/create', [GroupController::class, 'create'])->name('create');
     Route::post('/store', [GroupController::class, 'store'])->name('store');
+    Route::post('/join', [GroupController::class, 'joinByName'])->name('joinByName');
     Route::get('/{id}', [GroupController::class, 'show'])->name('show')->middleware('group.member');
     Route::get('/{id}/join', [GroupController::class, 'join'])->name('join');
     Route::post('/{id}/join', [GroupController::class, 'processJoin'])->name('processJoin');

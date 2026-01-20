@@ -126,39 +126,6 @@
                             @endforeach
                         </div>
 
-                        {{-- Discover More Groups --}}
-                        @php
-                            $nonMemberGroups = array_filter($allGroups, fn($g) => !$g['is_member']);
-                        @endphp
-
-                        @if(!empty($nonMemberGroups))
-                            <div class="discover-section mt-4">
-                                <h4 class="section-title mb-3">
-                                    <i class="bi bi-globe"></i>
-                                    Discover More Groups
-                                </h4>
-                                <div class="discover-groups-grid">
-                                    @foreach($nonMemberGroups as $group)
-                                        <div class="discover-group-card">
-                                            <div class="group-card-body">
-                                                <h6 class="group-name">{{ $group['name'] }}</h6>
-                                                @if(!empty($group['description']))
-                                                    <p class="group-description">{{ Str::limit($group['description'], 60) }}</p>
-                                                @endif
-                                                <div class="group-meta">
-                                                    <span class="member-count">
-                                                        <i class="bi bi-people"></i> {{ $group['member_count'] }}
-                                                    </span>
-                                                </div>
-                                                <a href="{{ route('groups.join', $group['id']) }}" class="btn btn-sm btn-success w-100 mt-2">
-                                                    <i class="bi bi-box-arrow-in-right"></i> Join
-                                                </a>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -175,21 +142,31 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="joinGroupForm" method="POST">
+                <form id="joinGroupForm" action="{{ route('groups.joinByName') }}" method="POST" autocomplete="off">
                     @csrf
                     <div class="modal-body">
-                        <p class="text-muted mb-3">Enter the group code provided by the group admin.</p>
+                        <p class="text-muted mb-3">Enter the group name and passcode provided by the group admin.</p>
 
                         <div class="mb-3">
-                            <label for="groupCode" class="form-label">Group Code</label>
+                            <label for="groupName" class="form-label">Group Name</label>
                             <input type="text"
-                                   class="form-control form-control-lg text-center"
-                                   id="groupCode"
-                                   name="group_code"
-                                   placeholder="Enter group code"
+                                   class="form-control"
+                                   id="groupName"
+                                   name="group_name"
+                                   placeholder="Enter group name"
                                    required
-                                   autocomplete="off"
-                                   style="letter-spacing: 2px; font-weight: 600;">
+                                   autocomplete="off">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="groupPasscode" class="form-label">Group Passcode</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="groupPasscode"
+                                   name="passcode"
+                                   placeholder="Enter group passcode"
+                                   required
+                                   autocomplete="off">
                         </div>
 
                         <div id="joinError" class="alert alert-danger d-none" role="alert"></div>
@@ -436,44 +413,6 @@ body.dark-mode .group-feed-actions {
     border-top-color: #404040;
 }
 
-/* Discover Groups */
-.discover-groups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.discover-group-card {
-    background: #ffffff;
-    border-radius: 0.5rem;
-    border: 1px solid #e5e7eb;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-body.dark-mode .discover-group-card {
-    background: #2a2a2a;
-    border-color: #404040;
-}
-
-.discover-group-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.discover-group-card .group-card-body {
-    padding: 1rem;
-}
-
-.discover-group-card .group-name {
-    font-size: 0.95rem;
-    margin-bottom: 0.25rem;
-}
-
-.discover-group-card .group-description {
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
-}
-
 /* Modal Styles */
 .modal-content {
     border-radius: 0.75rem;
@@ -537,16 +476,24 @@ body.dark-mode .btn-close {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const joinForm = document.getElementById('joinGroupForm');
-    const groupCodeInput = document.getElementById('groupCode');
+    const groupNameInput = document.getElementById('groupName');
+    const groupPasscodeInput = document.getElementById('groupPasscode');
     const joinError = document.getElementById('joinError');
     const joinSubmitBtn = document.getElementById('joinSubmitBtn');
 
     joinForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        const groupCode = groupCodeInput.value.trim();
-        if (!groupCode) {
-            showError('Please enter a group code.');
+        const groupName = groupNameInput.value.trim();
+        const passcode = groupPasscodeInput.value.trim();
+
+        if (!groupName) {
+            showError('Please enter a group name.');
+            return;
+        }
+
+        if (!passcode) {
+            showError('Please enter the group passcode.');
             return;
         }
 
@@ -556,22 +503,25 @@ document.addEventListener('DOMContentLoaded', function() {
         hideError();
 
         try {
-            // First, look up the group by code
-            const response = await fetch('{{ route("api.groups.lookup") }}?code=' + encodeURIComponent(groupCode), {
-                method: 'GET',
+            const response = await fetch('{{ route("groups.joinByName") }}', {
+                method: 'POST',
                 headers: {
                     'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
+                },
+                body: JSON.stringify({
+                    group_name: groupName,
+                    passcode: passcode
+                })
             });
 
             const data = await response.json();
 
-            if (data.success && data.group_id) {
-                // Redirect to the join page for that group
-                window.location.href = '{{ url("groups") }}/' + data.group_id + '/join?code=' + encodeURIComponent(groupCode);
+            if (data.success) {
+                window.location.href = data.redirect || '{{ route("groups.index") }}';
             } else {
-                showError(data.message || 'Invalid group code. Please check and try again.');
+                showError(data.message || 'Unable to join group. Please check the name and passcode.');
                 resetButton();
             }
         } catch (error) {
@@ -597,14 +547,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Clear form when modal is closed
     const modal = document.getElementById('joinGroupModal');
     modal.addEventListener('hidden.bs.modal', function() {
-        groupCodeInput.value = '';
+        groupNameInput.value = '';
+        groupPasscodeInput.value = '';
         hideError();
         resetButton();
     });
 
     // Focus input when modal opens
     modal.addEventListener('shown.bs.modal', function() {
-        groupCodeInput.focus();
+        groupNameInput.focus();
     });
 });
 </script>
