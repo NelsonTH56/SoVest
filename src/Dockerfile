@@ -34,6 +34,9 @@ RUN npm ci
 # Copy the rest of the application
 COPY . .
 
+# Remove any node_modules that may have been copied (Windows binaries won't work)
+RUN rm -rf node_modules && npm ci
+
 # Run composer scripts now that all files are present
 RUN composer dump-autoload --optimize
 
