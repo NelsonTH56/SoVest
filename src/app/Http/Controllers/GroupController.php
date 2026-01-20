@@ -83,6 +83,8 @@ class GroupController extends Controller
             'name' => 'required|string|min:3|max:100|unique:groups,name',
             'description' => 'nullable|string|max:500',
             'passcode' => 'required|string|min:4|max:50',
+        ], [
+            'name.unique' => 'A group with this name already exists. Please choose a different name.',
         ]);
 
         $userId = Auth::id();
@@ -147,6 +149,55 @@ class GroupController extends Controller
             'isAdmin' => $group->isAdmin($userId),
             'Curruser' => $Curruser,
         ]);
+    }
+
+    /**
+     * Join a group by name and passcode
+     */
+    public function joinByName(Request $request)
+    {
+        $request->validate([
+            'group_name' => 'required|string',
+            'passcode' => 'required|string',
+        ]);
+
+        $userId = Auth::id();
+        $groupName = $request->input('group_name');
+        $passcode = $request->input('passcode');
+
+        // Find group by name
+        $group = Group::where('name', $groupName)->first();
+
+        if (! $group) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No group found with that name.',
+            ], 404);
+        }
+
+        // Check if already a member
+        if ($group->isMember($userId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are already a member of this group.',
+            ]);
+        }
+
+        // Attempt to join with the passcode
+        $result = $this->groupService->joinGroup($userId, $group->id, $passcode);
+
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully joined the group!',
+                'redirect' => route('groups.show', $group->id),
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['message'] ?? 'Invalid passcode.',
+        ], 400);
     }
 
     /**
