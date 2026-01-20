@@ -8,6 +8,8 @@ use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\GroupController;
+use App\Http\Controllers\FeedbackController;
 
 // We're not really using routes here we just want to redirect to main.php
 
@@ -20,7 +22,7 @@ Route::get('/stocks/{symbol}', [StockController::class, 'show'])->name('stocks.s
 Route::post('/prediction/vote', [PredictionController::class, 'vote'])->name('prediction.vote');
 
 // Authentication routes with rate limiting (5 attempts per minute)
-Route::middleware('throttle:5,1')->group(function () {
+Route::middleware('throttle:10,1')->group(function () {
     Route::get('/register', [AuthController::class, 'registerForm'])->name('register.form');
     Route::post('/register/submit', [AuthController::class, 'register'])->name('register.submit');
     Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
@@ -28,13 +30,23 @@ Route::middleware('throttle:5,1')->group(function () {
 });
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Terms of Service routes
+Route::get('/terms', [AuthController::class, 'showTerms'])->name('terms.show')->middleware('auth');
+Route::post('/terms/accept', [AuthController::class, 'acceptTerms'])->name('terms.accept')->middleware('auth');
+
 Route::patch('/user/update-bio', [UserController::class, 'updateBio'])->name('user.updateBio');
+
+// Feedback routes
+Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback')->middleware('auth');
+Route::post('/feedback/send', [FeedbackController::class, 'send'])->name('feedback.send')->middleware('auth');
 
 
 Route::get('/home', [UserController::class, 'home'])->name('user.home')->middleware('auth');
 Route::get('/account', [UserController::class, 'account'])->name('user.account')->middleware('auth');
 Route::get('/settings', [UserController::class, 'settings'])->name('user.settings')->middleware('auth');
 Route::get('/leaderboard', [UserController::class, 'leaderboard'])->name('user.leaderboard')->middleware('auth');
+Route::get('/profile/{id}', [UserController::class, 'profile'])->name('user.profile')->where('id', '[0-9]+');
 Route::post('/profile/upload-photo', [UserController::class, 'uploadPhoto'])->name('user.profile.uploadPhoto');
 Route::controller(PredictionController::class)->group(function () {
     Route::get('/predictions', 'index')->name('predictions.index')->middleware('auth');
@@ -42,9 +54,6 @@ Route::controller(PredictionController::class)->group(function () {
     Route::get('/predictions/trending', 'trending')->name('predictions.trending');
     Route::get('/predictions/create', 'create')->name('predictions.create')->middleware('auth');
     Route::post('/predictions/store', 'store')->name('predictions.store')->middleware('auth');
-    Route::get('/predictions/edit/{id}', 'edit')->name('predictions.edit')->middleware('auth')->middleware('prediction.owner');
-    Route::post('/predictions/update/{id}', 'update')->name('predictions.update')->middleware('auth')->middleware('prediction.owner');
-    Route::post('/predictions/delete/{id}', 'delete')->name('predictions.delete')->middleware('auth')->middleware('prediction.owner');
     //Route::post('/predictions/vote/{id}', 'vote')->name('predictions.vote')->middleware('auth');  ORIGINAL
     Route::post('/predictions/vote/{id}', [PredictionController::class, 'vote'])->middleware('auth'); //SUGGESTED SOLUTION
     Route::get('/predictions/{id}/vote-counts', function ($id) {
@@ -68,9 +77,27 @@ Route::controller(CommentController::class)->group(function () {
     Route::delete('/comments/{id}', 'destroy')->name('comments.destroy')->middleware('auth');
 });
 
+// Group routes
+Route::prefix('groups')->middleware('auth')->name('groups.')->group(function () {
+    Route::get('/', [GroupController::class, 'index'])->name('index');
+    Route::get('/create', [GroupController::class, 'create'])->name('create');
+    Route::post('/store', [GroupController::class, 'store'])->name('store');
+    Route::post('/join', [GroupController::class, 'joinByName'])->name('joinByName');
+    Route::get('/{id}', [GroupController::class, 'show'])->name('show')->middleware('group.member');
+    Route::get('/{id}/join', [GroupController::class, 'join'])->name('join');
+    Route::post('/{id}/join', [GroupController::class, 'processJoin'])->name('processJoin');
+    Route::post('/{id}/leave', [GroupController::class, 'leave'])->name('leave');
+    Route::get('/{id}/settings', [GroupController::class, 'settings'])->name('settings')->middleware('group.admin');
+    Route::post('/{id}/passcode', [GroupController::class, 'updatePasscode'])->name('updatePasscode')->middleware('group.admin');
+    Route::delete('/{id}/members/{userId}', [GroupController::class, 'removeMember'])->name('removeMember')->middleware('group.admin');
+});
+
 // API routes with rate limiting
 // 60 requests per 1 minute for general API endpoints
 Route::prefix('api')->middleware(['api', 'throttle:120,1'])->name('api.')->group(function () {
+    // Group lookup by code
+    Route::get('/groups/lookup', [GroupController::class, 'lookupByCode'])->name('groups.lookup');
+
     Route::match(['GET', 'POST'], '/predictions', [PredictionController::class, 'apiHandler'])->name('predictions');
     Route::post('/predictions/create', [PredictionController::class, 'store'])->name('predictions.create');
     Route::post('/predictions/update', [PredictionController::class, 'update'])->name('predictions.update')->middleware('prediction.owner');
@@ -86,7 +113,7 @@ Route::prefix('api')->middleware(['api', 'throttle:120,1'])->name('api.')->group
     Route::post('/fetch_stock_price', [SearchController::class, 'fetchStockPrice'])->name('fetch.stock.price');
     Route::get('/stocks', [SearchController::class, 'stocks'])->name('stocks');
     Route::get('/stocks/{symbol}', [SearchController::class, 'getStock'])->name('stocks.get')
-        ->where('symbol', '[A-Z]{1,5}');
+        ->where('symbol', '[A-Za-z]{1,5}');
     Route::get('/stocks/{symbol}/price', [SearchController::class, 'getStockPrice'])->name('stocks.price')
-        ->where('symbol', '[A-Z]{1,5}');
+        ->where('symbol', '[A-Za-z]{1,5}');
 });

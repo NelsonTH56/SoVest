@@ -12,6 +12,7 @@ use App\Services\Interfaces\StockDataServiceInterface;
 use App\Models\Stock;
 use App\Models\StockPrice;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
@@ -19,6 +20,12 @@ use Illuminate\Support\Facades\File;
 class StockDataService implements StockDataServiceInterface
 {
     private $lastApiCall = 0;
+
+    // Cache TTL in seconds (24 hours = 86400 seconds)
+    private const CACHE_TTL = 86400;
+
+    // Cache key prefix for stock prices
+    private const CACHE_PREFIX = 'stock_price_';
 
     /**
      * Add a stock to track
@@ -111,21 +118,44 @@ class StockDataService implements StockDataServiceInterface
     }
 
     /**
-     * Fetch stock data from API
-     * 
+     * Fetch stock data from API (with caching)
+     *
+     * Checks in order: 1) Laravel cache, 2) Database (today's price), 3) API
+     * Results are cached for 24 hours to minimize API hits.
+     *
      * @param string $symbol Stock symbol
+     * @param bool $forceRefresh Skip cache and fetch fresh data from API
      * @return array|bool Stock data or false on failure
      */
-    public function fetchStockData($symbol)
+    public function fetchStockData($symbol, $forceRefresh = false)
     {
-        // Respect rate limiting
+        $symbol = strtoupper($symbol);
+        $cacheKey = self::CACHE_PREFIX . $symbol;
+
+        // Layer 1: Check Laravel cache (unless forcing refresh)
+        if (!$forceRefresh && Cache::has($cacheKey)) {
+            writeApiLog("Cache hit for $symbol");
+            return Cache::get($cacheKey);
+        }
+
+        // Layer 2: Check database for today's price (unless forcing refresh)
+        if (!$forceRefresh) {
+            $cachedData = $this->getCachedStockData($symbol);
+            if ($cachedData !== false) {
+                // Store in Laravel cache for faster subsequent lookups
+                Cache::put($cacheKey, $cachedData, self::CACHE_TTL);
+                writeApiLog("Database cache hit for $symbol");
+                return $cachedData;
+            }
+        }
+
+        // Layer 3: Fetch from API
         $this->respectRateLimit();
 
-        $symbol = strtoupper($symbol);
         $apiKey = Config::get("api_config.ALPHA_VANTAGE_API_KEY");
         $url = Config::get("api_config.ALPHA_VANTAGE_BASE_URL") . "?function=GLOBAL_QUOTE&symbol=$symbol&apikey=$apiKey";
 
-        writeApiLog("Fetching stock data for $symbol");
+        writeApiLog("Fetching stock data for $symbol from API");
 
         // Make API request
         $response = file_get_contents($url);
@@ -148,7 +178,7 @@ class StockDataService implements StockDataServiceInterface
         if (isset($data['Global Quote']) && !empty($data['Global Quote'])) {
             error_log("Data: " . print_r($data, true));
             $quote = $data['Global Quote'];
-            return [
+            $stockData = [
                 'symbol' => $symbol,
                 'price' => isset($quote['05. price']) ? (float) $quote['05. price'] : 0,
                 'change' => isset($quote['09. change']) ? (float) $quote['09. change'] : 0,
@@ -156,10 +186,55 @@ class StockDataService implements StockDataServiceInterface
                     (float) str_replace('%', '', $quote['10. change percent']) : 0,
                 'timestamp' => date('Y-m-d H:i:s')
             ];
+
+            // Cache the result in Laravel cache
+            Cache::put($cacheKey, $stockData, self::CACHE_TTL);
+
+            return $stockData;
         }
 
         writeApiLog("No data returned for $symbol");
         return false;
+    }
+
+    /**
+     * Get cached stock data from database (today's price)
+     *
+     * @param string $symbol Stock symbol
+     * @return array|bool Stock data array or false if not found/stale
+     */
+    private function getCachedStockData($symbol)
+    {
+        try {
+            $symbol = strtoupper($symbol);
+            $today = date('Y-m-d');
+
+            $stock = Stock::where('symbol', $symbol)->first();
+            if (!$stock) {
+                return false;
+            }
+
+            // Look for today's price in the database
+            $todayPrice = StockPrice::where('stock_id', $stock->stock_id)
+                ->where('price_date', $today)
+                ->first();
+
+            if ($todayPrice) {
+                return [
+                    'symbol' => $symbol,
+                    'price' => (float) $todayPrice->close_price,
+                    'change' => 0, // We don't store change in DB, would need yesterday's price
+                    'change_percent' => 0,
+                    'timestamp' => $todayPrice->price_date . ' 00:00:00',
+                    'cached' => true
+                ];
+            }
+
+            return false;
+        } catch (Exception $e) {
+            writeApiLog("Error checking cached data: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -192,30 +267,59 @@ class StockDataService implements StockDataServiceInterface
         try {
             $symbol = strtoupper($symbol);
             $price = (float) $price;
-            $timestamp = $timestamp ?: date('Y-m-d H:i:s');
+            $priceDate = $timestamp ? date('Y-m-d', strtotime($timestamp)) : date('Y-m-d');
 
             // Get the stock by symbol
             $stock = Stock::where('symbol', $symbol)->first();
 
             if (!$stock) {
                 writeApiLog("Error: Stock not found for symbol $symbol");
+                error_log("Error: Stock not found for symbol $symbol");
                 return false;
             }
 
-            // Create new stock price record
-            $stockPrice = new StockPrice();
-            $stockPrice->stock_id = $stock->stock_id;
-            $stockPrice->price_date = $timestamp;
-            $stockPrice->close_price = $price;
-            $stockPrice->save();
+            // Check if price already exists for this date
+            $existingPrice = StockPrice::where('stock_id', $stock->stock_id)
+                ->where('price_date', $priceDate)
+                ->first();
 
-            // Update last_updated in stocks table
-            $stock->updated_at = $timestamp;
-            $stock->save();
+            if ($existingPrice) {
+                // Update existing price
+                $existingPrice->close_price = $price;
+                $existingPrice->open_price = $price; // Use same price if no open price available
+                $existingPrice->high_price = $price; // Use same price if no high price available
+                $existingPrice->low_price = $price; // Use same price if no low price available
+                $existingPrice->save();
+                error_log("Updated existing price for $symbol on $priceDate: $price");
+            } else {
+                // Create new stock price record
+                $stockPrice = new StockPrice();
+                $stockPrice->stock_id = $stock->stock_id;
+                $stockPrice->price_date = $priceDate;
+                $stockPrice->close_price = $price;
+                $stockPrice->open_price = $price; // Use same price if no open price available
+                $stockPrice->high_price = $price; // Use same price if no high price available
+                $stockPrice->low_price = $price; // Use same price if no low price available
+                $stockPrice->save();
+                error_log("Stored new price for $symbol on $priceDate: $price");
+            }
+
+            // Update Laravel cache with the new price
+            $cacheKey = self::CACHE_PREFIX . $symbol;
+            $cachedData = [
+                'symbol' => $symbol,
+                'price' => $price,
+                'change' => 0,
+                'change_percent' => 0,
+                'timestamp' => $priceDate . ' 00:00:00',
+                'cached' => true
+            ];
+            Cache::put($cacheKey, $cachedData, self::CACHE_TTL);
 
             return true;
         } catch (Exception $e) {
             writeApiLog("Error storing price: " . $e->getMessage());
+            error_log("Error storing price for $symbol: " . $e->getMessage());
             return false;
         }
     }

@@ -23,7 +23,7 @@
 	<link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
 
     <!-- Main CSS file (legacy) -->
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 
     <!-- Page-specific CSS -->
 	@if (isset($pageCss))
@@ -224,7 +224,7 @@
         }
 
         body.dark-mode .modal-footer {
-            border-top-color: #404040;
+            border-top-color:rgb(250, 249, 249);
         }
 
         /* Profile Picture */
@@ -298,14 +298,582 @@
         body.dark-mode [style*="border-color:#e5e7eb"] {
             border-color: #404040 !important;
         }
+
+        /* Prediction end date badges - dark mode adjustments */
+        body.dark-mode .badge[style*="background-color: rgba(16, 185, 129, 0.1)"],
+        body.dark-mode .badge[style*="background-color:rgba(16, 185, 129, 0.1)"] {
+            background-color: rgba(16, 185, 129, 0.2) !important;
+            color: #6ee7b7 !important;
+            border-color: #6ee7b7 !important;
+        }
+
+        /* ========== MOBILE STICKY HEADER ========== */
+        @media (max-width: 767.98px) {
+            .mobile-sticky-header {
+                display: flex;
+                position: sticky;
+                top: 0;
+                z-index: 1045;
+                height: 52px;
+                padding: 0 1rem;
+                background: #ffffff;
+                border-bottom: 1px solid #e5e7eb;
+                align-items: center;
+                justify-content: space-between;
+                margin: -0.75rem -0.75rem 0.75rem -0.75rem;
+                width: calc(100% + 1.5rem);
+            }
+
+            body.dark-mode .mobile-sticky-header {
+                background: #1a1a1a;
+                border-bottom-color: #333;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                text-decoration: none;
+                color: #111827;
+                font-weight: 700;
+                font-size: 1.15rem;
+            }
+
+            body.dark-mode .mobile-brand {
+                color: #f3f4f6;
+            }
+
+            .mobile-header-right {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .mobile-icon-btn {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #374151;
+                text-decoration: none;
+                transition: background 0.2s;
+            }
+
+            .mobile-icon-btn:hover {
+                background: rgba(16, 185, 129, 0.1);
+                color: #10b981;
+            }
+
+            body.dark-mode .mobile-icon-btn {
+                color: #d1d5db;
+            }
+
+            .mobile-icon-btn i {
+                font-size: 1.25rem;
+            }
+
+            .mobile-profile-link {
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .mobile-profile-link img {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #10b981;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-sticky-header {
+                display: none !important;
+            }
+        }
+
+        /* ========== ENHANCED MOBILE UI/UX STYLES ========== */
+
+        /* Global mobile container improvements */
+        @media (max-width: 767.98px) {
+            .container {
+                padding-left: 1.25rem !important;
+                padding-right: 1.25rem !important;
+            }
+
+            /* More breathing room on content */
+            main {
+                padding-top: 0.5rem;
+            }
+        }
+
+        /* Mobile header layout */
+        @media (max-width: 767.98px) {
+            /* Stack header vertically on mobile */
+            header .d-flex.flex-column.flex-md-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding-bottom: 1rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            /* Logo and brand - center on mobile */
+            header .d-flex.flex-column.flex-md-row > a:first-child {
+                justify-content: center;
+                margin-bottom: 0.75rem;
+            }
+
+            /* Navigation - full width on mobile */
+            header nav {
+                width: 100%;
+                justify-content: space-between !important;
+                margin-top: 0 !important;
+                gap: 1rem;
+            }
+
+            /* Nav links container - proper spacing */
+            .navbar-nav {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding: 0.5rem 0;
+                gap: 0.75rem;
+                flex: 1;
+            }
+
+            .navbar-nav::-webkit-scrollbar {
+                display: none;
+            }
+
+            /* Individual nav items - proper spacing between buttons */
+            .navbar-nav .nav-item {
+                margin-right: 0 !important;
+                flex-shrink: 0;
+            }
+
+            /* Nav link buttons - touch-friendly with adequate spacing */
+            .navbar-nav .nav-item a {
+                font-size: 0.8rem;
+                white-space: nowrap;
+                padding: 0.625rem 1rem;
+                border-radius: 0.625rem;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                background: rgba(0, 0, 0, 0.03);
+                transition: all 0.2s ease;
+            }
+
+            body.dark-mode .navbar-nav .nav-item a {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .navbar-nav .nav-item a:hover,
+            .navbar-nav .nav-item a:active {
+                background: rgba(16, 185, 129, 0.15);
+            }
+
+            .navbar-nav .nav-item a.active {
+                background: rgba(16, 185, 129, 0.2);
+                font-weight: 600;
+            }
+
+            /* Right side header actions (create btn + profile) */
+            .mobile-header-actions {
+                display: flex !important;
+                align-items: center;
+                gap: 0.875rem;
+                flex-shrink: 0;
+            }
+
+            /* Mobile create button in header */
+            .mobile-create-btn {
+                display: flex !important;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                padding: 0;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                border: none;
+                box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+                flex-shrink: 0;
+            }
+
+            .mobile-create-btn i {
+                font-size: 1.25rem;
+                color: white;
+            }
+
+            /* Profile dropdown button - proper sizing */
+            .menu .nav-dropdown {
+                width: 44px;
+                height: 44px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .menu .pfp {
+                width: 40px !important;
+                height: 40px !important;
+            }
+
+            /* Dropdown menu mobile adjustments */
+            .drop-down-menu {
+                min-width: 280px;
+                right: 0;
+                max-height: 80vh;
+                overflow-y: auto;
+                padding: 0.75rem;
+            }
+
+            .drop-down-items {
+                padding: 1rem 1.25rem !important;
+                border-radius: 0.625rem;
+                margin-bottom: 0.375rem;
+                min-height: 52px;
+                display: flex;
+                align-items: center;
+                font-size: 0.95rem;
+            }
+
+            /* Active predictions section in dropdown */
+            .dropdown-predictions-section {
+                display: block !important;
+                border-top: 1px solid #e5e7eb;
+                margin-top: 0.875rem;
+                padding-top: 0.875rem;
+            }
+
+            body.dark-mode .dropdown-predictions-section {
+                border-top-color: #404040;
+            }
+
+            .dropdown-prediction-item {
+                padding: 0.875rem 1.25rem;
+                display: block;
+                text-decoration: none;
+                border-radius: 0.75rem;
+                margin: 0.375rem 0;
+                transition: background 0.2s;
+                min-height: 64px;
+            }
+
+            .dropdown-prediction-item:hover,
+            .dropdown-prediction-item:active {
+                background: #f3f4f6;
+            }
+
+            body.dark-mode .dropdown-prediction-item:hover,
+            body.dark-mode .dropdown-prediction-item:active {
+                background: #404040;
+            }
+
+            .dropdown-prediction-item .symbol {
+                font-weight: 700;
+                font-size: 1rem;
+                color: #10b981;
+            }
+
+            .dropdown-prediction-item .company {
+                font-size: 0.85rem;
+                color: #6b7280;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-top: 0.375rem;
+            }
+
+            body.dark-mode .dropdown-prediction-item .company {
+                color: #9ca3af;
+            }
+
+            .dropdown-prediction-item .badge {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
+        }
+
+        /* Hide on mobile */
+        @media (max-width: 767.98px) {
+            .desktop-only {
+                display: none !important;
+            }
+        }
+
+        /* Hide on desktop */
+        @media (min-width: 768px) {
+            .mobile-only {
+                display: none !important;
+            }
+
+            .dropdown-predictions-section {
+                display: none !important;
+            }
+        }
+
+        /* Mobile header actions container */
+        @media (min-width: 768px) {
+            .mobile-header-actions {
+                display: none !important;
+            }
+        }
+
+        /* ========== MOBILE BOTTOM NAVIGATION BAR ========== */
+        @media (max-width: 767.98px) {
+            /* Add padding to body/main content to prevent overlap with bottom nav */
+            .mobile-bottom-padding {
+                padding-bottom: 80px !important;
+            }
+
+            /* Bottom Navigation Bar */
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 64px;
+                background: #ffffff;
+                border-top: 1px solid #e5e7eb;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 1050;
+                padding: 0 0.5rem;
+                padding-bottom: env(safe-area-inset-bottom, 0);
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            body.dark-mode .mobile-bottom-nav {
+                background: #1a1a1a;
+                border-top-color: #333;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+            }
+
+            /* Nav Item */
+            .mobile-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                color: #6b7280;
+                padding: 0.5rem;
+                min-width: 56px;
+                min-height: 48px;
+                border-radius: 0.5rem;
+                transition: all 0.2s ease;
+            }
+
+            .mobile-nav-item:hover,
+            .mobile-nav-item:focus {
+                color: #10b981;
+                background: rgba(16, 185, 129, 0.1);
+            }
+
+            .mobile-nav-item.active {
+                color: #10b981;
+            }
+
+            body.dark-mode .mobile-nav-item {
+                color: #9ca3af;
+            }
+
+            body.dark-mode .mobile-nav-item:hover,
+            body.dark-mode .mobile-nav-item:focus,
+            body.dark-mode .mobile-nav-item.active {
+                color: #10b981;
+                background: rgba(16, 185, 129, 0.15);
+            }
+
+            /* Nav Icon */
+            .mobile-nav-item i {
+                font-size: 1.4rem;
+                margin-bottom: 0.15rem;
+            }
+
+            /* Nav Label */
+            .mobile-nav-item span {
+                font-size: 0.65rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            /* Create Button - Prominent Center FAB Style */
+            .mobile-nav-item.create-btn {
+                position: relative;
+                color: #ffffff;
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                border-radius: 50%;
+                width: 56px;
+                height: 56px;
+                min-width: 56px;
+                margin-top: -20px;
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            }
+
+            .mobile-nav-item.create-btn:hover,
+            .mobile-nav-item.create-btn:focus {
+                color: #ffffff;
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                transform: scale(1.05);
+            }
+
+            .mobile-nav-item.create-btn i {
+                font-size: 1.75rem;
+                margin-bottom: 0;
+            }
+
+            .mobile-nav-item.create-btn span {
+                display: none;
+            }
+
+            body.dark-mode .mobile-nav-item.create-btn {
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            }
+
+            /* Footer padding to clear bottom nav */
+            footer.border-top {
+                padding-bottom: 80px !important;
+            }
+
+            /* Hide top navbar on mobile - use bottom nav instead */
+            header .d-flex.flex-column.flex-md-row {
+                display: none !important;
+            }
+
+            /* Adjust header spacing when navbar is hidden */
+            header {
+                margin-bottom: 0 !important;
+            }
+
+            /* Profile picture in mobile nav */
+            .mobile-nav-profile-pic {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid transparent;
+                transition: all 0.2s ease;
+            }
+
+            .mobile-nav-item.active .mobile-nav-profile-pic {
+                border-color: #10b981;
+            }
+
+            .mobile-nav-item:hover .mobile-nav-profile-pic,
+            .mobile-nav-item:focus .mobile-nav-profile-pic {
+                border-color: #10b981;
+            }
+        }
+
+        /* Hide mobile nav on tablet and desktop */
+        @media (min-width: 768px) {
+            .mobile-bottom-nav {
+                display: none !important;
+            }
+        }
+
+        /* Mobile footer improvements */
+        @media (max-width: 767.98px) {
+            footer.border-top {
+                padding-top: 2rem !important;
+                margin-top: 2rem !important;
+            }
+
+            footer .row {
+                gap: 1.5rem;
+            }
+
+            footer .col-6 {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            footer h5 {
+                font-size: 1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            footer ul li {
+                margin-bottom: 0.5rem;
+            }
+
+            footer ul li a {
+                font-size: 0.9rem;
+                padding: 0.25rem 0;
+                display: inline-block;
+            }
+        }
+
+        /* Mobile modal improvements */
+        @media (max-width: 767.98px) {
+            .modal-dialog {
+                margin: 1rem;
+                max-width: calc(100% - 2rem);
+            }
+
+            .modal-content {
+                border-radius: 1rem;
+            }
+
+            .modal-header {
+                padding: 1.25rem;
+            }
+
+            .modal-body {
+                padding: 1.25rem;
+            }
+
+            .modal-body p {
+                line-height: 1.7;
+            }
+        }
     </style>
 
 </head>
 
 <body>
-    <div class="container py-3">
+    <div class="container py-3 mobile-safe-area">
 
         <header>
+            {{-- Mobile-Only Sticky Header --}}
+            <div class="mobile-sticky-header">
+                <a href="{{ route('landing') }}" class="mobile-brand">
+                    <img src="{{ asset('images/logo.png') }}" alt="SoVest" width="28" height="28">
+                    <span>SoVest</span>
+                </a>
+                <div class="mobile-header-right">
+                    <a href="{{ route('search') }}" class="mobile-icon-btn" aria-label="Search">
+                        <i class="bi bi-search"></i>
+                    </a>
+                    @auth
+                        @php
+                            $mobileHeaderPic = isset($Curruser['profile_picture']) && $Curruser['profile_picture']
+                                ? asset('images/profile_pictures/' . $Curruser['profile_picture'])
+                                : asset('images/default.png');
+                        @endphp
+                        <a href="{{ route('user.account') }}" class="mobile-profile-link">
+                            <img src="{{ $mobileHeaderPic }}" alt="Profile">
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="mobile-icon-btn" aria-label="Login">
+                            <i class="bi bi-person-circle"></i>
+                        </a>
+                    @endauth
+                </div>
+            </div>
+
             <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
                 <a href="{{ route('landing') }}"
                     class="d-flex align-items-center link-body-emphasis text-decoration-none">
@@ -328,21 +896,35 @@
                         <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('scoring-algorithm') ? 'active' : '' }}"
                             href="{{ route('scoring.algorithm') }}">Scoring Algo 101</a>
                     </li>
-                    <!-- REDIRECTING TO HOME PAGE FOR SOME REASON
                     <li class="nav-item me-3">
-                        <a class="py-2 link-body-emphasis text-decoration-none {{ Route::is('user.leaderboard') ? 'active' : '' }}"
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('leaderboard') ? 'active' : '' }}"
                             href="{{ route('user.leaderboard') }}">Leaderboard</a>
-                    </li>  -->
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('groups*') ? 'active' : '' }}"
+                            href="{{ route('groups.index') }}">Groups</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('feedback') ? 'active' : '' }}"
+                            href="{{ route('feedback') }}">Feedback</a>
+                    </li>
                 </ul>
 
-                {{-- Right: Profile Dropdown --}}
+                {{-- Right: Profile Dropdown with Mobile Actions --}}
                 @auth
                 @php
                     $profilePicture = $Curruser['profile_picture']
-                        ? asset('images/profile_pictures/' . $Curruser['profile_picture']) 
+                        ? asset('images/profile_pictures/' . $Curruser['profile_picture'])
                         : asset('images/default.png');
                 @endphp
-                                <div class="menu position-relative">
+                    <div class="mobile-header-actions">
+                        {{-- Mobile Create Prediction Button --}}
+                        <a href="{{ route('predictions.create') }}" class="mobile-create-btn mobile-only" title="Create Prediction">
+                            <i class="bi bi-plus-lg"></i>
+                        </a>
+                    </div>
+
+                    <div class="menu position-relative">
                         <button id="dropdownButton" class="nav-dropdown ">
                         <img src="{{ $profilePicture }}" alt="Profile Picture" class="pfp" />
                         </button>
@@ -352,6 +934,35 @@
                             <a href="{{ route('predictions.index') }}" class="drop-down-items">My Predictions</a>
                             <a href="{{ route('user.settings') }}" class="drop-down-items">Settings</a>
                             <a href="{{ route('logout') }}" class="drop-down-items logout">Logout</a>
+
+                            {{-- Mobile Only: Active Predictions Section --}}
+                            <div class="dropdown-predictions-section mobile-only">
+                                <div style="padding: 0.5rem 0.75rem; font-weight: 600; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <i class="bi bi-lightning-charge" style="color: #10b981;"></i> Active Predictions
+                                </div>
+                                @if(!empty($Userpredictions) && count($Userpredictions) > 0)
+                                    @foreach($Userpredictions->take(3) as $pred)
+                                        <a href="{{ route('predictions.view', ['id' => $pred->prediction_id]) }}" class="dropdown-prediction-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="symbol">{{ $pred->stock->symbol ?? 'N/A' }}</span>
+                                                <span class="badge {{ $pred->prediction_type == 'Bullish' ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $pred->prediction_type }}
+                                                </span>
+                                            </div>
+                                            <div class="company">{{ $pred->stock->company_name ?? '' }}</div>
+                                        </a>
+                                    @endforeach
+                                    @if(count($Userpredictions) > 3)
+                                        <a href="{{ route('predictions.index') }}" class="dropdown-prediction-item" style="text-align: center; color: #10b981;">
+                                            View all {{ count($Userpredictions) }} predictions
+                                        </a>
+                                    @endif
+                                @else
+                                    <div style="padding: 0.75rem; text-align: center; color: #6b7280; font-size: 0.8rem;">
+                                        No active predictions
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
 
@@ -493,6 +1104,48 @@
             </div>
         </div>
     </div>
+
+    {{-- Mobile Bottom Navigation Bar (visible only on mobile) --}}
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+        {{-- Home --}}
+        <a href="{{ route('user.home') }}" class="mobile-nav-item {{ request()->is('home') ? 'active' : '' }}" aria-label="Home">
+            <i class="bi bi-house-fill"></i>
+            <span>Home</span>
+        </a>
+
+        {{-- Leaderboard --}}
+        <a href="{{ route('user.leaderboard') }}" class="mobile-nav-item {{ request()->is('leaderboard') ? 'active' : '' }}" aria-label="Leaderboard">
+            <i class="bi bi-trophy-fill"></i>
+            <span>Leaders</span>
+        </a>
+
+        {{-- Create Prediction (Center FAB) --}}
+        <a href="{{ route('predictions.create') }}" class="mobile-nav-item create-btn {{ request()->is('predictions/create') ? 'active' : '' }}" aria-label="Create Prediction">
+            <i class="bi bi-plus-lg"></i>
+            <span>Create</span>
+        </a>
+
+        {{-- Trending --}}
+        <a href="{{ route('predictions.trending') }}" class="mobile-nav-item {{ request()->is('predictions/trending') ? 'active' : '' }}" aria-label="Trending">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span>Trending</span>
+        </a>
+
+        {{-- Profile/Account --}}
+        <a href="{{ route('user.account') }}" class="mobile-nav-item {{ request()->is('account') ? 'active' : '' }}" aria-label="Account">
+            @auth
+                @php
+                    $mobileProfilePic = isset($Curruser['profile_picture']) && $Curruser['profile_picture']
+                        ? asset('images/profile_pictures/' . $Curruser['profile_picture'])
+                        : asset('images/default.png');
+                @endphp
+                <img src="{{ $mobileProfilePic }}" alt="Profile" class="mobile-nav-profile-pic">
+            @else
+                <i class="bi bi-person-circle"></i>
+            @endauth
+            <span>Profile</span>
+        </a>
+    </nav>
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 

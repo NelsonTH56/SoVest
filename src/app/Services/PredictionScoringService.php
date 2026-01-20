@@ -37,9 +37,10 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
         ];
         
         try {
-            // Get all active predictions that have reached their end date
+            // Get all active predictions that have passed their end date
+            // Using < instead of <= means end_date = Jan 16 stays active until Jan 17 00:00:00
             $predictions = Prediction::where('is_active', 1)
-                ->where('end_date', '<=', Carbon::now())
+                ->where('end_date', '<', Carbon::today())
                 ->whereNull('accuracy')
                 ->with(['stock']) // Eager load the stock relationship
                 ->get();
@@ -285,26 +286,49 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
         try {
             // Format date
             $date = date('Y-m-d', strtotime($date));
-            
+
             // Find the stock by symbol
             $stock = Stock::where('symbol', $symbol)->first();
-            
+
             if (!$stock) {
+                error_log("Stock not found: $symbol");
                 return null;
             }
-            
-            // Get the price record closest to the date
+
+            // Get the price record closest to the date (within 7 days)
             $price = StockPrice::where('stock_id', $stock->stock_id)
                 ->where('price_date', '<=', $date)
+                ->where('price_date', '>=', date('Y-m-d', strtotime($date . ' -7 days')))
                 ->orderBy('price_date', 'desc')
                 ->first();
-            
+
             if ($price) {
+                error_log("Found historical price for $symbol on {$price->price_date}: {$price->close_price}");
                 return (float)$price->close_price;
             }
-            
-            // If no historical price found, try getting latest price
-            return $this->stockService->getLatestPrice($symbol);
+
+            // If no historical price found within 7 days, fetch from API
+            error_log("No historical price found for $symbol near $date, fetching from API...");
+
+            // Fetch and store the latest price from the API
+            $fetchResult = $this->stockService->fetchAndStoreStockData($symbol);
+
+            if ($fetchResult) {
+                error_log("Successfully fetched and stored price for $symbol from API");
+
+                // Get the newly stored price
+                $storedPrice = StockPrice::where('stock_id', $stock->stock_id)
+                    ->orderBy('price_date', 'desc')
+                    ->first();
+
+                if ($storedPrice) {
+                    error_log("Using stored price from {$storedPrice->price_date}: {$storedPrice->close_price}");
+                    return (float)$storedPrice->close_price;
+                }
+            }
+
+            error_log("Failed to fetch price for $symbol from API");
+            return null;
         } catch (\Exception $e) {
             error_log("Error getting stock price at date: " . $e->getMessage());
             return null;
@@ -366,13 +390,14 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
     public function getUserPredictionStats($userId) {
         $stats = [
             'total' => 0,
+            'total_predictions' => 0,
             'accurate' => 0,
             'inaccurate' => 0,
             'pending' => 0,
             'avg_accuracy' => 0,
             'reputation' => 0
         ];
-        
+
         try {
             // Using Eloquent for aggregations
             $total = Prediction::where('user_id', $userId)->count();
@@ -385,8 +410,14 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
             $avgAccuracy = Prediction::where('user_id', $userId)
                 ->whereNotNull('accuracy')
                 ->avg('accuracy');
-            
+
+            // Finalized predictions = those with accuracy scores (evaluated)
+            $finalized = Prediction::where('user_id', $userId)
+                ->whereNotNull('accuracy')
+                ->count();
+
             $stats['total'] = $total;
+            $stats['total_predictions'] = $finalized; // Only finalized predictions for display
             $stats['pending'] = $pending;
             $stats['accurate'] = $accurate;
             $stats['inaccurate'] = $inaccurate;

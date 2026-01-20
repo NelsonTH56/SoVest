@@ -15,22 +15,27 @@
             <div class="steps-container">
                 <div class="step" data-step="1">
                     <div class="step-number">1</div>
-                    <div class="step-label">Select Stock</div>
+                    <div class="step-label">Stock</div>
                 </div>
                 <div class="step-line"></div>
                 <div class="step" data-step="2">
                     <div class="step-number">2</div>
-                    <div class="step-label">Prediction</div>
+                    <div class="step-label">Direction</div>
                 </div>
                 <div class="step-line"></div>
                 <div class="step" data-step="3">
                     <div class="step-number">3</div>
-                    <div class="step-label">Details</div>
+                    <div class="step-label">Target</div>
                 </div>
                 <div class="step-line"></div>
                 <div class="step" data-step="4">
                     <div class="step-number">4</div>
-                    <div class="step-label">Reasoning</div>
+                    <div class="step-label">Analysis</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" data-step="5">
+                    <div class="step-number">5</div>
+                    <div class="step-label">Confirm</div>
                 </div>
             </div>
         </div>
@@ -117,21 +122,21 @@
                                     @endif
 
                                     <!-- Stock Info Card (appears after selection) -->
-                                    <div id="stock-info-card" class="stock-info-card" style="display: none;">
+                                    <div id="stock-info-card" class="stock-info-card" style="{{ (isset($hasPreselectedStock) && $hasPreselectedStock && isset($currentPrice) && $currentPrice) ? '' : 'display: none;' }}">
                                         <div class="stock-info-header">
                                             <div>
-                                                <h4 id="stock-name" class="stock-name"></h4>
-                                                <p id="stock-symbol" class="stock-symbol"></p>
+                                                <h4 id="stock-name" class="stock-name">{{ $prediction['company_name'] ?? '' }}</h4>
+                                                <p id="stock-symbol" class="stock-symbol">{{ $prediction['symbol'] ?? '' }}</p>
                                             </div>
                                             <div class="stock-price-section">
-                                                <div id="current-price-loader" class="price-loader">
+                                                <div id="current-price-loader" class="price-loader" style="{{ (isset($currentPrice) && $currentPrice) ? 'display: none;' : '' }}">
                                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
                                                         <span class="visually-hidden">Loading...</span>
                                                     </div>
                                                 </div>
-                                                <div id="current-price-display" style="display: none;">
+                                                <div id="current-price-display" style="{{ (isset($currentPrice) && $currentPrice) ? '' : 'display: none;' }}">
                                                     <span class="current-price-label">Current Price</span>
-                                                    <span id="current-price" class="current-price">$0.00</span>
+                                                    <span id="current-price" class="current-price">${{ isset($currentPrice) && $currentPrice ? number_format($currentPrice, 2) : '0.00' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -199,26 +204,22 @@
                                     <i class="bi bi-bullseye"></i>
                                 </div>
                                 <h3 class="step-title">Set Your Target</h3>
-                                <p class="step-description">When do you expect this to happen and at what price?</p>
+                                <p class="step-description">Define your price target and timeframe</p>
 
-                                <div class="row">
-                                    <div class="col-md-6 mb-4">
+                                <!-- Price Inputs Row -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6 mb-3 mb-md-0">
                                         <div class="form-group-enhanced">
                                             <label for="target_price" class="form-label-enhanced">
                                                 <i class="bi bi-currency-dollar text-warning"></i>
                                                 Target Price
-                                                <span class="optional-badge">Optional</span>
                                             </label>
-                                            <div class="input-with-icon">
+                                            <div class="input-with-icon target-input-wrapper">
                                                 <span class="dollar-sign">$</span>
-                                                <input type="number" class="form-control-enhanced ps-4 @error('target_price') is-invalid @enderror"
-                                                    id="target_price" name="target_price" step="0.01" min="0"
-                                                    placeholder="0.00"
+                                                <input type="number" class="form-control-enhanced form-control-lg ps-4 @error('target_price') is-invalid @enderror"
+                                                    id="target_price" name="target_price" step="0.01" min="0.01"
+                                                    placeholder="{{ isset($currentPrice) && $currentPrice ? number_format($currentPrice, 2) : 'Enter target price' }}"
                                                     value="{{ $isEditing && $prediction['target_price'] ? $prediction['target_price'] : old('target_price', '') }}">
-                                            </div>
-                                            <div class="form-hint">
-                                                <i class="bi bi-lightbulb"></i>
-                                                <span id="price-suggestion">Setting a target price makes your prediction more precise</span>
                                             </div>
                                             @error('target_price')
                                                 <div class="error-message">
@@ -228,15 +229,42 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 mb-4">
+                                    <div class="col-md-6">
+                                        <div class="form-group-enhanced">
+                                            <label for="percent_change" class="form-label-enhanced">
+                                                <i class="bi bi-percent text-info"></i>
+                                                Percent Change
+                                            </label>
+                                            <div class="input-with-icon target-input-wrapper">
+                                                <input type="number" class="form-control-enhanced form-control-lg"
+                                                    id="percent_change" step="1"
+                                                    placeholder="0">
+                                                <span class="percent-sign">%</span>
+                                            </div>
+                                            <div class="form-hint">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                                <span>Updates automatically with target price</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-hint mb-4">
+                                    <i class="bi bi-lightbulb"></i>
+                                    <span id="price-suggestion">Enter either target price or percent change - they stay in sync</span>
+                                </div>
+
+                                <!-- Timeframe Row -->
+                                <div class="row">
+                                    <div class="col-12">
                                         <div class="form-group-enhanced">
                                             <label for="end_date" class="form-label-enhanced">
                                                 <i class="bi bi-calendar-event text-primary"></i>
                                                 Timeframe (End Date)
                                             </label>
-                                            <div class="input-with-icon">
+                                            <div class="input-with-icon target-input-wrapper">
                                                 <i class="bi bi-calendar3 input-icon"></i>
-                                                <input type="date" class="form-control-enhanced @error('end_date') is-invalid @enderror"
+                                                <input type="date" class="form-control-enhanced form-control-lg @error('end_date') is-invalid @enderror"
                                                     id="end_date" name="end_date" required
                                                     value="{{ $isEditing ? date('Y-m-d', strtotime($prediction['end_date'])) : old('end_date', '') }}">
                                             </div>
@@ -311,6 +339,82 @@
                             </div>
                         </div>
 
+                        <!-- Step 5: Confirmation -->
+                        <div class="form-step" data-step="5">
+                            <div class="step-content">
+                                <div class="step-icon confirmation-icon">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <h3 class="step-title">Confirm Your Prediction</h3>
+                                <p class="step-description">Review your prediction before publishing</p>
+
+                                <!-- Warning Banner -->
+                                <div class="confirmation-warning">
+                                    <div class="warning-icon">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                    </div>
+                                    <div class="warning-content">
+                                        <strong>Predictions are permanent</strong>
+                                        <p>Once submitted, you cannot edit the direction, target price, or timeframe. This ensures accountability and fair scoring.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Prediction Summary -->
+                                <div class="confirmation-summary">
+                                    <h5 class="summary-title">
+                                        <i class="bi bi-clipboard-check"></i>
+                                        Prediction Summary
+                                    </h5>
+
+                                    <div class="summary-grid">
+                                        <div class="summary-item">
+                                            <span class="summary-label">Stock</span>
+                                            <span id="confirm-stock" class="confirm-value">-</span>
+                                        </div>
+
+                                        <div class="summary-item">
+                                            <span class="summary-label">Current Price</span>
+                                            <span id="confirm-current-price" class="confirm-value">-</span>
+                                        </div>
+
+                                        <div class="summary-item">
+                                            <span class="summary-label">Direction</span>
+                                            <span id="confirm-direction" class="confirm-value">-</span>
+                                        </div>
+
+                                        <div class="summary-item">
+                                            <span class="summary-label">Target Price</span>
+                                            <span id="confirm-target-price" class="confirm-value">-</span>
+                                        </div>
+
+                                        <div class="summary-item">
+                                            <span class="summary-label">Percent Change</span>
+                                            <span id="confirm-percent-change" class="confirm-value">-</span>
+                                        </div>
+
+                                        <div class="summary-item">
+                                            <span class="summary-label">Timeframe</span>
+                                            <span id="confirm-timeframe" class="confirm-value">-</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="summary-reasoning">
+                                        <span class="summary-label">Your Analysis</span>
+                                        <p id="confirm-reasoning" class="confirm-reasoning-text">-</p>
+                                    </div>
+                                </div>
+
+                                <!-- Confirmation Checkbox -->
+                                <div class="confirmation-checkbox">
+                                    <label class="confirm-label">
+                                        <input type="checkbox" id="confirm-checkbox" required>
+                                        <span class="checkmark"></span>
+                                        <span class="confirm-text">I understand that this prediction cannot be edited after submission and will affect my reputation score.</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Navigation Buttons -->
                         <div class="form-navigation">
                             <button type="button" class="btn btn-nav btn-prev" id="prev-btn" style="display: none;">
@@ -336,7 +440,6 @@
         // Update API endpoint for prediction.js to use Laravel routes
         const apiEndpoints = {
             searchStocks: '{{ route("api.search.stocks") }}',
-            deletePrediction: '{{ route("api.predictions.delete", 0) }}',
             getStockPrice: '{{ url("api/stocks") }}' // Will append /{symbol}/price
         };
     </script>

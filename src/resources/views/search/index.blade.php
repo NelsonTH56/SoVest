@@ -3,6 +3,41 @@
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/search.css') }}">
 <style>
+/* Badge animation styles (same as home page) */
+.prediction-badge-vibrant {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+.badge-bullish {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.badge-bearish {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 /* Modern, simplified search styling */
 .search-hero-title {
     font-size: 2.5rem;
@@ -459,38 +494,12 @@ body.dark-mode .search-suggestions {
                                 </div>
                             </div>
                         @elseif($result['result_type'] == 'prediction')
-                            <div class="result-card-enhanced">
-                                <div class="d-flex align-items-start">
-                                    <div class="result-icon-wrapper prediction-icon-wrapper">
-                                        <i class="bi bi-lightning-charge-fill text-white"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="result-title">
-                                            {{ $result['symbol'] }}
-                                            <span class="badge {{ $result['prediction_type'] == 'Bullish' ? 'bg-success' : 'bg-danger' }} badge-enhanced ms-2">
-                                                <i class="bi bi-{{ $result['prediction_type'] == 'Bullish' ? 'arrow-up' : 'arrow-down' }}-circle-fill"></i>
-                                                {{ $result['prediction_type'] }}
-                                            </span>
-                                        </div>
-                                        <div class="result-subtitle">By {{ $result['first_name'] . ' ' . $result['last_name'] }}</div>
-                                        <div class="d-flex align-items-center gap-2 mt-2">
-                                            @if(isset($result['accuracy']))
-                                                <span class="badge {{ $result['accuracy'] >= 70 ? 'bg-success' : 'bg-warning text-dark' }} badge-enhanced">
-                                                    <i class="bi bi-bullseye"></i> {{ $result['accuracy'] }}% accuracy
-                                                </span>
-                                            @endif
-                                            <span class="badge bg-info badge-enhanced">
-                                                <i class="bi bi-hand-thumbs-up-fill"></i> {{ $result['votes'] ?? 0 }} votes
-                                            </span>
-                                            @if(isset($result['target_price']))
-                                                <span class="badge bg-secondary badge-enhanced">
-                                                    <i class="bi bi-bullseye"></i> ${{ number_format($result['target_price'], 2) }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <x-prediction-card
+                                :prediction="$result"
+                                :show-comments="false"
+                                :show-votes="false"
+                                :clickable="true"
+                            />
                         @endif
                     @endforeach
                 </div>

@@ -235,7 +235,17 @@ body.dark-mode .text-body-secondary {
     border-radius: 50%;
     object-fit: cover;
     margin-right: 10px;
+}
 
+/* Ensure profile pictures in prediction cards are always circular */
+.prediction-card img.rounded-circle {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50% !important;
+    object-fit: cover;
+    flex-shrink: 0;
 }
 
 .reasoning.my-4 {
@@ -408,7 +418,7 @@ a.prediction-link:hover {
 .pfp{
     width: 100%;
     height: 100%;
-    border-radius: 30%;
+    border-radius: 50%;
     object-fit:cover;
     outline:none;
 }
@@ -422,6 +432,7 @@ a.prediction-link:hover {
 
 .menu {
     position: relative;
+    z-index: 9999;
 }
 
 .h2{
@@ -467,7 +478,7 @@ a.prediction-link:hover {
     background-color: #ffffff;
     border-radius: 0.5rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    z-index: 999;
+    z-index: 9999;
     flex-direction: column;  /* Ensure it's vertically aligned */
     display: flex;           /* Use flex for vertical stacking */
 }
@@ -957,3 +968,1153 @@ body.dark-mode .pagination .page-link:hover {
     color: #10b981 !important;
 }
 
+/* =============================================================================
+   LAYOUT DARK MODE STYLES (moved from app.blade.php)
+   ============================================================================= */
+
+/* Global text transition for smooth dark/light mode switching */
+/* Only apply transitions when not in no-transition mode (prevents flash on page load) */
+html:not(.no-transition) *,
+html:not(.no-transition) *::before,
+html:not(.no-transition) *::after {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Disable ALL transitions during initial page load */
+html.no-transition,
+html.no-transition *,
+html.no-transition *::before,
+html.no-transition *::after {
+    transition: none !important;
+}
+
+/* Header and Navigation */
+header .border-bottom {
+    border-color: #e5e7eb !important;
+}
+
+body.dark-mode header .border-bottom {
+    border-color: #404040 !important;
+}
+
+header .fs-4 {
+    color: #111827;
+    font-weight: 700;
+}
+
+body.dark-mode header .fs-4 {
+    color: #f3f4f6;
+}
+
+nav .link-body-emphasis {
+    color: #374151;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+nav .link-body-emphasis:hover {
+    color: #10b981;
+}
+
+body.dark-mode nav .link-body-emphasis {
+    color: #d1d5db;
+}
+
+body.dark-mode nav .link-body-emphasis:hover {
+    color: #6ee7b7;
+}
+
+nav .link-body-emphasis.active {
+    color: #10b981;
+    font-weight: 600;
+}
+
+body.dark-mode nav .link-body-emphasis.active {
+    color: #6ee7b7;
+}
+
+/* Dropdown Menu */
+.drop-down-menu {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .drop-down-menu {
+    background: #2d2d2d;
+    border-color: #404040;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.drop-down-items {
+    color: #374151;
+    transition: all 0.2s ease;
+}
+
+.drop-down-items:hover {
+    background: #f3f4f6;
+    color: #10b981;
+}
+
+body.dark-mode .drop-down-items {
+    color: #d1d5db;
+}
+
+body.dark-mode .drop-down-items:hover {
+    background: #404040;
+    color: #6ee7b7;
+}
+
+/* Page Header */
+.pricing-header h1 {
+    color: #111827;
+}
+
+body.dark-mode .pricing-header h1 {
+    color: #f3f4f6;
+}
+
+.pricing-header .text-body-secondary {
+    color: #6b7280 !important;
+}
+
+body.dark-mode .pricing-header .text-body-secondary {
+    color: #9ca3af !important;
+}
+
+/* Footer */
+footer.border-top {
+    border-color: #e5e7eb !important;
+}
+
+body.dark-mode footer.border-top {
+    border-color: #404040 !important;
+}
+
+footer h5 {
+    color: #111827;
+    font-weight: 600;
+}
+
+body.dark-mode footer h5 {
+    color: #f3f4f6;
+}
+
+footer .text-body-secondary {
+    color: #6b7280 !important;
+}
+
+body.dark-mode footer .text-body-secondary {
+    color: #9ca3af !important;
+}
+
+footer .link-secondary {
+    color: #6b7280 !important;
+    transition: color 0.2s ease;
+}
+
+footer .link-secondary:hover {
+    color: #10b981 !important;
+}
+
+body.dark-mode footer .link-secondary {
+    color: #9ca3af !important;
+}
+
+body.dark-mode footer .link-secondary:hover {
+    color: #6ee7b7 !important;
+}
+
+footer li {
+    color: #6b7280;
+}
+
+body.dark-mode footer li {
+    color: #9ca3af;
+}
+
+/* Modals */
+.modal-content {
+    background: white;
+    color: #111827;
+}
+
+body.dark-mode .modal-content {
+    background: #2d2d2d !important;
+    color: #e5e7eb !important;
+    border: 1px solid #404040;
+}
+
+body.dark-mode .modal-header {
+    border-bottom-color: #404040;
+}
+
+body.dark-mode .modal-title {
+    color: #f3f4f6;
+}
+
+body.dark-mode .modal-body {
+    color: #d1d5db;
+}
+
+body.dark-mode .modal-body p {
+    color: #d1d5db;
+}
+
+body.dark-mode .modal-body a {
+    color: #6ee7b7;
+}
+
+body.dark-mode .modal-body a:hover {
+    color: #10b981;
+}
+
+body.dark-mode .modal-footer {
+    border-top-color: #404040;
+}
+
+/* Profile Picture */
+.pfp {
+    border: 2px solid #e5e7eb;
+    border-radius: 50%;
+    transition: border-color 0.2s ease;
+}
+
+body.dark-mode .pfp {
+    border-color: #10b981;
+}
+
+.pfp:hover {
+    border-color: #10b981;
+}
+
+/* Container text colors */
+.container {
+    color: #111827;
+}
+
+body.dark-mode .container {
+    color: #e5e7eb;
+}
+
+/* Inline style overrides for dark mode */
+body.dark-mode [style*="color: #111827"],
+body.dark-mode [style*="color:#111827"] {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode [style*="color: #333"],
+body.dark-mode [style*="color:#333"] {
+    color: #f3f4f6 !important;
+}
+
+body.dark-mode [style*="color: #374151"],
+body.dark-mode [style*="color:#374151"] {
+    color: #d1d5db !important;
+}
+
+body.dark-mode [style*="color: #6b7280"],
+body.dark-mode [style*="color:#6b7280"] {
+    color: #9ca3af !important;
+}
+
+body.dark-mode [style*="color: #555"],
+body.dark-mode [style*="color:#555"] {
+    color: #9ca3af !important;
+}
+
+/* Background overrides */
+body.dark-mode [style*="background: white"],
+body.dark-mode [style*="background:white"],
+body.dark-mode [style*="background-color: white"],
+body.dark-mode [style*="background-color:white"],
+body.dark-mode [style*="background: #fff"],
+body.dark-mode [style*="background:#fff"],
+body.dark-mode [style*="background-color: #fff"],
+body.dark-mode [style*="background-color:#fff"],
+body.dark-mode [style*="background: #ffffff"],
+body.dark-mode [style*="background:#ffffff"],
+body.dark-mode [style*="background-color: #ffffff"],
+body.dark-mode [style*="background-color:#ffffff"] {
+    background-color: #2d2d2d !important;
+}
+
+/* Border overrides */
+body.dark-mode [style*="border-color: #e5e7eb"],
+body.dark-mode [style*="border-color:#e5e7eb"] {
+    border-color: #404040 !important;
+}
+
+/* ==============================================================================
+   MOBILE-FIRST UI/UX IMPROVEMENTS
+   Modern, breathable layouts with generous whitespace
+   ============================================================================== */
+
+/* Global Mobile Container Improvements */
+@media (max-width: 767.98px) {
+    /* Main container breathing room */
+    .container {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+
+    /* Reduce visual noise */
+    .container.mt-4 {
+        margin-top: 1rem !important;
+    }
+
+    /* Better row spacing */
+    .row {
+        margin-left: -0.625rem;
+        margin-right: -0.625rem;
+    }
+
+    .row > [class*="col-"] {
+        padding-left: 0.625rem;
+        padding-right: 0.625rem;
+    }
+
+    /* Section headers */
+    h1, .display-6 {
+        font-size: 1.75rem !important;
+        line-height: 1.3;
+        margin-bottom: 1rem !important;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+        line-height: 1.3;
+    }
+
+    h3 {
+        font-size: 1.25rem !important;
+    }
+
+    /* Better button sizing */
+    .btn {
+        min-height: 44px;
+        padding: 0.625rem 1rem;
+    }
+
+    .btn-sm {
+        min-height: 36px;
+        padding: 0.5rem 0.875rem;
+    }
+
+    /* Form controls - touch friendly */
+    .form-control,
+    .form-select {
+        min-height: 48px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border-radius: 0.75rem;
+    }
+
+    .form-floating > .form-control {
+        min-height: 56px;
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
+    }
+
+    .form-floating > label {
+        padding: 1rem;
+    }
+}
+
+/* Prediction Card Mobile Improvements */
+@media (max-width: 767.98px) {
+    .prediction-card {
+        width: 100% !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        border-radius: 1rem !important;
+    }
+
+    /* Card header - stack on mobile */
+    .prediction-card .d-flex.justify-content-between.align-items-start {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+
+    /* Profile section */
+    .prediction-card .rounded-circle {
+        width: 44px !important;
+        height: 44px !important;
+    }
+
+    .prediction-card .ms-3 {
+        margin-left: 0.75rem !important;
+    }
+
+    .prediction-card .fw-bold {
+        font-size: 0.95rem !important;
+    }
+
+    .prediction-card h5 {
+        font-size: 1.1rem !important;
+        line-height: 1.4;
+    }
+
+    /* Reasoning text */
+    .prediction-card .reasoning-text {
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    /* Badge positioning */
+    .prediction-card .d-flex.justify-content-between.align-items-start > div:last-child {
+        align-self: flex-start;
+    }
+
+    /* Target price and badges */
+    .prediction-card .d-flex.align-items-center.gap-3 {
+        flex-wrap: wrap;
+        gap: 0.75rem !important;
+    }
+
+    /* Engagement bar */
+    .prediction-card .border-top {
+        margin-top: 1rem !important;
+        padding-top: 1rem !important;
+    }
+
+    .prediction-card .border-top .d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+
+    .prediction-card .border-top .d-flex.justify-content-between > div {
+        justify-content: flex-start !important;
+    }
+
+    /* Vote buttons - touch targets */
+    .vote-btn {
+        min-height: 44px !important;
+        padding: 0.5rem 0.875rem !important;
+        font-size: 0.85rem !important;
+        border-radius: 22px !important;
+    }
+
+    .vote-btn i {
+        font-size: 1.1rem !important;
+    }
+
+    /* Comments toggle - touch targets */
+    .comments-toggle {
+        min-height: 44px !important;
+        padding: 0.5rem 0.875rem !important;
+    }
+
+    /* Comments section */
+    .comments-section {
+        margin-top: 1rem !important;
+    }
+
+    .comment-item {
+        padding: 0.875rem !important;
+        margin-bottom: 0.75rem !important;
+        border-radius: 0.75rem !important;
+    }
+
+    .reply-item {
+        margin-left: 1rem !important;
+    }
+}
+
+/* Login/Register Pages Mobile */
+@media (max-width: 767.98px) {
+    .card {
+        border-radius: 1rem !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .card-header {
+        padding: 1.25rem !important;
+        border-radius: 1rem 1rem 0 0 !important;
+    }
+
+    .card-body {
+        padding: 1.5rem !important;
+    }
+
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+
+    .card-body .btn {
+        margin-top: 0.5rem;
+    }
+
+    /* Registration form rows */
+    .card-body .row.mb-3 {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .card-body .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    .card-body .col-md-6:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Account/Profile Page Mobile */
+@media (max-width: 767.98px) {
+    /* Profile header stacks */
+    .profile-header-wrapper {
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-header-banner {
+        height: 80px;
+    }
+
+    .profile-header-content {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center;
+        margin-top: -40px !important;
+        gap: 1rem !important;
+        padding: 0 1rem;
+    }
+
+    .profile-avatar {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .profile-user-info {
+        padding-top: 0 !important;
+    }
+
+    .profile-name {
+        font-size: 1.5rem !important;
+    }
+
+    .profile-bio {
+        max-width: none;
+    }
+
+    .profile-stats {
+        padding-top: 0 !important;
+        gap: 1.5rem !important;
+    }
+
+    .profile-stats .stat-value {
+        font-size: 1.25rem !important;
+    }
+
+    /* Predictions section */
+    .predictions-section {
+        padding: 0 0.5rem 2rem !important;
+    }
+
+    .predictions-container {
+        padding: 0;
+    }
+
+    .feed-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+        padding-bottom: 0.75rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .feed-title {
+        font-size: 1.1rem !important;
+    }
+
+    /* Prediction cards in feed */
+    .predictions-feed .prediction-card {
+        padding: 1rem !important;
+    }
+
+    .prediction-card-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+        padding: 0.875rem 0.875rem 0.625rem !important;
+    }
+
+    .prediction-card-body {
+        padding: 0 0.875rem 0.625rem !important;
+    }
+
+    .prediction-card-actions {
+        padding: 0 !important;
+    }
+
+    .prediction-card-actions .action-btn {
+        padding: 0.875rem !important;
+        min-height: 48px;
+    }
+
+    /* Bio modal */
+    .bio-edit-modal-content {
+        margin: 1rem;
+        padding: 1.25rem;
+    }
+}
+
+/* Predictions Create Page Mobile */
+@media (max-width: 767.98px) {
+    .prediction-create-container {
+        padding: 0 0.5rem;
+    }
+
+    /* Progress steps */
+    .prediction-steps {
+        margin-bottom: 2rem !important;
+        padding: 0 0.5rem;
+    }
+
+    .steps-container {
+        padding: 0;
+    }
+
+    .step-number {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .step-label {
+        font-size: 0.7rem !important;
+        margin-top: 0.25rem;
+    }
+
+    .step-line {
+        flex: 1;
+        min-width: 20px;
+    }
+
+    /* Form card */
+    .prediction-form-card {
+        padding: 1.25rem !important;
+        border-radius: 1rem !important;
+    }
+
+    /* Step content */
+    .step-content {
+        padding: 0.5rem 0;
+    }
+
+    .step-icon {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .step-title {
+        font-size: 1.25rem !important;
+    }
+
+    .step-description {
+        font-size: 0.95rem !important;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Form groups */
+    .form-group-enhanced {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label-enhanced {
+        font-size: 0.9rem !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control-enhanced {
+        padding: 0.875rem 1rem !important;
+        font-size: 1rem !important;
+        border-radius: 0.75rem !important;
+    }
+
+    .input-with-icon {
+        position: relative;
+    }
+
+    .input-with-icon .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .input-with-icon .form-control-enhanced {
+        padding-left: 2.75rem !important;
+    }
+
+    /* Prediction type cards */
+    .prediction-type-options {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+
+    .prediction-type-card {
+        padding: 1.25rem !important;
+    }
+
+    .prediction-type-card h4 {
+        font-size: 1.1rem !important;
+    }
+
+    /* Target inputs */
+    .target-input-wrapper .dollar-sign,
+    .target-input-wrapper .percent-sign {
+        font-size: 1rem;
+    }
+
+    /* Tips card */
+    .tips-card {
+        padding: 1rem !important;
+        margin-top: 1.5rem;
+    }
+
+    .tips-title {
+        font-size: 1rem !important;
+    }
+
+    .tips-list li {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Confirmation step */
+    .confirmation-warning {
+        padding: 1rem !important;
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: center;
+    }
+
+    .warning-icon {
+        margin: 0 auto;
+    }
+
+    .confirmation-summary {
+        padding: 1rem !important;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .summary-item {
+        padding: 0.75rem !important;
+    }
+
+    .confirmation-checkbox {
+        margin-top: 1.5rem;
+    }
+
+    .confirm-label {
+        font-size: 0.9rem !important;
+        gap: 0.75rem;
+    }
+
+    /* Navigation buttons */
+    .form-navigation {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        padding-top: 1.5rem;
+    }
+
+    .btn-nav,
+    .btn-submit {
+        width: 100% !important;
+        justify-content: center;
+        min-height: 48px;
+    }
+}
+
+/* My Predictions Page Mobile */
+@media (max-width: 767.98px) {
+    .container.mt-4 .d-flex.justify-content-between.align-items-center {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .container.mt-4 .d-flex.justify-content-between.align-items-center h1 {
+        margin-bottom: 0 !important;
+    }
+
+    .container.mt-4 .d-flex.justify-content-between.align-items-center .btn {
+        width: 100%;
+    }
+
+    /* Empty state */
+    .prediction-card.text-center[style*="padding: 3rem"] {
+        padding: 2rem 1.25rem !important;
+    }
+}
+
+/* Search Page Mobile */
+@media (max-width: 767.98px) {
+    /* Hero section */
+    .search-hero-title {
+        font-size: 1.75rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .search-hero-subtitle {
+        font-size: 1rem !important;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Search wrapper */
+    .modern-search-wrapper {
+        flex-direction: row;
+        gap: 0.75rem !important;
+    }
+
+    .modern-search-input {
+        padding: 0.875rem 1rem !important;
+        font-size: 1rem !important;
+        border-radius: 0.75rem !important;
+    }
+
+    .modern-search-button {
+        padding: 0.875rem 1rem !important;
+        border-radius: 0.75rem !important;
+        min-width: 48px;
+    }
+
+    /* Filters */
+    .d-flex.gap-2.mt-3.flex-wrap {
+        justify-content: stretch !important;
+    }
+
+    .simple-filter-select {
+        flex: 1;
+        min-width: calc(50% - 0.5rem);
+        padding: 0.75rem !important;
+    }
+
+    /* Results */
+    .result-card-enhanced {
+        padding: 1.25rem !important;
+        border-radius: 1rem !important;
+    }
+
+    .result-card-enhanced .d-flex.align-items-center.justify-content-between {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .result-icon-wrapper {
+        width: 48px !important;
+        height: 48px !important;
+        font-size: 1.25rem !important;
+        margin-right: 1rem !important;
+    }
+
+    .result-title {
+        font-size: 1.1rem !important;
+    }
+
+    .result-subtitle {
+        font-size: 0.85rem !important;
+    }
+
+    .quick-action-btn {
+        padding: 0.5rem 0.875rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Sidebar */
+    .col-lg-4 {
+        margin-top: 2rem;
+    }
+
+    .sidebar-card {
+        padding: 1.25rem !important;
+    }
+
+    .sidebar-card-header {
+        font-size: 1rem !important;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .history-item {
+        padding: 0.875rem !important;
+    }
+
+    /* Empty state */
+    .empty-state {
+        padding: 2.5rem 1.5rem !important;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem !important;
+    }
+
+    .empty-state h3 {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* Leaderboard Page Mobile */
+@media (max-width: 767.98px) {
+    .trending-container {
+        padding: 0 0.5rem;
+        margin-top: 1.5rem !important;
+    }
+
+    .trending-container h2 {
+        font-size: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .post-card {
+        padding: 1.25rem !important;
+        border-radius: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .vote-section {
+        gap: 0.75rem !important;
+    }
+
+    .vote-btn {
+        font-size: 1.25rem !important;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .vote-count {
+        font-size: 1.1rem !important;
+    }
+
+    .post-card h5 {
+        font-size: 1.1rem !important;
+        margin-top: 0.75rem !important;
+    }
+}
+
+/* Stock Detail Page Mobile */
+@media (max-width: 767.98px) {
+    .stock-detail-header {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        text-align: center;
+    }
+
+    .stock-price-large {
+        font-size: 2rem !important;
+    }
+
+    .stock-chart-container {
+        height: 250px !important;
+    }
+
+    .stock-info-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .stock-info-item {
+        padding: 1rem !important;
+    }
+}
+
+/* Settings Page Mobile */
+@media (max-width: 767.98px) {
+    .settings-section {
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        border-radius: 1rem !important;
+    }
+
+    .settings-section h5 {
+        font-size: 1.1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .form-check {
+        padding: 0.75rem 0;
+        padding-left: 2rem;
+    }
+
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    .form-check-label {
+        font-size: 0.95rem;
+        margin-left: 0.5rem;
+    }
+}
+
+/* Landing/Main Page Mobile */
+@media (max-width: 767.98px) {
+    .hero-section {
+        padding: 2rem 1rem !important;
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 2rem !important;
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem !important;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-cta {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .hero-cta .btn {
+        width: 100%;
+    }
+
+    /* Feature cards */
+    .feature-card {
+        padding: 1.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .feature-icon {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .feature-title {
+        font-size: 1.1rem !important;
+    }
+
+    .feature-description {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* About Page Mobile */
+@media (max-width: 767.98px) {
+    .about-hero {
+        padding: 2rem 1rem !important;
+    }
+
+    .about-hero h1 {
+        font-size: 1.75rem !important;
+    }
+
+    .about-section {
+        padding: 2rem 1rem !important;
+    }
+
+    .about-section h2 {
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .about-section p {
+        font-size: 0.95rem !important;
+        line-height: 1.7;
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .team-member {
+        padding: 1.25rem !important;
+    }
+}
+
+/* Scoring Algorithm Page Mobile */
+@media (max-width: 767.98px) {
+    .algorithm-section {
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        border-radius: 1rem !important;
+    }
+
+    .algorithm-section h3 {
+        font-size: 1.2rem !important;
+    }
+
+    .algorithm-section h4 {
+        font-size: 1.1rem !important;
+    }
+
+    .formula-display {
+        padding: 1rem !important;
+        font-size: 0.9rem !important;
+        overflow-x: auto;
+    }
+
+    .factor-list {
+        padding-left: 1.25rem !important;
+    }
+
+    .factor-list li {
+        margin-bottom: 0.75rem !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Very Small Mobile (under 360px) */
+@media (max-width: 359.98px) {
+    .container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    h1, .display-6 {
+        font-size: 1.5rem !important;
+    }
+
+    h2 {
+        font-size: 1.35rem !important;
+    }
+
+    .prediction-card {
+        padding: 1rem !important;
+    }
+
+    .btn {
+        font-size: 0.9rem !important;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 0.95rem !important;
+    }
+}
+
+/* Tablet Optimization (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .prediction-card {
+        width: 95% !important;
+        padding: 1.5rem !important;
+    }
+
+    .result-card-enhanced {
+        padding: 1.5rem !important;
+    }
+
+    .col-lg-8,
+    .col-lg-4 {
+        width: 100%;
+    }
+
+    .col-lg-4 {
+        margin-top: 2rem;
+    }
+}

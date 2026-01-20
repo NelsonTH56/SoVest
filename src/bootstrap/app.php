@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'prediction.owner' => \App\Http\Middleware\EnsurePredictionOwner::class,
+            'group.member' => \App\Http\Middleware\EnsureGroupMember::class,
+            'group.admin' => \App\Http\Middleware\EnsureGroupAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

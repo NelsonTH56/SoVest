@@ -335,7 +335,13 @@ class SearchController extends Controller
 
     /**
      * Search for stocks by term
-     * 
+     *
+     * Prioritizes:
+     * 1. Exact ticker symbol match
+     * 2. Ticker starts with search term
+     * 3. Company name starts with search term
+     * 4. Partial matches
+     *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -348,13 +354,31 @@ class SearchController extends Controller
             return $this->jsonError('Search term is required');
         }
 
+        $term = trim($term);
+        $upperTerm = strtoupper($term);
+
         try {
-            // Query the database directly for matching stocks
+            // Query with relevance-based ordering
+            // Priority 1: Exact symbol match
+            // Priority 2: Symbol starts with term
+            // Priority 3: Company name starts with term
+            // Priority 4: Symbol contains term
+            // Priority 5: Company name contains term
             $stocks = Stock::where('active', true)
-                ->where(function ($query) use ($term) {
+                ->where(function ($query) use ($term, $upperTerm) {
                     $query->where('symbol', 'LIKE', "%{$term}%")
                         ->orWhere('company_name', 'LIKE', "%{$term}%");
                 })
+                ->orderByRaw("
+                    CASE
+                        WHEN UPPER(symbol) = ? THEN 1
+                        WHEN UPPER(symbol) LIKE ? THEN 2
+                        WHEN UPPER(company_name) LIKE ? THEN 3
+                        WHEN UPPER(symbol) LIKE ? THEN 4
+                        ELSE 5
+                    END
+                ", [$upperTerm, $upperTerm . '%', $upperTerm . '%', '%' . $upperTerm . '%'])
+                ->orderBy('symbol', 'asc')
                 ->limit(10)
                 ->get(['stock_id', 'symbol', 'company_name']);
 
@@ -376,7 +400,7 @@ class SearchController extends Controller
     }
 
     /**
-     * Fetch stock price via AJAX
+     * Fetch stock price via AJAX (POST)
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -413,6 +437,106 @@ class SearchController extends Controller
             }
         } catch (\Exception $e) {
             return $this->jsonError('Error fetching stock price: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get stock price by symbol (GET endpoint)
+     *
+     * @param string $symbol
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStockPrice($symbol)
+    {
+        if (empty($symbol)) {
+            return $this->jsonError('Stock symbol is required');
+        }
+
+        try {
+            // Try to get from database first
+            $latestPrice = $this->stockDataService->getLatestPrice($symbol);
+
+            // If not in database, fetch from API
+            if ($latestPrice === false) {
+                $stockData = $this->stockDataService->fetchStockData($symbol);
+                if ($stockData && isset($stockData['price'])) {
+                    $latestPrice = $stockData['price'];
+                    // Store it for future use
+                    $this->stockDataService->storeStockPrice($symbol, $latestPrice);
+                }
+            }
+
+            if ($latestPrice !== false) {
+                return $this->jsonSuccess('Price fetched successfully', [
+                    'symbol' => strtoupper($symbol),
+                    'price' => (float)$latestPrice
+                ]);
+            } else {
+                return $this->jsonError('Price not available for this stock');
+            }
+        } catch (\Exception $e) {
+            return $this->jsonError('Error fetching stock price: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get stock details by symbol
+     *
+     * @param string $symbol
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStock($symbol)
+    {
+        if (empty($symbol)) {
+            return $this->jsonError('Stock symbol is required');
+        }
+
+        try {
+            $stock = Stock::where('symbol', strtoupper($symbol))
+                ->where('active', true)
+                ->first(['stock_id', 'symbol', 'company_name', 'sector', 'industry']);
+
+            if ($stock) {
+                return $this->jsonSuccess('Stock found', [
+                    'id' => $stock->stock_id,
+                    'symbol' => $stock->symbol,
+                    'name' => $stock->company_name,
+                    'sector' => $stock->sector,
+                    'industry' => $stock->industry
+                ]);
+            } else {
+                return $this->jsonError('Stock not found');
+            }
+        } catch (\Exception $e) {
+            return $this->jsonError('Error fetching stock: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * List all available stocks
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function stocks()
+    {
+        try {
+            $stocks = Stock::where('active', true)
+                ->orderBy('symbol', 'asc')
+                ->limit(100)
+                ->get(['stock_id', 'symbol', 'company_name']);
+
+            $formattedResults = [];
+            foreach ($stocks as $stock) {
+                $formattedResults[] = [
+                    'id' => $stock->stock_id,
+                    'symbol' => $stock->symbol,
+                    'name' => $stock->company_name
+                ];
+            }
+
+            return $this->jsonSuccess('Stocks retrieved successfully', $formattedResults);
+        } catch (\Exception $e) {
+            return $this->jsonError('Error fetching stocks: ' . $e->getMessage());
         }
     }
 }
