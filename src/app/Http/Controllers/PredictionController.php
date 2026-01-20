@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Prediction;
@@ -76,9 +75,6 @@ class PredictionController extends Controller
         $Curruser = Auth::user();
         $cssPage = 'public/css/index.css';
         try {
-            // Get all active stocks for the dropdown using the injected service
-            //$stocks = $this->stockService->getStocks(true);
-            
             // Check for stock parameters in the URL
             $stockId = $request->query('stock_id');
             $symbol = $request->query('symbol');
@@ -103,7 +99,6 @@ class PredictionController extends Controller
             
             // Render the create prediction form
             return view('predictions/create', [
-                //'stocks' => $stocks,
                 'isEditing' => false,
                 'prediction' => $prediction,
                 'pageTitle' => 'Create Prediction',
@@ -167,18 +162,6 @@ class PredictionController extends Controller
                     $this->jsonError(trim($errorMessage));
                 } else {
                     return back()->withInput()->withErrors($errors);
-                    // $this->withModelErrors($prediction);
-                    
-                    // // Get stocks using the injected service for the form
-                    // $stocks = $this->stockService->getStocks(true);
-                    
-                    // // Re-render the form with errors
-                    // return view('predictions/create', [
-                    //     'stocks' => $stocks,
-                    //     'isEditing' => false,
-                    //     'prediction' => $_POST,
-                    //     'pageTitle' => 'Create Prediction'
-                    // ]);
                 }
             }
         } catch (Exception $e) {
@@ -186,8 +169,7 @@ class PredictionController extends Controller
                 $this->jsonError("Error creating prediction: " . $e->getMessage());
             } else {
                 $this->withError("Error creating prediction: " . $e->getMessage());
-                //return $this->responseFormatter->redirect('predictions/create');
-                return redirect().back()->withInput()->withErrors($errors);
+                return redirect()->back()->withInput();
             }
         }
     }
@@ -328,10 +310,6 @@ class PredictionController extends Controller
                     $this->jsonError(trim($errorMessage));
                 } else {
                     return back()->withInput()->withErrors($errors);
-                    //$this->withModelErrors($prediction);
-                    
-                    // Re-render the edit form with errors
-                    //return $this->responseFormatter->redirect(route('predictions.edit', ['id' => $predictionId]));
                 }
             }
         } catch (Exception $e) {

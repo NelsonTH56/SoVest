@@ -268,15 +268,12 @@ document.addEventListener('DOMContentLoaded', function () {
      * Validate prediction type
      */
     function validatePredictionType() {
-        if (!predictionTypeSelect) return;
+        // Check for radio buttons instead of select
+        const selectedType = document.querySelector('input[name="prediction_type"]:checked');
 
-        const predictionType = predictionTypeSelect.value;
-
-        if (predictionType === 'Bullish' || predictionType === 'Bearish') {
-            setFieldValid(predictionTypeSelect, `You selected a ${predictionType.toLowerCase()} prediction`);
+        if (selectedType && (selectedType.value === 'Bullish' || selectedType.value === 'Bearish')) {
             validationState.predictionType = true;
         } else {
-            setFieldInvalid(predictionTypeSelect, 'Please select a prediction type');
             validationState.predictionType = false;
         }
 
@@ -488,7 +485,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Check if prediction type is pre-populated
-        if (predictionTypeSelect && predictionTypeSelect.value) {
+        const selectedPredictionType = document.querySelector('input[name="prediction_type"]:checked');
+        if (selectedPredictionType) {
             validatePredictionType();
         }
 
@@ -509,9 +507,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Add event listeners for real-time validation
-    if (predictionTypeSelect) {
-        predictionTypeSelect.addEventListener('change', validatePredictionType);
-    }
+    const predictionTypeRadios = document.querySelectorAll('input[name="prediction_type"]');
+    predictionTypeRadios.forEach(radio => {
+        radio.addEventListener('change', validatePredictionType);
+    });
 
     if (targetPriceInput) {
         targetPriceInput.addEventListener('input', validateTargetPrice);
