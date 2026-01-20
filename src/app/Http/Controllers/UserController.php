@@ -66,14 +66,26 @@ class UserController extends Controller
         });
 
         // Get hot predictions for mobile carousel (cached for 5 minutes)
+        // Hot = recent posts (last 24 hours) from users in the top 10% by reputation
         $hotPredictions = cache()->remember('home:hot_predictions', 300, function () {
+            // Calculate the reputation threshold for top 10% of users
+            $totalUsers = User::count();
+            $top10PercentCount = max(1, (int) ceil($totalUsers * 0.10));
+
+            $reputationThreshold = User::orderByDesc('reputation_score')
+                ->skip($top10PercentCount - 1)
+                ->take(1)
+                ->value('reputation_score') ?? 0;
+
             return Prediction::with(['user', 'stock'])
                 ->withCount([
                     'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                     'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
                 ])
+                ->whereHas('user', fn($q) => $q->where('reputation_score', '>=', $reputationThreshold))
+                ->where('prediction_date', '>=', now()->subHours(24))
                 ->where('is_active', 1)
-                ->orderByDesc('upvotes')
+                ->orderByDesc('prediction_date')
                 ->limit(8)
                 ->get();
         });

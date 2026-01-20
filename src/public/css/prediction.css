@@ -1017,6 +1017,22 @@ button:disabled {
         align-items: center;
         text-align: center;
     }
+
+    /* Analysis step - stack hint and character counter vertically */
+    .reasoning-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .reasoning-footer .form-hint {
+        order: 2;
+    }
+
+    .reasoning-footer .character-counter {
+        order: 1;
+        align-self: flex-end;
+    }
 }
 
 @media (max-width: 480px) {

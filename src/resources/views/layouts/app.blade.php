@@ -854,8 +854,8 @@
                     <span>SoVest</span>
                 </a>
                 <div class="mobile-header-right">
-                    <a href="{{ route('search') }}" class="mobile-icon-btn" aria-label="Search">
-                        <i class="bi bi-search"></i>
+                    <a href="{{ route('user.settings') }}" class="mobile-icon-btn" aria-label="Settings">
+                        <i class="bi bi-gear-fill"></i>
                     </a>
                     @auth
                         @php
@@ -1127,19 +1127,10 @@
             <span>Trending</span>
         </a>
 
-        {{-- Profile/Account --}}
-        <a href="{{ route('user.account') }}" class="mobile-nav-item {{ request()->is('account') ? 'active' : '' }}" aria-label="Account">
-            @auth
-                @php
-                    $mobileProfilePic = isset($Curruser['profile_picture']) && $Curruser['profile_picture']
-                        ? asset('images/profile_pictures/' . $Curruser['profile_picture'])
-                        : asset('images/default.png');
-                @endphp
-                <img src="{{ $mobileProfilePic }}" alt="Profile" class="mobile-nav-profile-pic">
-            @else
-                <i class="bi bi-person-circle"></i>
-            @endauth
-            <span>Profile</span>
+        {{-- Search --}}
+        <a href="{{ route('search') }}" class="mobile-nav-item {{ request()->is('search') ? 'active' : '' }}" aria-label="Search">
+            <i class="bi bi-search"></i>
+            <span>Search</span>
         </a>
     </nav>
 
