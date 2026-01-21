@@ -20,44 +20,45 @@ class EvaluatePredictionJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    // --- PART 1: SINGLE PREDICTION PARAMETERS ---
+    // --- V3 ALGORITHM PARAMETERS ---
 
-    // Base score for any single prediction
-    const C = 50.0;
-
-    // Penalty scaling factor
-    const A = 250.0;
-
-    // Time bonus scaling factor
-    const B = 5.0;
-
-    // Accuracy threshold for time bonus (lower is stricter)
-    const E = 0.6;
-
-    // Cap on the scaled error to prevent extreme penalties
-    const P_MAX = 3.0;
-
-    // Cap on the number of days for the time bonus
-    const T_MAX = 365.0;
-
-    // Multiplier for under-predicting (makes penalty harsher)
-    const UNDER_PREDICTION_PENALTY_MULTIPLIER = 1.2;
-    const OVER_PREDICTION_PENALTY_MULTIPLIER = 1.0;
-
-    // Flat bonus for getting the direction right (base for magnitude scaling)
-    const DIRECTIONAL_BONUS_BASE = 8.0;
-
-    // --- PART 2: OVERALL SCORE "CREDIT SCORE" PARAMETERS ---
-
-    // The "brake pedal" on score changes (0.20 = 20% of the change is applied)
-    const LEARNING_RATE = 0.20;
-
-    // The mean score the "bell curve" damper pulls towards
-    const TARGET_MEAN_SCORE = 500.0;
-
-    // Min/Max possible scores for any user
+    // SCORE SYSTEM CONSTANTS
+    const BASE_VALUE = 50.0;
     const MIN_SCORE = 0.0;
     const MAX_SCORE = 1000.0;
+    const TARGET_MEAN_SCORE = 500.0;
+
+    // PENALTY & BONUS CONSTANTS
+    const PENALTY_SCALING_FACTOR = 250.0;
+    const MAX_PENALTY_CLIP = 3.0;
+    const ACCURACY_THRESHOLD = 0.6;  // Scaled error level where time bonus becomes 0
+    const TIME_BONUS_SCALING_FACTOR = 5.0;
+    const MAX_TIME_DAYS = 365.0;
+    const DIRECTIONAL_BONUS = 8.0;
+    const MAGNITUDE_BONUS_SCALING = 50.0;
+
+    // V2: ANTI-GAMING CONSTANTS
+    const UNDER_PREDICTION_MULTIPLIER = 1.2;
+    const VOLATILITY_MULTIPLIER_BASE = 0.5; // Base for volatility scaling
+
+    // V3: NEW FEATURE CONSTANTS
+    // 1. Alpha Score
+    const ALPHA_SENSITIVITY = 0.5; // How much alpha affects the score change (0.5 = 50%)
+
+    // 3. Dynamic Learning Rate
+    const DLR_NEW_USER_RATE = 0.30;
+    const DLR_NEW_USER_PREDICTIONS = 20;
+    const DLR_VETERAN_RATE = 0.05;
+    const DLR_VETERAN_PREDICTIONS = 200;
+
+    // 4. Thesis Score
+    const THESIS_MULTIPLIER_MAP = [
+        1 => 0.80,  // 20% penalty for a 1-star thesis
+        2 => 0.90,  // 10% penalty
+        3 => 1.00,  // No change for a 3-star (average) thesis
+        4 => 1.10,  // 10% bonus
+        5 => 1.20,  // 20% bonus for a 5-star thesis
+    ];
 
     protected $predictionId;
 
@@ -134,7 +135,7 @@ class EvaluatePredictionJob implements ShouldQueue
     }
 
     /**
-     * Evaluate a prediction using the V2 anti-gaming algorithm
+     * Evaluate a prediction using the V3 algorithm
      *
      * @param Prediction $prediction
      * @param float $startPrice
@@ -159,6 +160,17 @@ class EvaluatePredictionJob implements ShouldQueue
         // Get volatility for the stock (default to 1.0 if not available)
         $volatility = $this->getStockVolatility($prediction->stock) ?? 1.0;
 
+        // Get benchmark performance (default to 0 if not available) - TODO: fetch real benchmark
+        $benchmarkPerformance = $prediction->benchmark_performance ?? 0.0;
+
+        // Get thesis rating (default to 3 if not available)
+        $thesisRating = $prediction->thesis_rating ?? 3;
+
+        // Get user's prediction count for dynamic learning rate
+        $predictionCount = Prediction::where('user_id', $user->id)
+            ->whereNotNull('accuracy')
+            ->count();
+
         // Guard against invalid inputs
         if ($pActual <= 0 || $pPred <= 0 || $pInitial <= 0) {
             throw new \Exception("Prices must be > 0");
@@ -166,71 +178,88 @@ class EvaluatePredictionJob implements ShouldQueue
 
         // --- PART 1: Calculate the score for this single prediction ---
 
-        // 1a. Calculate Asymmetric Error (x)
+        // 1a. Calculate Base Penalty
         $logError = abs(log($pPred / $pActual));
         $multiplier = ($pPred <= $pActual)
-            ? self::UNDER_PREDICTION_PENALTY_MULTIPLIER
-            : self::OVER_PREDICTION_PENALTY_MULTIPLIER;
-        $x = $logError * $multiplier;
+            ? self::UNDER_PREDICTION_MULTIPLIER
+            : 1.0;
+        $asymmetricError = $logError * $multiplier;
 
         // 1b. Calculate Penalty (P)
-        $penalty = self::A * min(sqrt($x), self::P_MAX);
+        $scaledError = sqrt($asymmetricError);
+        $clippedError = min($scaledError, self::MAX_PENALTY_CLIP);
+        $penalty = self::PENALTY_SCALING_FACTOR * $clippedError;
 
-        // 1c. Calculate Bonuses (B)
-        $predictedDirection = $pPred - $pInitial;
+        // 1c. Calculate Bonuses (if direction is correct)
+        $predDirection = $pPred - $pInitial;
         $actualDirection = $pActual - $pInitial;
-        $directionCorrect = ($predictedDirection * $actualDirection) >= 0;
 
-        $timeBonus = 0.0;
         $directionalBonus = 0.0;
+        $timeAccuracyBonus = 0.0;
 
-        if ($directionCorrect) {
-            // Magnitude-Adjusted Bonus
-            $magnitude = abs(($pActual - $pInitial) / $pInitial);
-            $directionalBonus = self::DIRECTIONAL_BONUS_BASE * (1 + $magnitude * 10);
+        if (($predDirection * $actualDirection) > 0) { // Correct direction
+            $directionalBonus = self::DIRECTIONAL_BONUS;
+            $actualMagnitude = abs(($pActual - $pInitial) / $pInitial);
+            $magnitudeBonus = self::MAGNITUDE_BONUS_SCALING * $actualMagnitude;
+            $directionalBonus += $magnitudeBonus;
 
-            // Time/Accuracy Bonus
-            $accuracyFactor = max(0.0, 1.0 - (sqrt(abs(log($pPred / $pActual))) / self::E));
-            $tEff = min($tDays, self::T_MAX);
-            $timeBonus = self::B * sqrt($tEff) * $accuracyFactor;
+            $accuracyFactor = max(0.0, 1.0 - (sqrt($logError) / self::ACCURACY_THRESHOLD));
+            $effectiveT = min($tDays, self::MAX_TIME_DAYS);
+            $timeAccuracyBonus = self::TIME_BONUS_SCALING_FACTOR * sqrt($effectiveT) * $accuracyFactor;
         }
 
-        $bonuses = $directionalBonus + $timeBonus;
+        // 1d. Calculate Volatility Multiplier (V2 Anti-Gaming)
+        $volatilityMultiplier = self::VOLATILITY_MULTIPLIER_BASE + $volatility;
 
-        // 1d. Calculate the Final Grade (S_prediction) with Volatility Scaling
-        $rawScoreChange = $bonuses - $penalty;
-        $scaledScoreChange = $rawScoreChange * $volatility;
-        $sPrediction = self::C + $scaledScoreChange;
+        // 1e. Calculate Base Prediction Score
+        $predictionScore = self::BASE_VALUE - $penalty + $directionalBonus + $timeAccuracyBonus;
+        $pointChange = ($predictionScore - self::BASE_VALUE) * $volatilityMultiplier;
 
-        // --- PART 2: Update the user's overall score ---
+        // --- PART 2: Apply V3 Multipliers ---
 
-        // 2a. Calculate Point Change (delta_p)
-        $pointChange = $sPrediction - self::C;
+        // 2a. Alpha Score
+        $stockPerformance = ($pActual - $pInitial) / $pInitial;
+        $alpha = $stockPerformance - $benchmarkPerformance;
+        $alphaMultiplier = 1.0 + ($alpha * self::ALPHA_SENSITIVITY);
 
-        // 2b. Calculate Bell Curve Damping Factor (F_damp)
+        // 2b. Thesis Multiplier
+        $thesisMultiplier = self::THESIS_MULTIPLIER_MAP[$thesisRating] ?? 1.0;
+
+        // 2c. Final Point Change with V3 multipliers
+        $finalPointChange = $pointChange * $alphaMultiplier * $thesisMultiplier;
+
+        // --- PART 3: Update the user's overall score ---
+
+        // 3a. Dynamic Learning Rate (V3 Feature)
+        $learningRate = $this->getDynamicLearningRate($predictionCount);
+
+        // 3b. Calculate Bell Curve Damping Factor
         $distFromMean = abs($currentScore - self::TARGET_MEAN_SCORE);
         $maxDist = self::MAX_SCORE - self::TARGET_MEAN_SCORE;
         $dampingFactor = 1 - pow($distFromMean / $maxDist, 2);
         $dampingFactor = max(0, $dampingFactor);
 
-        // 2c/2d. Calculate Final Score Update and apply it
-        $finalUpdate = $pointChange * $dampingFactor * self::LEARNING_RATE;
-        $newScore = $currentScore + $finalUpdate;
+        // 3c. Calculate Final Score Update and apply it
+        $adjustedChange = $finalPointChange * $dampingFactor * $learningRate;
+        $newScore = $currentScore + $adjustedChange;
 
         // Clamp the score to be within the min/max bounds
         $newScore = max(self::MIN_SCORE, min(self::MAX_SCORE, $newScore));
 
         // Convert prediction score to 0-100 percentage for display
-        $accuracy = max(0, min(100, $sPrediction));
+        $accuracy = max(0, min(100, $predictionScore));
 
         return [
             'accuracy' => $accuracy,
             'new_user_score' => $newScore,
-            'prediction_score' => $sPrediction,
-            'point_change' => $pointChange,
+            'prediction_score' => $predictionScore,
+            'point_change' => $finalPointChange,
             'penalty' => $penalty,
-            'bonuses' => $bonuses,
+            'bonuses' => $directionalBonus + $timeAccuracyBonus,
             'volatility' => $volatility,
+            'alpha_multiplier' => $alphaMultiplier,
+            'thesis_multiplier' => $thesisMultiplier,
+            'learning_rate' => $learningRate,
         ];
     }
 
@@ -289,6 +318,29 @@ class EvaluatePredictionJob implements ShouldQueue
 
         // Return sector-based volatility or default to 1.0
         return $sectorVolatility[$stock->sector] ?? 1.0;
+    }
+
+    /**
+     * Calculate dynamic learning rate based on user's prediction count
+     * V3 Feature: New users get higher learning rate, veterans get lower
+     *
+     * @param int $predictionCount
+     * @return float
+     */
+    protected function getDynamicLearningRate($predictionCount)
+    {
+        if ($predictionCount <= self::DLR_NEW_USER_PREDICTIONS) {
+            return self::DLR_NEW_USER_RATE;
+        }
+        if ($predictionCount >= self::DLR_VETERAN_PREDICTIONS) {
+            return self::DLR_VETERAN_RATE;
+        }
+
+        // Linear interpolation for users between "new" and "veteran" status
+        $progress = ($predictionCount - self::DLR_NEW_USER_PREDICTIONS) /
+                    (self::DLR_VETERAN_PREDICTIONS - self::DLR_NEW_USER_PREDICTIONS);
+        $rateRange = self::DLR_NEW_USER_RATE - self::DLR_VETERAN_RATE;
+        return self::DLR_NEW_USER_RATE - ($progress * $rateRange);
     }
 
     /**

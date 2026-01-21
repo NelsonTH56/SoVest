@@ -29,7 +29,9 @@ class Prediction extends Model {
         'accuracy',
         'reasoning',
         'upvotes',
-        'viewed_at'
+        'viewed_at',
+        'benchmark_performance',
+        'thesis_rating'
     ];
 
     /**
@@ -46,6 +48,8 @@ class Prediction extends Model {
             'accuracy' => 'float',
             'is_active' => 'boolean',
             'viewed_at' => 'datetime',
+            'benchmark_performance' => 'float',
+            'thesis_rating' => 'integer',
         ];
     }
 
