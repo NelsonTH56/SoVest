@@ -8,6 +8,9 @@ PORT=${PORT:-10000}
 sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf
 sed -i "s/:80/:${PORT}/" /etc/apache2/sites-available/000-default.conf
 
+# Clear any cached config from build time
+php artisan config:clear
+
 # Run migrations (optional - comment out if you prefer manual migrations)
 php artisan migrate --force
 
