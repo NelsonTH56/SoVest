@@ -893,20 +893,12 @@
                             href="{{ route('predictions.trending') }}">Trending</a>
                     </li>
                     <li class="nav-item me-3">
-                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('scoring-algorithm') ? 'active' : '' }}"
-                            href="{{ route('scoring.algorithm') }}">Scoring Algo 101</a>
-                    </li>
-                    <li class="nav-item me-3">
                         <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('leaderboard') ? 'active' : '' }}"
                             href="{{ route('user.leaderboard') }}">Leaderboard</a>
                     </li>
                     <li class="nav-item me-3">
                         <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('groups*') ? 'active' : '' }}"
                             href="{{ route('groups.index') }}">Groups</a>
-                    </li>
-                    <li class="nav-item me-3">
-                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('feedback') ? 'active' : '' }}"
-                            href="{{ route('feedback') }}">Feedback</a>
                     </li>
                 </ul>
 
@@ -932,6 +924,8 @@
                         <div id="dropdownMenu" class="drop-down-menu d-none">
                             <a href="{{ route('user.account') }}" class="drop-down-items">My Account</a>
                             <a href="{{ route('predictions.index') }}" class="drop-down-items">My Predictions</a>
+                            <a href="{{ route('scoring.algorithm') }}" class="drop-down-items">Scoring Algo 101</a>
+                            <a href="{{ route('feedback') }}" class="drop-down-items">Feedback</a>
                             <a href="{{ route('user.settings') }}" class="drop-down-items">Settings</a>
                             <a href="{{ route('logout') }}" class="drop-down-items logout">Logout</a>
 

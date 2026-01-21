@@ -75,7 +75,7 @@
                 {{-- Hot Predictions --}}
                 @if(isset($hotPredictions))
                     @foreach($hotPredictions as $hot)
-                        <a href="{{ route('predictions.view', ['id' => $hot->prediction_id]) }}" class="hot-prediction-item">
+                        <a href="{{ route('user.profile', ['id' => $hot->user->id]) }}?prediction={{ $hot->prediction_id }}" class="hot-prediction-item">
                             <div class="hot-avatar-wrapper {{ $hot->prediction_type == 'Bullish' ? 'ring-bullish' : 'ring-bearish' }}">
                                 <div class="hot-avatar symbol-avatar">
                                     <span class="hot-symbol-text">{{ $hot->stock->symbol }}</span>
@@ -217,7 +217,7 @@
             </div>
 
             {{-- Desktop Hot Posts Carousel --}}
-            @if(isset($hotPredictions) && count($hotPredictions) >= 5)
+            @if(isset($hotPredictions) && count($hotPredictions) >= 3)
             <div class="desktop-hot-carousel-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="mb-0 hot-carousel-title">
@@ -231,7 +231,7 @@
                 <div class="desktop-hot-carousel" id="desktopHotCarousel">
                     <div class="hot-carousel-track" id="hotCarouselTrack">
                         @foreach($hotPredictions as $index => $hot)
-                        <a href="{{ route('predictions.view', ['id' => $hot->prediction_id]) }}"
+                        <a href="{{ route('user.profile', ['id' => $hot->user->id]) }}?prediction={{ $hot->prediction_id }}"
                            class="hot-carousel-card"
                            data-index="{{ $index }}"
                            data-prediction-id="{{ $hot->prediction_id }}">
@@ -1686,6 +1686,15 @@
             background: #10b981;
         }
 
+        /* Handling for 3 visible cards */
+        .hot-carousel-card[data-visible-position="1"].cards-3 {
+            transform: scale(1.05);
+            opacity: 1;
+            z-index: 10;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+        }
+
         /* Hide on mobile */
         @media (max-width: 767.98px) {
             .desktop-hot-carousel-container {
@@ -2780,21 +2789,28 @@
                         const cards = track.querySelectorAll('.hot-carousel-card');
                         const totalCards = cards.length;
 
-                        if (totalCards < 5) return;
+                        // Need at least 3 cards to show carousel
+                        if (totalCards < 3) return;
 
-                        // Configuration
-                        const VISIBLE_CARDS = 5;
+                        // Configuration - adapt visible cards based on total available
+                        const MAX_VISIBLE_CARDS = 5;
+                        const VISIBLE_CARDS = Math.min(totalCards, MAX_VISIBLE_CARDS);
                         const AUTO_ROTATE_INTERVAL = 5000; // 5 seconds
-                        const CENTER_INDEX = 2; // Middle position (0-indexed)
+                        const CENTER_INDEX = Math.floor(VISIBLE_CARDS / 2); // Middle position
 
                         // State
-                        let currentCenterCard = CENTER_INDEX; // Start with 3rd card (index 2) in center
+                        let currentCenterCard = Math.min(CENTER_INDEX, totalCards - 1); // Start centered
                         let autoRotateTimer = null;
                         let isPaused = false;
                         let isHovering = false;
 
                         // Initialize carousel
                         function init() {
+                            // Show all cards initially for proper layout
+                            cards.forEach(card => {
+                                card.style.display = 'flex';
+                            });
+
                             updateCarousel();
                             startAutoRotate();
 
@@ -2833,13 +2849,16 @@
                                 let relativePos = index - currentCenterCard;
 
                                 // Handle wrapping for circular carousel effect
-                                if (relativePos < -CENTER_INDEX) {
-                                    relativePos += totalCards;
-                                } else if (relativePos > CENTER_INDEX) {
-                                    relativePos -= totalCards;
+                                if (totalCards > VISIBLE_CARDS) {
+                                    const halfVisible = Math.floor(VISIBLE_CARDS / 2);
+                                    if (relativePos < -halfVisible) {
+                                        relativePos += totalCards;
+                                    } else if (relativePos > halfVisible) {
+                                        relativePos -= totalCards;
+                                    }
                                 }
 
-                                // Map relative position to visible positions (0-4)
+                                // Map relative position to visible positions
                                 const visiblePos = relativePos + CENTER_INDEX;
 
                                 // Only show cards within visible range

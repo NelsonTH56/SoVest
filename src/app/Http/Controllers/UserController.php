@@ -65,8 +65,9 @@ class UserController extends Controller
             return $this->scoringService->getTopUsers(10);
         });
 
-        // Get hot predictions for mobile carousel (cached for 5 minutes)
-        // Hot = recent posts (last 24 hours) from users in the top 10% by reputation
+        // Get hot predictions for carousel (cached for 5 minutes)
+        // Hot = recent posts (last 7 days) from users in the top 10% by reputation
+        // Falls back to most recent predictions if not enough from top users
         $hotPredictions = cache()->remember('home:hot_predictions', 300, function () {
             // Calculate the reputation threshold for top 10% of users
             $totalUsers = User::count();
@@ -77,17 +78,33 @@ class UserController extends Controller
                 ->take(1)
                 ->value('reputation_score') ?? 0;
 
-            return Prediction::with(['user', 'stock'])
+            // First try: Get predictions from top 10% users in last 7 days
+            $hotPredictions = Prediction::with(['user', 'stock'])
                 ->withCount([
                     'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                     'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
                 ])
                 ->whereHas('user', fn($q) => $q->where('reputation_score', '>=', $reputationThreshold))
-                ->where('prediction_date', '>=', now()->subHours(24))
+                ->where('prediction_date', '>=', now()->subDays(7))
                 ->where('is_active', 1)
                 ->orderByDesc('prediction_date')
                 ->limit(8)
                 ->get();
+
+            // Fallback: If not enough hot predictions, get most voted recent predictions
+            if ($hotPredictions->count() < 3) {
+                $hotPredictions = Prediction::with(['user', 'stock'])
+                    ->withCount([
+                        'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
+                        'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
+                    ])
+                    ->where('is_active', 1)
+                    ->orderByDesc('prediction_date')
+                    ->limit(8)
+                    ->get();
+            }
+
+            return $hotPredictions;
         });
 
         return view('home', compact('Curruser', 'predictions', 'Userpredictions', 'leaderboardUsers', 'hotPredictions'));
