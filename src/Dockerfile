@@ -33,9 +33,9 @@ COPY package.json package-lock.json ./
 # Copy the rest of the application
 COPY . .
 
-# Clean install Node dependencies (remove any Windows node_modules first)
-RUN rm -rf node_modules \
-    && npm ci \
+# Clean install Node dependencies (workaround for npm optional deps bug)
+RUN rm -rf node_modules package-lock.json \
+    && npm install \
     && npm run build
 
 # Run composer scripts now that all files are present
