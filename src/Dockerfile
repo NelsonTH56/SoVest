@@ -40,7 +40,12 @@ RUN rm -rf node_modules && npm ci
 # Run composer scripts now that all files are present
 RUN composer dump-autoload --optimize
 
-# Build frontend assets
+#idk chat said to do this
+RUN rm -rf node_modules package-lock.json \
+    && npm cache clean --force \
+    && npm install --omit=dev --no-audit --no-fund \
+
+RUN npm rebuild rollup
 RUN npm run build
 
 # Set permissions
