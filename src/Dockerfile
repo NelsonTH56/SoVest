@@ -27,33 +27,26 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --optimize-autoloader --no-dev --no-scripts
 
-# Copy package.json and install Node dependencies (clean install for Linux)
+# Copy package.json for Node dependencies
 COPY package.json package-lock.json ./
-RUN npm ci
 
 # Copy the rest of the application
 COPY . .
 
-# Remove any node_modules that may have been copied (Windows binaries won't work)
-RUN rm -rf node_modules && npm ci
+# Clean install Node dependencies (remove any Windows node_modules first)
+RUN rm -rf node_modules \
+    && npm ci \
+    && npm run build
 
 # Run composer scripts now that all files are present
 RUN composer dump-autoload --optimize
-
-#idk chat said to do this
-RUN rm -rf node_modules package-lock.json \
-    && npm cache clean --force \
-    && npm install --omit=dev --no-audit --no-fund \
-
-RUN npm rebuild rollup
-RUN npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Configure Apache to use PORT env variable (Render sets this)
+# Configure Apache
 RUN a2enmod rewrite
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
