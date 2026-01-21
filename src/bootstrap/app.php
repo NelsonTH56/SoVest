@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'group.member' => \App\Http\Middleware\EnsureGroupMember::class,
             'group.admin' => \App\Http\Middleware\EnsureGroupAdmin::class,
         ]);
+
+        // Trust all proxies (for Render/cloud deployment) - enables HTTPS detection
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
