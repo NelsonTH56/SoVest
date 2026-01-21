@@ -29,12 +29,9 @@ class Prediction extends Model {
         'accuracy',
         'reasoning',
         'upvotes',
-<<<<<<< HEAD
-        'viewed_at'
-=======
+        'viewed_at',
         'benchmark_performance',
         'thesis_rating'
->>>>>>> d408295480653370a3ececf5643dba2d03703643
     ];
 
     /**
@@ -50,12 +47,9 @@ class Prediction extends Model {
             'target_price' => 'float',
             'accuracy' => 'float',
             'is_active' => 'boolean',
-<<<<<<< HEAD
             'viewed_at' => 'datetime',
-=======
             'benchmark_performance' => 'float',
             'thesis_rating' => 'integer',
->>>>>>> d408295480653370a3ececf5643dba2d03703643
         ];
     }
 
