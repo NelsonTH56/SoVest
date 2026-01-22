@@ -889,10 +889,6 @@
                             href="{{ route('user.home') }}">Home</a>
                     </li>
                     <li class="nav-item me-3">
-                        <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('predictions/trending') ? 'active' : '' }}"
-                            href="{{ route('predictions.trending') }}">Trending</a>
-                    </li>
-                    <li class="nav-item me-3">
                         <a class="py-2 link-body-emphasis text-decoration-none {{ request()->is('leaderboard') ? 'active' : '' }}"
                             href="{{ route('user.leaderboard') }}">Leaderboard</a>
                     </li>
