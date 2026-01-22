@@ -23,13 +23,20 @@ class UserController extends Controller
         $this->scoringService = $scoringService;
     }
 
-    public function home()
+    public function home(Request $request)
     {
         $userID = Auth::id();
         $Curruser = Auth::user();
 
-        // Get all predictions with vote counts and comment counts
-        $predictions = Prediction::with(['user', 'stock'])
+        // Get sort parameter (default to 'trending')
+        $sort = $request->query('sort', 'trending');
+        $validSorts = ['recent', 'trending', 'controversial'];
+        if (!in_array($sort, $validSorts)) {
+            $sort = 'trending';
+        }
+
+        // Build query with vote counts
+        $query = Prediction::with(['user', 'stock'])
             ->withCount([
                 'votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
@@ -37,10 +44,51 @@ class UserController extends Controller
                 'votes as downvotes' => function ($query) {
                     $query->where('vote_type', 'downvote');
                 },
-                'comments as comments_count'
-            ])
-            ->orderBy('prediction_date', 'desc')
-            ->paginate(10);
+            ]);
+
+        // Apply sorting based on parameter
+        // Calculate date thresholds for database-agnostic queries
+        $sevenDaysAgo = now()->subDays(7)->toDateTimeString();
+        $thirtyDaysAgo = now()->subDays(30)->toDateTimeString();
+
+        switch ($sort) {
+            case 'recent':
+                $query->orderBy('prediction_date', 'desc');
+                break;
+            case 'trending':
+                // Trending: High engagement (upvotes) in recent timeframe
+                // Score = upvotes weighted by recency (posts from last 7 days get boost)
+                $query->selectRaw("predictions.*,
+                    (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = 'upvote') as vote_score")
+                    ->orderByRaw("
+                        CASE
+                            WHEN prediction_date >= '{$sevenDaysAgo}' THEN vote_score * 2
+                            WHEN prediction_date >= '{$thirtyDaysAgo}' THEN vote_score * 1.5
+                            ELSE vote_score
+                        END DESC
+                    ")
+                    ->orderBy('prediction_date', 'desc');
+                break;
+            case 'controversial':
+                // Controversial: High total engagement with balanced upvotes/downvotes
+                // Posts with lots of both upvotes AND downvotes
+                $query->selectRaw("predictions.*,
+                    (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = 'upvote') as up_count,
+                    (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = 'downvote') as down_count")
+                    ->orderByRaw("
+                        (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id) *
+                        (1 - ABS(
+                            (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = 'upvote') -
+                            (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = 'downvote')
+                        ) / MAX(
+                            (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id), 1
+                        )) DESC
+                    ")
+                    ->orderBy('prediction_date', 'desc');
+                break;
+        }
+
+        $predictions = $query->paginate(10)->appends(['sort' => $sort]);
 
         // Get user's predictions with vote counts (limited to 5 for sidebar)
         $Userpredictions = collect();
@@ -107,7 +155,7 @@ class UserController extends Controller
             return $hotPredictions;
         });
 
-        return view('home', compact('Curruser', 'predictions', 'Userpredictions', 'leaderboardUsers', 'hotPredictions'));
+        return view('home', compact('Curruser', 'predictions', 'Userpredictions', 'leaderboardUsers', 'hotPredictions', 'sort'));
     }
 
 

@@ -1105,6 +1105,8 @@ body.dark-mode .prediction-modal-backdrop {
     background: var(--profile-bg-secondary);
     border-radius: 0.5rem;
     border-left: 3px solid var(--profile-accent);
+    overflow: hidden;
+    max-width: 100%;
 }
 
 .modal-reasoning-title {
@@ -1120,6 +1122,9 @@ body.dark-mode .prediction-modal-backdrop {
     color: var(--profile-text-primary);
     line-height: 1.6;
     font-size: 0.9375rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 .modal-meta {

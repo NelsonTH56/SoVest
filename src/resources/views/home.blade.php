@@ -359,6 +359,220 @@
             border-bottom-color: #404040;
         }
 
+        /* Feed header container with dropdown */
+        .feed-header-container {
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        body.dark-mode .feed-header-container {
+            border-bottom-color: #404040;
+        }
+
+        /* Sort Dropdown Styles */
+        .sort-dropdown-wrapper {
+            position: relative;
+        }
+
+        .sort-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.875rem;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.625rem;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sort-dropdown-btn:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+
+        .sort-dropdown-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+        }
+
+        .sort-dropdown-btn .chevron-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .sort-dropdown-btn.open .chevron-icon {
+            transform: rotate(180deg);
+        }
+
+        body.dark-mode .sort-dropdown-btn {
+            background: #2a2a2a;
+            border-color: #404040;
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .sort-dropdown-btn:hover {
+            background: #333333;
+            border-color: #525252;
+        }
+
+        /* Dropdown Menu */
+        .sort-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 200px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s ease;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .sort-dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        body.dark-mode .sort-dropdown-menu {
+            background: #1f1f1f;
+            border-color: #404040;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Dropdown Items */
+        .sort-dropdown-item {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #374151;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .sort-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .sort-dropdown-item:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .sort-dropdown-item.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .sort-dropdown-item i {
+            flex-shrink: 0;
+            width: 18px;
+            text-align: center;
+        }
+
+        .sort-dropdown-item span:first-of-type {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .sort-dropdown-item .sort-description {
+            width: 100%;
+            margin-left: calc(18px + 0.75rem);
+            font-size: 0.75rem;
+            color: #9ca3af;
+            font-weight: 400;
+            margin-top: -0.25rem;
+        }
+
+        body.dark-mode .sort-dropdown-item {
+            color: #e5e7eb;
+            border-bottom-color: #2a2a2a;
+        }
+
+        body.dark-mode .sort-dropdown-item:hover {
+            background: #2a2a2a;
+            color: #f3f4f6;
+        }
+
+        body.dark-mode .sort-dropdown-item.active {
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        body.dark-mode .sort-dropdown-item .sort-description {
+            color: #6b7280;
+        }
+
+        /* Mobile adjustments for sort dropdown */
+        @media (max-width: 767.98px) {
+            /* Container: flex row, no wrap, items aligned */
+            .feed-header-container {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: 0.5rem;
+                padding: 0 0 0.75rem 0;
+            }
+
+            /* Header text: smaller to fit with button */
+            .feed-header-container .feed-header {
+                font-size: 0.95rem !important;
+                white-space: nowrap;
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+                border-bottom: none !important;
+                flex-shrink: 1;
+                min-width: 0;
+            }
+
+            /* Dropdown wrapper: keep size, position relative for menu */
+            .feed-header-container .sort-dropdown-wrapper {
+                flex-shrink: 0;
+                position: relative;
+            }
+
+            /* Dropdown button: compact */
+            .feed-header-container .sort-dropdown-btn {
+                padding: 0.375rem 0.5rem;
+            }
+
+            /* Dropdown menu: positioned to right of button, not off-screen */
+            .feed-header-container .sort-dropdown-menu {
+                position: absolute;
+                top: calc(100% + 0.5rem);
+                left: 0;
+                right: auto;
+                min-width: 200px;
+            }
+
+            .sort-dropdown-item {
+                padding: 0.875rem 1rem;
+                gap: 0.625rem;
+            }
+
+            .sort-dropdown-item span:first-of-type {
+                font-size: 0.875rem;
+            }
+
+            .sort-dropdown-item .sort-description {
+                margin-left: calc(18px + 0.625rem);
+                font-size: 0.7rem;
+            }
+        }
+
         /* Dark mode: sidebar cards */
         body.dark-mode .user-prediction-card {
             background: #2a2a2a !important;
@@ -686,8 +900,8 @@
                 display: none !important;
             }
 
-            /* Feed header - mobile optimized */
-            .feed-header {
+            /* Feed header - mobile optimized (standalone, not in container) */
+            .feed-header:not(.feed-header-container .feed-header) {
                 font-size: 1.15rem !important;
                 margin-bottom: 1.25rem !important;
                 padding-bottom: 1rem;
@@ -1703,11 +1917,53 @@
         }
         </style>
 
-        {{-- Feed Header --}}
-        <h2 class="feed-header">
-            <i class="bi bi-lightning-charge-fill me-2" style="color: #10b981;"></i>
-            Latest Predictions
-        </h2>
+        {{-- Feed Header with Sort Dropdown --}}
+        <div class="feed-header-container d-flex justify-content-between align-items-center mb-4">
+            <h2 class="feed-header mb-0" style="border-bottom: none; padding-bottom: 0;">
+                @php
+                    $sortConfig = [
+                        'trending' => ['icon' => 'bi-fire', 'color' => '#ef4444', 'label' => 'Trending'],
+                        'recent' => ['icon' => 'bi-clock-fill', 'color' => '#3b82f6', 'label' => 'Recent'],
+                        'controversial' => ['icon' => 'bi-arrow-left-right', 'color' => '#f59e0b', 'label' => 'Controversial'],
+                    ];
+                    $currentSort = $sortConfig[$sort ?? 'trending'];
+                @endphp
+                <i class="{{ $currentSort['icon'] }} me-2" style="color: {{ $currentSort['color'] }};"></i>
+                {{ $currentSort['label'] }} Predictions
+            </h2>
+
+            {{-- Sort Dropdown --}}
+            <div class="sort-dropdown-wrapper">
+                <button class="sort-dropdown-btn" id="sortDropdownBtn" aria-expanded="false" aria-haspopup="true">
+                    <svg class="sort-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="6" x2="20" y2="6"></line>
+                        <line x1="4" y1="12" x2="16" y2="12"></line>
+                        <line x1="4" y1="18" x2="12" y2="18"></line>
+                    </svg>
+                    <span class="sort-label d-none d-sm-inline">Sort</span>
+                    <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                <div class="sort-dropdown-menu" id="sortDropdownMenu" role="menu">
+                    <a href="{{ url('home?sort=trending') }}" class="sort-dropdown-item {{ ($sort ?? 'trending') === 'trending' ? 'active' : '' }}" role="menuitem">
+                        <i class="bi bi-fire" style="font-size: 1.125rem; color: #ef4444;"></i>
+                        <span>Trending</span>
+                        <span class="sort-description">Popular right now</span>
+                    </a>
+                    <a href="{{ url('home?sort=recent') }}" class="sort-dropdown-item {{ ($sort ?? 'trending') === 'recent' ? 'active' : '' }}" role="menuitem">
+                        <i class="bi bi-clock-fill" style="font-size: 1.125rem; color: #3b82f6;"></i>
+                        <span>Recent</span>
+                        <span class="sort-description">Newest first</span>
+                    </a>
+                    <a href="{{ url('home?sort=controversial') }}" class="sort-dropdown-item {{ ($sort ?? 'trending') === 'controversial' ? 'active' : '' }}" role="menuitem">
+                        <i class="bi bi-arrow-left-right" style="font-size: 1.125rem; color: #f59e0b;"></i>
+                        <span>Controversial</span>
+                        <span class="sort-description">Most debated</span>
+                    </a>
+                </div>
+            </div>
+        </div>
 
         {{-- Predictions Feed --}}
         @if(empty($predictions))
@@ -2037,6 +2293,63 @@
             @push('scripts')
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
+                    // Sort Dropdown functionality
+                    const sortBtn = document.getElementById('sortDropdownBtn');
+                    const sortMenu = document.getElementById('sortDropdownMenu');
+
+                    if (sortBtn && sortMenu) {
+                        // Toggle dropdown on button click
+                        sortBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const isOpen = sortMenu.classList.contains('show');
+
+                            if (isOpen) {
+                                sortMenu.classList.remove('show');
+                                sortBtn.classList.remove('open');
+                                sortBtn.setAttribute('aria-expanded', 'false');
+                            } else {
+                                sortMenu.classList.add('show');
+                                sortBtn.classList.add('open');
+                                sortBtn.setAttribute('aria-expanded', 'true');
+                            }
+                        });
+
+                        // Close dropdown when clicking outside
+                        document.addEventListener('click', function(e) {
+                            if (!sortBtn.contains(e.target) && !sortMenu.contains(e.target)) {
+                                sortMenu.classList.remove('show');
+                                sortBtn.classList.remove('open');
+                                sortBtn.setAttribute('aria-expanded', 'false');
+                            }
+                        });
+
+                        // Close dropdown on escape key
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'Escape' && sortMenu.classList.contains('show')) {
+                                sortMenu.classList.remove('show');
+                                sortBtn.classList.remove('open');
+                                sortBtn.setAttribute('aria-expanded', 'false');
+                                sortBtn.focus();
+                            }
+                        });
+
+                        // Keyboard navigation within dropdown
+                        sortMenu.addEventListener('keydown', function(e) {
+                            const items = sortMenu.querySelectorAll('.sort-dropdown-item');
+                            const currentIndex = Array.from(items).indexOf(document.activeElement);
+
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+                                items[nextIndex].focus();
+                            } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+                                items[prevIndex].focus();
+                            }
+                        });
+                    }
+
                     const voteButtons = document.querySelectorAll(".vote-btn");
 
                         voteButtons.forEach(button => {
