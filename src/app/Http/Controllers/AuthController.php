@@ -107,11 +107,12 @@ class AuthController extends Controller
 
         try {
             // Create user directly using Laravel's User model
+            // Note: password is automatically hashed by the 'hashed' cast in User model
             $user = User::create([
                 'first_name' => $validated['firstName'],
                 'last_name' => $validated['lastName'],
                 'email' => $validated['newEmail'],
-                'password' => Hash::make($validated['newPass']),
+                'password' => $validated['newPass'],
             ]);
 
             // Log the user in using Auth facade
