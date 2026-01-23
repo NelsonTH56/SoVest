@@ -39,3 +39,42 @@ services:
         value: file
       - key: ALPHA_VANTAGE_API_KEY
         sync: false
+
+  # Cron job: Update stock prices hourly
+  - type: cron
+    name: update-stock-prices
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    schedule: "0 * * * *"  # Every hour
+    command: php artisan stocks:update
+    envVars:
+      - fromService:
+          name: sovest
+          type: web
+          property: environmentId
+
+  # Cron job: Evaluate predictions daily at midnight
+  - type: cron
+    name: evaluate-predictions
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    schedule: "0 0 * * *"  # Daily at midnight UTC
+    command: php artisan predictions:evaluate
+    envVars:
+      - fromService:
+          name: sovest
+          type: web
+          property: environmentId
+
+  # Cron job: Update stock listings weekly
+  - type: cron
+    name: update-stock-listings
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    schedule: "0 0 * * 0"  # Weekly on Sunday at midnight UTC
+    command: php artisan stocks:listings
+    envVars:
+      - fromService:
+          name: sovest
+          type: web
+          property: environmentId
