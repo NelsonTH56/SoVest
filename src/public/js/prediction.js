@@ -1127,4 +1127,65 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize first step
     showStep(1);
+
+    /**
+     * Quick percentage button functionality for Step 3
+     */
+    const quickPercentBtns = document.querySelectorAll('.quick-percent-btn');
+
+    quickPercentBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!currentStockPrice) return;
+
+            const percent = parseFloat(this.dataset.percent);
+            const predictionType = document.querySelector('input[name="prediction_type"]:checked');
+
+            // Check if the percent direction matches the prediction type
+            if (predictionType) {
+                const type = predictionType.value;
+                // Adjust percent based on prediction type
+                let adjustedPercent = percent;
+
+                if (type === 'Bullish' && percent < 0) {
+                    // Flip to positive for bullish
+                    adjustedPercent = Math.abs(percent);
+                } else if (type === 'Bearish' && percent > 0) {
+                    // Flip to negative for bearish
+                    adjustedPercent = -Math.abs(percent);
+                }
+
+                // Calculate target price
+                const targetPrice = currentStockPrice * (1 + adjustedPercent / 100);
+
+                // Update inputs
+                if (targetPriceInput) {
+                    targetPriceInput.value = targetPrice.toFixed(2);
+                }
+                if (percentChangeInput) {
+                    percentChangeInput.value = Math.round(adjustedPercent);
+                }
+
+                // Update button active states
+                quickPercentBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Validate target price
+                validateTargetPrice();
+            }
+        });
+    });
+
+    /**
+     * Update step 3 price banner when price is fetched
+     */
+    const originalDisplayStockPrice = displayStockPrice;
+    displayStockPrice = function(price) {
+        originalDisplayStockPrice(price);
+
+        // Update step 3 price banner
+        const step3PriceBanner = document.getElementById('step3-current-price');
+        if (step3PriceBanner) {
+            step3PriceBanner.textContent = `$${price.toFixed(2)}`;
+        }
+    };
 });

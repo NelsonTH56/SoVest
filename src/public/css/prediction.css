@@ -984,8 +984,18 @@ button:disabled {
         font-size: 0.7rem;
     }
 
+    /* Hide step lines (dashes) on mobile */
     .step-line {
-        margin: 0 5px;
+        display: none;
+    }
+
+    .step {
+        flex: 0 0 auto;
+    }
+
+    .steps-container {
+        justify-content: center;
+        gap: 0.75rem;
     }
 
     .stock-info-header {
@@ -1203,4 +1213,261 @@ body:not(.dark-mode) .confirm-text {
 .prediction-type-card h4, .prediction-type-card p, .tips-list li,
 .stock-info-card, .stock-name, .stock-symbol, .btn-nav {
     transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ========================================
+   STEP 3: QUICK PERCENTAGE BUTTONS
+   ======================================== */
+.current-price-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
+    border: 2px solid #10b981;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.current-price-banner .price-label {
+    font-size: 0.9rem;
+    color: #888;
+    font-weight: 500;
+}
+
+.current-price-banner .price-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #10b981;
+}
+
+.quick-percent-section {
+    margin-bottom: 1.5rem;
+}
+
+.quick-percent-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #d4d4d4;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.quick-percent-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.quick-percent-btn {
+    flex: 1;
+    min-width: 70px;
+    max-width: 80px;
+    padding: 0.75rem 0.5rem;
+    background: #2c2c2c;
+    border: 2px solid #3a3a3a;
+    border-radius: 10px;
+    color: #d4d4d4;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.quick-percent-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.quick-percent-btn.negative:hover,
+.quick-percent-btn.negative.active {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.quick-percent-btn.positive:hover,
+.quick-percent-btn.positive.active {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.price-inputs-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.price-input-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+}
+
+.price-input-group {
+    flex: 1;
+}
+
+.price-input-group .form-label-enhanced {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.price-input-group .form-control-enhanced {
+    padding: 12px 15px;
+    padding-left: 35px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.price-input-group .dollar-sign,
+.price-input-group .percent-sign {
+    font-size: 1rem;
+}
+
+.price-sync-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    color: #888;
+    font-size: 1.25rem;
+    margin-top: 1.75rem;
+}
+
+/* Light mode for quick percent buttons */
+body:not(.dark-mode) .current-price-banner {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+}
+
+body:not(.dark-mode) .current-price-banner .price-label {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) .quick-percent-label {
+    color: #374151;
+}
+
+body:not(.dark-mode) .quick-percent-btn {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #374151;
+}
+
+@media (max-width: 768px) {
+    .current-price-banner {
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.875rem 1rem;
+    }
+
+    .current-price-banner .price-value {
+        font-size: 1.75rem;
+    }
+
+    .quick-percent-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+
+    .quick-percent-btn {
+        max-width: none;
+        padding: 0.875rem 0.25rem;
+        font-size: 0.85rem;
+    }
+
+    .price-input-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .price-sync-indicator {
+        display: none;
+    }
+
+    .price-input-group .form-control-enhanced {
+        font-size: 1.25rem;
+        padding: 14px 15px;
+        padding-left: 38px;
+    }
+}
+
+/* ========================================
+   DATE PICKER DARK THEME STYLING
+   ======================================== */
+
+/* Style the date input */
+input[type="date"].form-control-enhanced {
+    color-scheme: dark;
+    position: relative;
+}
+
+/* Calendar icon styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Style the date picker dropdown (Chrome/Edge) */
+::-webkit-datetime-edit {
+    color: #d4d4d4;
+}
+
+::-webkit-datetime-edit-fields-wrapper {
+    background: transparent;
+}
+
+::-webkit-datetime-edit-text {
+    color: #888;
+    padding: 0 0.2em;
+}
+
+::-webkit-datetime-edit-month-field,
+::-webkit-datetime-edit-day-field,
+::-webkit-datetime-edit-year-field {
+    color: #d4d4d4;
+}
+
+::-webkit-datetime-edit-month-field:focus,
+::-webkit-datetime-edit-day-field:focus,
+::-webkit-datetime-edit-year-field:focus {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    outline: none;
+    border-radius: 2px;
+}
+
+/* Light mode date picker */
+body:not(.dark-mode) input[type="date"].form-control-enhanced {
+    color-scheme: light;
+}
+
+body:not(.dark-mode) input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: none;
+}
+
+body:not(.dark-mode) ::-webkit-datetime-edit {
+    color: #111827;
+}
+
+body:not(.dark-mode) ::-webkit-datetime-edit-text {
+    color: #6b7280;
+}
+
+body:not(.dark-mode) ::-webkit-datetime-edit-month-field,
+body:not(.dark-mode) ::-webkit-datetime-edit-day-field,
+body:not(.dark-mode) ::-webkit-datetime-edit-year-field {
+    color: #111827;
 }
