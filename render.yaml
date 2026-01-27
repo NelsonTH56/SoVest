@@ -2,6 +2,7 @@ services:
   - type: web
     name: sovest
     runtime: docker
+    rootDir: src
     dockerfilePath: ./Dockerfile
     healthCheckPath: /
     envVars:
@@ -44,10 +45,15 @@ services:
   - type: cron
     name: update-stock-prices
     runtime: docker
+    rootDir: src
     dockerfilePath: ./Dockerfile
+<<<<<<< HEAD:src/render.yaml
     schedule: "0 * * * *"
     buildCommand: "true"
     startCommand: php artisan stocks:update
+=======
+    schedule: "0 0 * * *"
+>>>>>>> production:render.yaml
     envVars:
       - fromService:
           name: sovest
