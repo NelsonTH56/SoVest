@@ -47,13 +47,7 @@ services:
     runtime: docker
     rootDir: src
     dockerfilePath: ./Dockerfile
-<<<<<<< HEAD:src/render.yaml
-    schedule: "0 * * * *"
-    buildCommand: "true"
-    startCommand: php artisan stocks:update
-=======
     schedule: "0 0 * * *"
->>>>>>> production:render.yaml
     envVars:
       - fromService:
           name: sovest
