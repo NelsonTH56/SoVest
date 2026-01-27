@@ -206,10 +206,27 @@
                                 <h3 class="step-title">Set Your Target</h3>
                                 <p class="step-description">Define your price target and timeframe</p>
 
-                                <!-- Price Inputs Row -->
-                                <div class="row mb-4">
-                                    <div class="col-md-6 mb-3 mb-md-0">
-                                        <div class="form-group-enhanced">
+                                <!-- Current Price Banner -->
+                                <div class="current-price-banner" id="step3-price-banner">
+                                    <span class="price-label">Current Price:</span>
+                                    <span class="price-value" id="step3-current-price">${{ isset($currentPrice) && $currentPrice ? number_format($currentPrice, 2) : '0.00' }}</span>
+                                </div>
+
+                                <!-- Quick Percentage Buttons -->
+                                <div class="quick-percent-section">
+                                    <span class="quick-percent-label">Quick select a target change</span>
+                                    <div class="quick-percent-buttons">
+                                        <button type="button" class="quick-percent-btn negative" data-percent="-10">-10%</button>
+                                        <button type="button" class="quick-percent-btn negative" data-percent="-5">-5%</button>
+                                        <button type="button" class="quick-percent-btn positive" data-percent="5">+5%</button>
+                                        <button type="button" class="quick-percent-btn positive" data-percent="10">+10%</button>
+                                    </div>
+                                </div>
+
+                                <!-- Price Inputs - Compact Layout -->
+                                <div class="price-inputs-compact">
+                                    <div class="price-input-row">
+                                        <div class="price-input-group">
                                             <label for="target_price" class="form-label-enhanced">
                                                 <i class="bi bi-currency-dollar text-warning"></i>
                                                 Target Price
@@ -218,7 +235,7 @@
                                                 <span class="dollar-sign">$</span>
                                                 <input type="number" class="form-control-enhanced form-control-lg ps-4 @error('target_price') is-invalid @enderror"
                                                     id="target_price" name="target_price" step="0.01" min="0.01"
-                                                    placeholder="{{ isset($currentPrice) && $currentPrice ? number_format($currentPrice, 2) : 'Enter target price' }}"
+                                                    placeholder="{{ isset($currentPrice) && $currentPrice ? number_format($currentPrice, 2) : '0.00' }}"
                                                     value="{{ $isEditing && $prediction['target_price'] ? $prediction['target_price'] : old('target_price', '') }}">
                                             </div>
                                             @error('target_price')
@@ -227,10 +244,12 @@
                                                 </div>
                                             @enderror
                                         </div>
-                                    </div>
 
-                                    <div class="col-md-6">
-                                        <div class="form-group-enhanced">
+                                        <div class="price-sync-indicator">
+                                            <i class="bi bi-arrow-left-right"></i>
+                                        </div>
+
+                                        <div class="price-input-group">
                                             <label for="percent_change" class="form-label-enhanced">
                                                 <i class="bi bi-percent text-info"></i>
                                                 Percent Change
@@ -241,21 +260,12 @@
                                                     placeholder="0">
                                                 <span class="percent-sign">%</span>
                                             </div>
-                                            <div class="form-hint">
-                                                <i class="bi bi-arrow-left-right"></i>
-                                                <span>Updates automatically with target price</span>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="form-hint mb-4">
-                                    <i class="bi bi-lightbulb"></i>
-                                    <span id="price-suggestion">Enter either target price or percent change - they stay in sync</span>
-                                </div>
-
                                 <!-- Timeframe Row -->
-                                <div class="row">
+                                <div class="row mt-4">
                                     <div class="col-12">
                                         <div class="form-group-enhanced">
                                             <label for="end_date" class="form-label-enhanced">

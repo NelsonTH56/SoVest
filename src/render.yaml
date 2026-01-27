@@ -45,8 +45,9 @@ services:
     name: update-stock-prices
     runtime: docker
     dockerfilePath: ./Dockerfile
-    schedule: "0 * * * *"  # Every hour
-    command: php artisan stocks:update
+    schedule: "0 * * * *"
+    buildCommand: "true"
+    startCommand: php artisan stocks:update
     envVars:
       - fromService:
           name: sovest
@@ -58,8 +59,9 @@ services:
     name: evaluate-predictions
     runtime: docker
     dockerfilePath: ./Dockerfile
-    schedule: "0 0 * * *"  # Daily at midnight UTC
-    command: php artisan predictions:evaluate
+    schedule: "0 0 * * *"
+    buildCommand: "true"
+    startCommand: php artisan predictions:evaluate
     envVars:
       - fromService:
           name: sovest
@@ -71,8 +73,9 @@ services:
     name: update-stock-listings
     runtime: docker
     dockerfilePath: ./Dockerfile
-    schedule: "0 0 * * 0"  # Weekly on Sunday at midnight UTC
-    command: php artisan stocks:listings
+    schedule: "0 0 * * 0"
+    buildCommand: "true"
+    startCommand: php artisan stocks:listings
     envVars:
       - fromService:
           name: sovest

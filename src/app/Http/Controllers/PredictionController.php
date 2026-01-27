@@ -980,6 +980,92 @@ class PredictionController extends Controller
     }
 
     /**
+     * Get detailed prediction data for modal display
+     *
+     * Returns all prediction data including user info, stock info, votes, and comments count
+     * for rendering in a modal overlay on the profile page.
+     *
+     * @param  int  $id  The prediction ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getDetails(int $id)
+    {
+        try {
+            $userId = Auth::id();
+
+            // Fetch prediction with all related data
+            $prediction = Prediction::with(['stock', 'user', 'votes'])
+                ->withCount(['votes as upvotes' => function ($query) {
+                    $query->where('vote_type', 'upvote');
+                }])
+                ->withCount(['votes as downvotes' => function ($query) {
+                    $query->where('vote_type', 'downvote');
+                }])
+                ->withCount('comments as comments_count')
+                ->where('prediction_id', $id)
+                ->first();
+
+            if (! $prediction) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Prediction not found',
+                ], 404);
+            }
+
+            // Get current user's vote on this prediction (if logged in)
+            $userVote = null;
+            if ($userId) {
+                $vote = PredictionVote::where('prediction_id', $id)
+                    ->where('user_id', $userId)
+                    ->first();
+                $userVote = $vote ? $vote->vote_type : null;
+            }
+
+            // Fetch latest stock price
+            $currentPrice = $this->stockService->getLatestPrice($prediction->stock->symbol);
+
+            // Format response data
+            $data = [
+                'prediction_id' => $prediction->prediction_id,
+                'prediction_type' => $prediction->prediction_type,
+                'target_price' => $prediction->target_price,
+                'end_date' => $prediction->end_date,
+                'prediction_date' => $prediction->prediction_date,
+                'reasoning' => $prediction->reasoning,
+                'is_active' => $prediction->is_active,
+                'accuracy' => $prediction->accuracy,
+                'upvotes' => $prediction->upvotes,
+                'downvotes' => $prediction->downvotes,
+                'comments_count' => $prediction->comments_count,
+                'user_vote' => $userVote,
+                'stock' => [
+                    'stock_id' => $prediction->stock->stock_id,
+                    'symbol' => $prediction->stock->symbol,
+                    'company_name' => $prediction->stock->company_name,
+                    'current_price' => $currentPrice !== false ? $currentPrice : null,
+                ],
+                'user' => [
+                    'id' => $prediction->user->id,
+                    'first_name' => $prediction->user->first_name,
+                    'last_name' => $prediction->user->last_name,
+                    'profile_picture' => $prediction->user->profile_picture,
+                    'reputation_score' => $prediction->user->reputation_score,
+                ],
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving prediction: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * API method to delete a prediction
      *
      * Gets the current request and passes it to the delete method.

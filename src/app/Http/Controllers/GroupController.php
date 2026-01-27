@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Group;
+use App\Models\Prediction;
 use App\Services\Interfaces\GroupServiceInterface;
 use App\Services\Interfaces\ResponseFormatterInterface;
 use Illuminate\Http\Request;
@@ -105,9 +106,9 @@ class GroupController extends Controller
     }
 
     /**
-     * Show group page with leaderboard
+     * Show group page with leaderboard, predictions feed, and user's predictions
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $userId = Auth::id();
         $userData = Auth::user();
@@ -118,8 +119,14 @@ class GroupController extends Controller
             abort(404, 'Group not found');
         }
 
-        // Get group leaderboard
-        $leaderboard = $this->groupService->getGroupLeaderboard($id, 20);
+        // Get sort parameter (default to trending)
+        $sort = $request->get('sort', 'trending');
+        if (! in_array($sort, ['trending', 'recent', 'controversial'])) {
+            $sort = 'trending';
+        }
+
+        // Get group leaderboard (top 10 for sidebar)
+        $leaderboard = $this->groupService->getGroupLeaderboard($id, 10);
 
         // Find user's rank in the leaderboard
         $userRank = 0;
@@ -132,6 +139,20 @@ class GroupController extends Controller
                 break;
             }
         }
+
+        // Get predictions from group members (paginated)
+        $predictions = $this->groupService->getGroupPredictions($id, $sort, 10);
+
+        // Get current user's predictions (latest 5) for right sidebar
+        $userPredictions = Prediction::with(['user', 'stock'])
+            ->where('user_id', $userId)
+            ->withCount([
+                'votes as upvotes' => fn ($q) => $q->where('vote_type', 'upvote'),
+                'votes as downvotes' => fn ($q) => $q->where('vote_type', 'downvote'),
+            ])
+            ->orderBy('prediction_date', 'desc')
+            ->limit(5)
+            ->get();
 
         $Curruser = [
             'username' => $userData['email'],
@@ -148,6 +169,9 @@ class GroupController extends Controller
             'userID' => $userId,
             'isAdmin' => $group->isAdmin($userId),
             'Curruser' => $Curruser,
+            'predictions' => $predictions,
+            'userPredictions' => $userPredictions,
+            'sort' => $sort,
         ]);
     }
 

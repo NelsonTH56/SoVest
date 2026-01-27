@@ -377,4 +377,68 @@ class GroupService implements GroupServiceInterface
     {
         return Group::find($groupId);
     }
+
+    /**
+     * Get predictions from group members with sorting and pagination
+     */
+    public function getGroupPredictions(int $groupId, string $sort = 'trending', int $perPage = 10)
+    {
+        try {
+            $group = Group::find($groupId);
+
+            if (! $group) {
+                return new \Illuminate\Pagination\LengthAwarePaginator([], 0, $perPage);
+            }
+
+            // Get member user IDs
+            $memberIds = $group->members()->pluck('users.id')->toArray();
+
+            // Build base query for predictions from group members
+            $query = Prediction::with(['user', 'stock'])
+                ->whereIn('user_id', $memberIds)
+                ->withCount([
+                    'votes as upvotes' => fn ($q) => $q->where('vote_type', 'upvote'),
+                    'votes as downvotes' => fn ($q) => $q->where('vote_type', 'downvote'),
+                    'comments as comments_count',
+                ]);
+
+            // Apply sorting (matching home page logic)
+            switch ($sort) {
+                case 'recent':
+                    $query->orderBy('prediction_date', 'desc');
+                    break;
+
+                case 'controversial':
+                    // Most debated: balanced upvotes/downvotes with high engagement
+                    $query->selectRaw('*,
+                        (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id) as total_votes,
+                        (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = "upvote") as up_count,
+                        (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = "downvote") as down_count')
+                        ->orderByRaw('(total_votes * (1 - ABS(up_count - down_count) / GREATEST(total_votes, 1))) DESC')
+                        ->orderBy('prediction_date', 'desc');
+                    break;
+
+                case 'trending':
+                default:
+                    // Trending: high votes weighted by recency
+                    $query->selectRaw('*,
+                        (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = "upvote") -
+                        (SELECT COUNT(*) FROM prediction_votes WHERE prediction_votes.prediction_id = predictions.prediction_id AND vote_type = "downvote") as vote_score,
+                        CASE
+                            WHEN prediction_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 2
+                            WHEN prediction_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1.5
+                            ELSE 1
+                        END as recency_boost')
+                        ->orderByRaw('(vote_score * recency_boost) DESC')
+                        ->orderBy('prediction_date', 'desc');
+                    break;
+            }
+
+            return $query->paginate($perPage);
+        } catch (\Exception $e) {
+            error_log('Error fetching group predictions: '.$e->getMessage());
+
+            return new \Illuminate\Pagination\LengthAwarePaginator([], 0, $perPage);
+        }
+    }
 }

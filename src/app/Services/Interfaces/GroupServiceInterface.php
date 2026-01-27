@@ -91,4 +91,14 @@ interface GroupServiceInterface
      * @return \App\Models\Group|null
      */
     public function getGroup(int $groupId);
+
+    /**
+     * Get predictions from group members with sorting and pagination
+     *
+     * @param  int  $groupId  Group ID
+     * @param  string  $sort  Sort method (trending, recent, controversial)
+     * @param  int  $perPage  Number of predictions per page
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getGroupPredictions(int $groupId, string $sort = 'trending', int $perPage = 10);
 }
