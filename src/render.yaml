@@ -39,3 +39,30 @@ services:
         value: file
       - key: ALPHA_VANTAGE_API_KEY
         sync: false
+
+  # Nightly cron job to run all scheduled tasks
+  - type: cron
+    name: sovest-nightly-tasks
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    schedule: "0 0 * * *"  # Every night at midnight UTC
+    envVars:
+      - key: APP_KEY
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_PORT
+        value: "3306"
+      - key: APP_ENV
+        value: production
+    dockerCommand: php artisan stocks:listings && php artisan stocks:update && php artisan predictions:evaluate
