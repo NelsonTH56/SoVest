@@ -2,6 +2,7 @@ services:
   - type: web
     name: sovest
     runtime: docker
+    rootDir: src
     dockerfilePath: ./Dockerfile
     healthCheckPath: /
     envVars:
@@ -44,8 +45,9 @@ services:
   - type: cron
     name: sovest-nightly-tasks
     runtime: docker
+    rootDir: src
     dockerfilePath: ./Dockerfile
-    schedule: "0 0 * * *"  # Every night at midnight UTC
+    schedule: "0 0 * * *"
     envVars:
       - key: APP_KEY
         sync: false
