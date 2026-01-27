@@ -397,6 +397,215 @@
             }
         }
 
+        /* ========== HAMBURGER MENU STYLES ========== */
+        @media (max-width: 767.98px) {
+            /* Hamburger Button */
+            .mobile-hamburger-btn {
+                width: 44px;
+                height: 44px;
+                border: none;
+                background: transparent;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #374151;
+                font-size: 1.5rem;
+                cursor: pointer;
+                border-radius: 50%;
+                transition: background 0.2s, color 0.2s;
+                padding: 0;
+            }
+
+            .mobile-hamburger-btn:hover,
+            .mobile-hamburger-btn:focus {
+                background: rgba(16, 185, 129, 0.1);
+                color: #10b981;
+            }
+
+            body.dark-mode .mobile-hamburger-btn {
+                color: #d1d5db;
+            }
+
+            body.dark-mode .mobile-hamburger-btn:hover,
+            body.dark-mode .mobile-hamburger-btn:focus {
+                background: rgba(16, 185, 129, 0.15);
+                color: #10b981;
+            }
+
+            /* Center brand in header */
+            .mobile-brand-center {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                text-decoration: none;
+                color: #111827;
+                font-weight: 700;
+                font-size: 1.15rem;
+            }
+
+            body.dark-mode .mobile-brand-center {
+                color: #f3f4f6;
+            }
+
+            /* Hamburger Menu Overlay */
+            .mobile-hamburger-menu {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 2000;
+                visibility: hidden;
+                opacity: 0;
+                transition: visibility 0s 0.3s, opacity 0.3s ease;
+            }
+
+            .mobile-hamburger-menu.open {
+                visibility: visible;
+                opacity: 1;
+                transition: visibility 0s, opacity 0.3s ease;
+            }
+
+            .hamburger-menu-backdrop {
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+            }
+
+            .hamburger-menu-content {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 280px;
+                max-width: 85vw;
+                background: #ffffff;
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+                display: flex;
+                flex-direction: column;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .mobile-hamburger-menu.open .hamburger-menu-content {
+                transform: translateX(0);
+            }
+
+            body.dark-mode .hamburger-menu-content {
+                background: #1a1a1a;
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+            }
+
+            .hamburger-menu-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 1.25rem;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            body.dark-mode .hamburger-menu-header {
+                border-bottom-color: #333;
+            }
+
+            .hamburger-menu-title {
+                font-weight: 700;
+                font-size: 1.1rem;
+                color: #111827;
+            }
+
+            body.dark-mode .hamburger-menu-title {
+                color: #f3f4f6;
+            }
+
+            .hamburger-close-btn {
+                width: 40px;
+                height: 40px;
+                border: none;
+                background: transparent;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #6b7280;
+                font-size: 1.25rem;
+                cursor: pointer;
+                border-radius: 50%;
+                transition: background 0.2s, color 0.2s;
+            }
+
+            .hamburger-close-btn:hover {
+                background: rgba(239, 68, 68, 0.1);
+                color: #ef4444;
+            }
+
+            .hamburger-menu-nav {
+                flex: 1;
+                padding: 0.75rem 0;
+                overflow-y: auto;
+            }
+
+            .hamburger-menu-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem 1.25rem;
+                color: #374151;
+                text-decoration: none;
+                font-size: 1rem;
+                font-weight: 500;
+                transition: background 0.2s, color 0.2s;
+            }
+
+            .hamburger-menu-item:hover,
+            .hamburger-menu-item:focus {
+                background: rgba(16, 185, 129, 0.08);
+                color: #10b981;
+            }
+
+            .hamburger-menu-item i {
+                font-size: 1.25rem;
+                width: 24px;
+                text-align: center;
+            }
+
+            body.dark-mode .hamburger-menu-item {
+                color: #d1d5db;
+            }
+
+            body.dark-mode .hamburger-menu-item:hover,
+            body.dark-mode .hamburger-menu-item:focus {
+                background: rgba(16, 185, 129, 0.12);
+                color: #6ee7b7;
+            }
+
+            .hamburger-menu-item.logout {
+                color: #ef4444;
+            }
+
+            .hamburger-menu-item.logout:hover {
+                background: rgba(239, 68, 68, 0.1);
+                color: #dc2626;
+            }
+
+            .hamburger-menu-footer {
+                border-top: 1px solid #e5e7eb;
+                padding: 0.5rem 0;
+            }
+
+            body.dark-mode .hamburger-menu-footer {
+                border-top-color: #333;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-hamburger-menu {
+                display: none !important;
+            }
+        }
+
         /* ========== ENHANCED MOBILE UI/UX STYLES ========== */
 
         /* Global mobile container improvements */
@@ -641,22 +850,20 @@
                 bottom: 0;
                 left: 0;
                 right: 0;
-                height: 64px;
+                height: 52px;
                 background: #ffffff;
                 border-top: 1px solid #e5e7eb;
                 display: flex;
                 justify-content: space-around;
                 align-items: center;
                 z-index: 1050;
-                padding: 0 0.5rem;
+                padding: 0 0.75rem;
                 padding-bottom: env(safe-area-inset-bottom, 0);
-                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             }
 
             body.dark-mode .mobile-bottom-nav {
                 background: #1a1a1a;
                 border-top-color: #333;
-                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
             }
 
             /* Nav Item */
@@ -667,17 +874,16 @@
                 justify-content: center;
                 text-decoration: none;
                 color: #6b7280;
-                padding: 0.5rem;
-                min-width: 56px;
-                min-height: 48px;
-                border-radius: 0.5rem;
-                transition: all 0.2s ease;
+                padding: 0.35rem 0.5rem;
+                min-width: 48px;
+                min-height: 40px;
+                border-radius: 0.375rem;
+                transition: color 0.15s ease;
             }
 
             .mobile-nav-item:hover,
             .mobile-nav-item:focus {
                 color: #10b981;
-                background: rgba(16, 185, 129, 0.1);
             }
 
             .mobile-nav-item.active {
@@ -692,59 +898,22 @@
             body.dark-mode .mobile-nav-item:focus,
             body.dark-mode .mobile-nav-item.active {
                 color: #10b981;
-                background: rgba(16, 185, 129, 0.15);
             }
 
-            /* Nav Icon */
+            /* Nav Icon - X/Twitter style smaller icons */
             .mobile-nav-item i {
-                font-size: 1.4rem;
-                margin-bottom: 0.15rem;
+                font-size: 1.2rem;
+                margin-bottom: 0.1rem;
             }
 
-            /* Nav Label */
+            /* Nav Label - Hidden */
             .mobile-nav-item span {
-                font-size: 0.65rem;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-            }
-
-            /* Create Button - Prominent Center FAB Style */
-            .mobile-nav-item.create-btn {
-                position: relative;
-                color: #ffffff;
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                border-radius: 50%;
-                width: 56px;
-                height: 56px;
-                min-width: 56px;
-                margin-top: -20px;
-                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            }
-
-            .mobile-nav-item.create-btn:hover,
-            .mobile-nav-item.create-btn:focus {
-                color: #ffffff;
-                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                transform: scale(1.05);
-            }
-
-            .mobile-nav-item.create-btn i {
-                font-size: 1.75rem;
-                margin-bottom: 0;
-            }
-
-            .mobile-nav-item.create-btn span {
                 display: none;
-            }
-
-            body.dark-mode .mobile-nav-item.create-btn {
-                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
             }
 
             /* Footer padding to clear bottom nav */
             footer.border-top {
-                padding-bottom: 80px !important;
+                padding-bottom: 68px !important;
             }
 
             /* Hide top navbar on mobile - use bottom nav instead */
@@ -849,14 +1018,19 @@
         <header>
             {{-- Mobile-Only Sticky Header --}}
             <div class="mobile-sticky-header">
-                <a href="{{ route('landing') }}" class="mobile-brand">
+                {{-- LEFT: Hamburger Menu Button --}}
+                <button class="mobile-hamburger-btn" id="mobileHamburgerBtn" aria-label="Open menu" aria-expanded="false">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                {{-- CENTER: Logo --}}
+                <a href="{{ route('landing') }}" class="mobile-brand-center">
                     <img src="{{ asset('images/logo.png') }}" alt="SoVest" width="28" height="28">
                     <span>SoVest</span>
                 </a>
+
+                {{-- RIGHT: Profile Picture Only --}}
                 <div class="mobile-header-right">
-                    <a href="{{ route('user.settings') }}" class="mobile-icon-btn" aria-label="Settings">
-                        <i class="bi bi-gear-fill"></i>
-                    </a>
                     @auth
                         @php
                             $mobileHeaderPic = isset($Curruser['profile_picture']) && $Curruser['profile_picture']
@@ -870,6 +1044,45 @@
                         <a href="{{ route('login') }}" class="mobile-icon-btn" aria-label="Login">
                             <i class="bi bi-person-circle"></i>
                         </a>
+                    @endauth
+                </div>
+            </div>
+
+            {{-- Hamburger Menu Slide-out Drawer (Mobile Only) --}}
+            <div class="mobile-hamburger-menu" id="mobileHamburgerMenu" aria-hidden="true">
+                <div class="hamburger-menu-backdrop" id="hamburgerBackdrop"></div>
+                <div class="hamburger-menu-content">
+                    <div class="hamburger-menu-header">
+                        <span class="hamburger-menu-title">Menu</span>
+                        <button class="hamburger-close-btn" id="hamburgerCloseBtn" aria-label="Close menu">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <nav class="hamburger-menu-nav">
+                        <a href="{{ route('user.settings') }}" class="hamburger-menu-item">
+                            <i class="bi bi-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="{{ route('predictions.index') }}" class="hamburger-menu-item">
+                            <i class="bi bi-graph-up"></i>
+                            <span>My Predictions</span>
+                        </a>
+                        <a href="{{ route('scoring.algorithm') }}" class="hamburger-menu-item">
+                            <i class="bi bi-lightbulb"></i>
+                            <span>Algo 101</span>
+                        </a>
+                        <a href="{{ route('feedback') }}" class="hamburger-menu-item">
+                            <i class="bi bi-chat-left-text"></i>
+                            <span>Feedback</span>
+                        </a>
+                    </nav>
+                    @auth
+                    <div class="hamburger-menu-footer">
+                        <a href="{{ route('logout') }}" class="hamburger-menu-item logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
                     @endauth
                 </div>
             </div>
@@ -1099,26 +1312,26 @@
     <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
         {{-- Home --}}
         <a href="{{ route('user.home') }}" class="mobile-nav-item {{ request()->is('home') ? 'active' : '' }}" aria-label="Home">
-            <i class="bi bi-house-fill"></i>
+            <i class="bi bi-house"></i>
             <span>Home</span>
         </a>
 
-        {{-- Leaderboard --}}
-        <a href="{{ route('user.leaderboard') }}" class="mobile-nav-item {{ request()->is('leaderboard') ? 'active' : '' }}" aria-label="Leaderboard">
-            <i class="bi bi-trophy-fill"></i>
-            <span>Leaders</span>
+        {{-- Groups --}}
+        <a href="{{ route('groups.index') }}" class="mobile-nav-item {{ request()->is('groups*') ? 'active' : '' }}" aria-label="Groups">
+            <i class="bi bi-people"></i>
+            <span>Groups</span>
         </a>
 
-        {{-- Create Prediction (Center FAB) --}}
+        {{-- Create Prediction --}}
         <a href="{{ route('predictions.create') }}" class="mobile-nav-item create-btn {{ request()->is('predictions/create') ? 'active' : '' }}" aria-label="Create Prediction">
             <i class="bi bi-plus-lg"></i>
             <span>Create</span>
         </a>
 
-        {{-- Trending --}}
-        <a href="{{ route('predictions.trending') }}" class="mobile-nav-item {{ request()->is('predictions/trending') ? 'active' : '' }}" aria-label="Trending">
-            <i class="bi bi-graph-up-arrow"></i>
-            <span>Trending</span>
+        {{-- Leaderboard --}}
+        <a href="{{ route('user.leaderboard') }}" class="mobile-nav-item {{ request()->is('leaderboard') ? 'active' : '' }}" aria-label="Leaderboard">
+            <i class="bi bi-trophy"></i>
+            <span>Leaders</span>
         </a>
 
         {{-- Search --}}
@@ -1138,6 +1351,53 @@
             if (darkMode === 'enabled') {
                 document.body.classList.add('dark-mode');
             }
+        });
+    </script>
+
+    <!-- Hamburger Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerBtn = document.getElementById('mobileHamburgerBtn');
+            const hamburgerMenu = document.getElementById('mobileHamburgerMenu');
+            const closeBtn = document.getElementById('hamburgerCloseBtn');
+            const backdrop = document.getElementById('hamburgerBackdrop');
+
+            function openMenu() {
+                if (hamburgerMenu) {
+                    hamburgerMenu.classList.add('open');
+                    hamburgerBtn.setAttribute('aria-expanded', 'true');
+                    hamburgerMenu.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeMenu() {
+                if (hamburgerMenu) {
+                    hamburgerMenu.classList.remove('open');
+                    hamburgerBtn.setAttribute('aria-expanded', 'false');
+                    hamburgerMenu.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            if (hamburgerBtn) {
+                hamburgerBtn.addEventListener('click', openMenu);
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeMenu);
+            }
+
+            if (backdrop) {
+                backdrop.addEventListener('click', closeMenu);
+            }
+
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && hamburgerMenu && hamburgerMenu.classList.contains('open')) {
+                    closeMenu();
+                }
+            });
         });
     </script>
 
