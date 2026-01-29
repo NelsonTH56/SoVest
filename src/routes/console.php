@@ -20,8 +20,9 @@ Artisan::command('stocks:listings', function () {
     $this->info('Starting stock listings update...');
     
     try {
-        // Use container to call the invokable class with DI
-        app()->call(UpdateStockListings::class);
+        // Use container to make and invoke the class with DI
+        $task = app()->make(UpdateStockListings::class);
+        $task();
         
         $this->info('Stock listings updated successfully.');
     } catch (\Exception $e) {
@@ -36,8 +37,9 @@ Artisan::command('stocks:update', function () {
     $this->info('Starting stock price update...');
     
     try {
-        // Use container to call the invokable class with DI
-        app()->call(UpdateStockPrices::class);
+        // Use container to make and invoke the class with DI
+        $task = app()->make(UpdateStockPrices::class);
+        $task();
         
         $this->info('Stock prices updated successfully.');
     } catch (\Exception $e) {
@@ -52,8 +54,9 @@ Artisan::command('predictions:evaluate', function () {
     $this->info('Starting prediction evaluation...');
     
     try {
-        // Use container to call the invokable class with DI
-        app()->call(EvaluatePredictions::class);
+        // Use container to make and invoke the class with DI
+        $task = app()->make(EvaluatePredictions::class);
+        $task();
         
         $this->info('Predictions evaluated successfully.');
     } catch (\Exception $e) {
@@ -62,23 +65,26 @@ Artisan::command('predictions:evaluate', function () {
     }
 })->purpose('Evaluate predictions manually');
 
-// Schedule the UpdateStockPrices task to run hourly
+// Schedule the UpdateStockListings task to run weekly
 Schedule::call(function () {
-    app()->call(UpdateStockListings::class);
+    $task = app()->make(UpdateStockListings::class);
+    $task();
 })
     ->weekly()
     ->appendOutputTo(storage_path('logs/stock-listings.log'));
 
 // Schedule the UpdateStockPrices task to run hourly
 Schedule::call(function () {
-    app()->call(UpdateStockPrices::class);
+    $task = app()->make(UpdateStockPrices::class);
+    $task();
 })
     ->hourly()
     ->appendOutputTo(storage_path('logs/stock-updates.log'));
 
 // Schedule the EvaluatePredictions task to run daily at midnight
 Schedule::call(function () {
-    app()->call(EvaluatePredictions::class);
+    $task = app()->make(EvaluatePredictions::class);
+    $task();
 })
     ->dailyAt('00:00')
     ->appendOutputTo(storage_path('logs/prediction-evaluations.log'));
