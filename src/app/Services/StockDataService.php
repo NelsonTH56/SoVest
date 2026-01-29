@@ -442,7 +442,7 @@ class StockDataService implements StockDataServiceInterface
             $baseUrl = Config::get("api_config.ALPHA_VANTAGE_BASE_URL");
 
             // Construct API URL for listing status
-            $url = $baseUrl . "?function=LISTING_STATUS&apikey=demo";
+            $url = $baseUrl . "?function=LISTING_STATUS&apikey=" . $apiKey;
 
             echo "Fetching stock listings from Alpha Vantage\n";
             writeApiLog("Fetching stock listings from Alpha Vantage");
