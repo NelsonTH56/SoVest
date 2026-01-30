@@ -451,9 +451,10 @@ class StockDataService implements StockDataServiceInterface
             $csvData = file_get_contents($url);
 
             if ($csvData === false) {
-                echo "Failed to fetch stock listings from Alpha Vantage\n";
-                writeApiLog("Failed to fetch stock listings from Alpha Vantage");
-                return $results;
+                $error = "FAILED: Could not fetch stock listings from Alpha Vantage API";
+                echo "\n*** WARNING ***\n$error\n***************\n";
+                writeApiLog($error);
+                throw new Exception($error);
             }
 
             $this->lastApiCall = time();
@@ -505,39 +506,81 @@ class StockDataService implements StockDataServiceInterface
                 $existingSymbols[$stock['symbol']] = $stock;
             }
 
-            // Process stocks: add new ones and update existing ones
-            echo "Add missing stocks and update existing stocks...\n";
-            foreach ($stocksToProcess as $symbol => $data) {
-                $results[$symbol] = $this->addStock(
-                    $symbol,
-                    $data['name'],
-                    '', // description is empty
-                    $data['sector']
-                );
+            // Process stocks in bulk using upsert for efficiency
+            echo "Upserting " . count($stocksToProcess) . " stocks in bulk...\n";
 
-                // Update active status if necessary
-                if (isset($existingSymbols[$symbol]) && $existingSymbols[$symbol]['active'] != $data['active']) {
-                    $stock = Stock::where('symbol', $symbol)->first();
-                    if ($stock) {
-                        $stock->active = $data['active'];
-                        $stock->save();
-                    }
+            $upsertData = [];
+            foreach ($stocksToProcess as $symbol => $data) {
+                // Skip symbols longer than 10 chars (DB limit)
+                if (strlen($symbol) > 10) {
+                    continue;
                 }
+                $upsertData[] = [
+                    'symbol' => $symbol,
+                    'company_name' => mb_substr($data['name'], 0, 100), // Truncate to 100 chars
+                    'sector' => mb_substr($data['sector'], 0, 50), // Truncate to 50 chars
+                    'active' => $data['active'],
+                    'created_at' => now(),
+                ];
+                $results[$symbol] = true;
             }
 
-            // Mark stocks as inactive if they're not in the listing
-            echo "Mark stocks are inactive if they're not in the source data...\n";
+            // Bulk upsert in chunks of 1000 to avoid memory issues
+            $chunks = array_chunk($upsertData, 1000);
+            $totalChunks = count($chunks);
+            $failedChunks = [];
+
+            foreach ($chunks as $index => $chunk) {
+                try {
+                    Stock::upsert(
+                        $chunk,
+                        ['symbol'], // unique key
+                        ['company_name', 'sector', 'active'] // columns to update on conflict
+                    );
+                    echo "  Processed chunk " . ($index + 1) . "/$totalChunks (" . count($chunk) . " stocks)\n";
+                } catch (\Exception $e) {
+                    $failedChunks[] = $index + 1;
+                    echo "  *** ERROR in chunk " . ($index + 1) . ": " . $e->getMessage() . "\n";
+                    writeApiLog("Upsert error in chunk " . ($index + 1) . ": " . $e->getMessage());
+                }
+                if (ob_get_level() > 0) ob_flush();
+                flush();
+            }
+
+            // Warn if any chunks failed
+            if (!empty($failedChunks)) {
+                $warning = "WARNING: " . count($failedChunks) . " chunk(s) failed: " . implode(', ', $failedChunks);
+                echo "\n*** $warning ***\n";
+                writeApiLog($warning);
+            }
+
+            // Mark stocks as inactive if they're not in the listing (bulk update)
+            $symbolsToDeactivate = [];
             foreach ($existingSymbols as $symbol => $stock) {
                 if (!isset($stocksToProcess[$symbol]) && $stock['active']) {
-                    $results[$symbol] = $this->removeStock($symbol);
+                    $symbolsToDeactivate[] = $symbol;
+                    $results[$symbol] = true;
                 }
             }
 
+            if (!empty($symbolsToDeactivate)) {
+                echo "Marking " . count($symbolsToDeactivate) . " stocks as inactive...\n";
+                Stock::whereIn('symbol', $symbolsToDeactivate)->update(['active' => 0]);
+            }
+
+            echo "\nStock listings update complete: " . count($results) . " stocks processed\n";
             writeApiLog("Stock listings update complete: " . count($results) . " stocks processed");
             return $results;
         } catch (Exception $e) {
-            writeApiLog("Error updating stock listings: " . $e->getMessage());
-            return $results;
+            $error = "Error updating stock listings: " . $e->getMessage();
+            echo "\n**********************************\n";
+            echo "*** STOCK LISTINGS JOB FAILED ***\n";
+            echo "**********************************\n";
+            echo $error . "\n";
+            writeApiLog($error);
+
+            // Re-throw so the caller knows it failed
+            throw $e;
         }
     }
 
