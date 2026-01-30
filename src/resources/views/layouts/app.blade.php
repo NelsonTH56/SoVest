@@ -1012,7 +1012,7 @@
 
 </head>
 
-<body>
+<body data-authenticated="{{ auth()->check() ? 'true' : 'false' }}">
     <div class="container py-3 mobile-safe-area">
 
         <header>
@@ -1341,7 +1341,13 @@
         </a>
     </nav>
 
+    {{-- Global Prediction Modal Component --}}
+    <x-prediction-modal />
+
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+
+    {{-- Prediction Modal JS --}}
+    <script src="{{ asset('js/prediction-modal.js') }}" type="module"></script>
 
     <!-- Global Dark Mode Script -->
     <script>
