@@ -46,7 +46,20 @@
                                 <i class="bi bi-{{ $hot->prediction_type == 'Bullish' ? 'arrow-up' : 'arrow-down' }}"></i>
                             </span>
                         </div>
-                        <div class="hot-card-price">${{ number_format($hot->target_price, 2) }}</div>
+                        @php
+                            $currentPrice = $hot->stock->latestPrice->close_price ?? null;
+                            $pctChange = ($hot->target_price && $currentPrice && $currentPrice > 0)
+                                ? (($hot->target_price - $currentPrice) / $currentPrice) * 100
+                                : null;
+                        @endphp
+                        <div class="hot-card-price">
+                            ${{ number_format($hot->target_price, 2) }}
+                            @if($pctChange !== null)
+                                <span class="hot-card-pct {{ $pctChange >= 0 ? 'pct-up' : 'pct-down' }}">
+                                    {{ $pctChange >= 0 ? '+' : '' }}{{ number_format($pctChange, 1) }}%
+                                </span>
+                            @endif
+                        </div>
                         <div class="hot-card-user-info">
                             <span class="hot-card-name">{{ $hot->user->first_name }}</span>
                             <span class="hot-card-score">
@@ -128,6 +141,41 @@
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
+
+    {{-- Mobile Feed Header (outside row for proper alignment with Top Contributors) --}}
+    @php
+        $sortConfig = [
+            'trending' => ['icon' => 'bi-fire', 'color' => '#ef4444', 'label' => 'Trending'],
+            'recent' => ['icon' => 'bi-clock-fill', 'color' => '#3b82f6', 'label' => 'Recent'],
+            'controversial' => ['icon' => 'bi-arrow-left-right', 'color' => '#f59e0b', 'label' => 'Controversial'],
+        ];
+        $currentSort = $sortConfig[$sort ?? 'trending'];
+    @endphp
+    <div class="mobile-feed-header-wrapper">
+        <div class="mobile-feed-header">
+            <h6 class="mobile-feed-title">
+                <i class="{{ $currentSort['icon'] }}" style="color: {{ $currentSort['color'] }};"></i>
+                {{ $currentSort['label'] }} Predictions
+                <button class="sort-dropdown-toggle" id="mobileSortDropdownBtn" aria-expanded="false" aria-haspopup="true">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+            </h6>
+        </div>
+        <div class="mobile-sort-dropdown-menu" id="mobileSortDropdownMenu" role="menu">
+            <a href="{{ url('home?sort=trending') }}" class="sort-dropdown-item {{ ($sort ?? 'trending') === 'trending' ? 'active' : '' }}" role="menuitem">
+                <i class="bi bi-fire" style="font-size: 1.125rem; color: #ef4444;"></i>
+                <span>Trending</span>
+            </a>
+            <a href="{{ url('home?sort=recent') }}" class="sort-dropdown-item {{ ($sort ?? 'trending') === 'recent' ? 'active' : '' }}" role="menuitem">
+                <i class="bi bi-clock-fill" style="font-size: 1.125rem; color: #3b82f6;"></i>
+                <span>Recent</span>
+            </a>
+            <a href="{{ url('home?sort=controversial') }}" class="sort-dropdown-item {{ ($sort ?? 'trending') === 'controversial' ? 'active' : '' }}" role="menuitem">
+                <i class="bi bi-arrow-left-right" style="font-size: 1.125rem; color: #f59e0b;"></i>
+                <span>Controversial</span>
+            </a>
+        </div>
+    </div>
 
     <div class="row mobile-bottom-padding">
     {{-- Left Sidebar: Leaderboard --}}
@@ -212,8 +260,19 @@
                                     <i class="bi bi-{{ $hot->prediction_type == 'Bullish' ? 'arrow-up' : 'arrow-down' }}"></i>
                                 </span>
                             </div>
+                            @php
+                                $desktopCurrentPrice = $hot->stock->latestPrice->close_price ?? null;
+                                $desktopPctChange = ($hot->target_price && $desktopCurrentPrice && $desktopCurrentPrice > 0)
+                                    ? (($hot->target_price - $desktopCurrentPrice) / $desktopCurrentPrice) * 100
+                                    : null;
+                            @endphp
                             <div class="hot-card-price">
                                 ${{ number_format($hot->target_price, 2) }}
+                                @if($desktopPctChange !== null)
+                                    <span class="hot-card-pct {{ $desktopPctChange >= 0 ? 'pct-up' : 'pct-down' }}">
+                                        {{ $desktopPctChange >= 0 ? '+' : '' }}{{ number_format($desktopPctChange, 1) }}%
+                                    </span>
+                                @endif
                             </div>
                             <div class="hot-card-user">
                                 <span class="hot-card-username">{{ $hot->user->first_name }}</span>
@@ -254,19 +313,8 @@
             </form>
         </div>
 
-        {{-- Styles moved to css/home-feed.css --}}
-
-
-        {{-- Feed Header with Inline Sort Dropdown --}}
-        @php
-            $sortConfig = [
-                'trending' => ['icon' => 'bi-fire', 'color' => '#ef4444', 'label' => 'Trending'],
-                'recent' => ['icon' => 'bi-clock-fill', 'color' => '#3b82f6', 'label' => 'Recent'],
-                'controversial' => ['icon' => 'bi-arrow-left-right', 'color' => '#f59e0b', 'label' => 'Controversial'],
-            ];
-            $currentSort = $sortConfig[$sort ?? 'trending'];
-        @endphp
-        <div class="feed-header-inline mb-3">
+        {{-- Desktop Feed Header with Inline Sort Dropdown --}}
+        <div class="feed-header-inline desktop-only mb-3">
             <div class="sort-dropdown-wrapper">
                 <button class="sort-dropdown-btn-inline" id="sortDropdownBtn" aria-expanded="false" aria-haspopup="true">
                     <i class="{{ $currentSort['icon'] }}" style="color: {{ $currentSort['color'] }};"></i>
@@ -405,7 +453,36 @@
             @push('scripts')
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
-                    // Sort Dropdown functionality
+                    // Mobile Sort Dropdown functionality
+                    const mobileSortBtn = document.getElementById('mobileSortDropdownBtn');
+                    const mobileSortMenu = document.getElementById('mobileSortDropdownMenu');
+
+                    if (mobileSortBtn && mobileSortMenu) {
+                        mobileSortBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const isOpen = mobileSortMenu.classList.contains('show');
+
+                            if (isOpen) {
+                                mobileSortMenu.classList.remove('show');
+                                mobileSortBtn.classList.remove('open');
+                                mobileSortBtn.setAttribute('aria-expanded', 'false');
+                            } else {
+                                mobileSortMenu.classList.add('show');
+                                mobileSortBtn.classList.add('open');
+                                mobileSortBtn.setAttribute('aria-expanded', 'true');
+                            }
+                        });
+
+                        document.addEventListener('click', function(e) {
+                            if (!mobileSortBtn.contains(e.target) && !mobileSortMenu.contains(e.target)) {
+                                mobileSortMenu.classList.remove('show');
+                                mobileSortBtn.classList.remove('open');
+                                mobileSortBtn.setAttribute('aria-expanded', 'false');
+                            }
+                        });
+                    }
+
+                    // Desktop Sort Dropdown functionality
                     const sortBtn = document.getElementById('sortDropdownBtn');
                     const sortMenu = document.getElementById('sortDropdownMenu');
 

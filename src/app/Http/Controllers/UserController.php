@@ -36,7 +36,7 @@ class UserController extends Controller
         }
 
         // Build query with vote counts
-        $query = Prediction::with(['user', 'stock'])
+        $query = Prediction::with(['user', 'stock.latestPrice'])
             ->withCount([
                 'votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
@@ -93,7 +93,7 @@ class UserController extends Controller
         // Get user's predictions with vote counts (limited to 5 for sidebar)
         $Userpredictions = collect();
         if ($userID) {
-            $Userpredictions = Prediction::with(['user', 'stock'])
+            $Userpredictions = Prediction::with(['user', 'stock.latestPrice'])
                 ->withCount([
                     'votes as upvotes' => function ($query) {
                         $query->where('vote_type', 'upvote');
@@ -127,7 +127,7 @@ class UserController extends Controller
                 ->value('reputation_score') ?? 0;
 
             // First try: Get predictions from top 10% users in last 7 days
-            $hotPredictions = Prediction::with(['user', 'stock'])
+            $hotPredictions = Prediction::with(['user', 'stock.latestPrice'])
                 ->withCount([
                     'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                     'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
@@ -141,7 +141,7 @@ class UserController extends Controller
 
             // Fallback: If not enough hot predictions, get most voted recent predictions
             if ($hotPredictions->count() < 3) {
-                $hotPredictions = Prediction::with(['user', 'stock'])
+                $hotPredictions = Prediction::with(['user', 'stock.latestPrice'])
                     ->withCount([
                         'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                         'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
@@ -430,7 +430,7 @@ class UserController extends Controller
         $userStats = $this->scoringService->getUserPredictionStats($id);
 
         // Get user's recent public predictions (limited to 10)
-        $recentPredictions = Prediction::with(['stock'])
+        $recentPredictions = Prediction::with(['stock.latestPrice'])
             ->withCount([
                 'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                 'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),

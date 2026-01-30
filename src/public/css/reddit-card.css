@@ -94,7 +94,7 @@ body.dark-mode {
 }
 
 .reddit-card--compact .reddit-card-reasoning {
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 4;
     font-size: 0.85rem;
 }
 
@@ -201,6 +201,14 @@ body.dark-mode .reddit-vote-btn:hover {
     font-size: 0.8rem;
 }
 
+.reddit-card-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
 .reddit-card-username {
     font-weight: 600;
     color: var(--reddit-text-primary);
@@ -287,6 +295,36 @@ body.dark-mode .reddit-card-type--bearish {
     color: var(--reddit-text-muted);
 }
 
+/* Percent Change Badge */
+.reddit-card-pct-change {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+}
+
+.reddit-card-pct-change--up {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--reddit-accent-dark);
+}
+
+body.dark-mode .reddit-card-pct-change--up {
+    background: rgba(16, 185, 129, 0.25);
+    color: #6ee7b7;
+}
+
+.reddit-card-pct-change--down {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--reddit-danger-dark);
+}
+
+body.dark-mode .reddit-card-pct-change--down {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+}
+
 /* Card Reasoning Text */
 .reddit-card-reasoning {
     color: var(--reddit-text-primary);
@@ -294,7 +332,7 @@ body.dark-mode .reddit-card-type--bearish {
     line-height: 1.5;
     margin: 0 0 0.625rem 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 8;
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-break: break-word;
@@ -354,14 +392,22 @@ body.dark-mode .reddit-engagement-btn:hover {
 @media (max-width: 640px) {
     .reddit-card {
         border-radius: 0;
-        margin-bottom: 0;
+        margin-bottom: 0.5rem;
+        margin-left: 0;
+        margin-right: 0;
         border-left: none;
         border-right: none;
-        border-top: none;
+        border-top: 1px solid var(--reddit-card-border);
+        border-bottom: 1px solid var(--reddit-card-border);
+        width: 100%;
     }
 
     .reddit-card:first-child {
         border-top: 1px solid var(--reddit-card-border);
+    }
+
+    .reddit-card:last-child {
+        margin-bottom: 0;
     }
 
     .reddit-card:hover {
@@ -389,7 +435,7 @@ body.dark-mode .reddit-engagement-btn:hover {
     }
 
     .reddit-card-reasoning {
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 6;
         font-size: 0.875rem;
     }
 

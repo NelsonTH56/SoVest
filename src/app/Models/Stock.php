@@ -135,11 +135,21 @@ class Stock extends Model {
     
     /**
      * Get the price history for the stock.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function prices()
     {
         return $this->hasMany(StockPrice::class, 'stock_id');
+    }
+
+    /**
+     * Get the latest price for the stock.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function latestPrice()
+    {
+        return $this->hasOne(StockPrice::class, 'stock_id')->latestOfMany('price_date');
     }
 }

@@ -32,16 +32,31 @@
     if (is_array($prediction)) {
         $userName = $prediction['username'] ?? $prediction['first_name'] ?? 'Unknown';
         $userReputation = $prediction['reputation_score'] ?? 0;
+        $userProfilePicture = $prediction['profile_picture'] ?? null;
     } else {
         $userName = $prediction->user->first_name ?? 'Unknown';
         $userReputation = $prediction->user->reputation_score ?? 0;
+        $userProfilePicture = $prediction->user->profile_picture ?? null;
     }
+
+    // Build avatar URL
+    $userAvatarUrl = $userProfilePicture
+        ? asset('images/profile_pictures/' . $userProfilePicture)
+        : asset('images/default.png');
 
     // Stock info
     if (is_array($prediction)) {
         $stockSymbol = $prediction['symbol'] ?? '';
+        $currentPrice = $prediction['current_price'] ?? null;
     } else {
         $stockSymbol = $prediction->stock->symbol ?? '';
+        $currentPrice = $prediction->stock->latestPrice->close_price ?? null;
+    }
+
+    // Calculate percent change if we have both prices
+    $percentChange = null;
+    if ($targetPrice && $currentPrice && $currentPrice > 0) {
+        $percentChange = (($targetPrice - $currentPrice) / $currentPrice) * 100;
     }
 
     // Calculate vote score
@@ -108,6 +123,7 @@
     <div class="reddit-card-content">
         {{-- Header: Username, Reputation & Time --}}
         <div class="reddit-card-header">
+            <img src="{{ $userAvatarUrl }}" alt="{{ $userName }}" class="reddit-card-avatar">
             <span class="reddit-card-username">{{ $userName }}</span>
             <span class="reddit-card-separator">&middot;</span>
             <span class="reddit-card-reputation">
@@ -144,6 +160,11 @@
                     </svg>
                     ${{ number_format($targetPrice, 2) }}
                 </span>
+                @if($percentChange !== null)
+                    <span class="reddit-card-pct-change {{ $percentChange >= 0 ? 'reddit-card-pct-change--up' : 'reddit-card-pct-change--down' }}">
+                        {{ $percentChange >= 0 ? '+' : '' }}{{ number_format($percentChange, 1) }}%
+                    </span>
+                @endif
             @endif
         </div>
 
