@@ -110,31 +110,29 @@ class SearchService implements SearchServiceInterface
                     break;
                     
                 case 'predictions':
-                    // Search predictions using Eloquent
+                    // Search predictions using Eloquent with vote counts included
                     $predictionsQuery = Prediction::whereHas('stock', function($q) use ($query) {
                         $q->where('symbol', 'LIKE', "%{$query}%");
                     })
                     ->with(['user:id,first_name,last_name', 'stock:stock_id,symbol'])
+                    ->withCount(['votes as upvotes' => function ($q) {
+                        $q->where('vote_type', 'upvote');
+                    }])
                     ->select('prediction_id', 'stock_id', 'user_id', 'prediction_type', 'target_price', 'accuracy', 'is_active');
-                    
+
                     // Add filter for prediction type if specified
                     if (!empty($prediction)) {
                         $predictionsQuery->where('prediction_type', $prediction);
                     }
-                    
+
                     // Apply limits
                     $predictionsQuery->limit($limit)->offset($offset);
-                    
+
                     // Get predictions
                     $predictions = $predictionsQuery->get();
-                    
-                    // Count upvotes for each prediction
+
+                    // Map results (votes already loaded via withCount)
                     $searchResults = $predictions->map(function($pred) {
-                        $votes = DB::table('prediction_votes')
-                            ->where('prediction_id', $pred->prediction_id)
-                            ->where('vote_type', 'upvote')
-                            ->count();
-                        
                         return [
                             'prediction_id' => $pred->prediction_id,
                             'symbol' => $pred->stock->symbol,
@@ -144,7 +142,7 @@ class SearchService implements SearchServiceInterface
                             'last_name' => $pred->user->last_name,
                             'accuracy' => $pred->accuracy,
                             'is_active' => $pred->is_active,
-                            'votes' => $votes,
+                            'votes' => $pred->upvotes ?? 0,
                             'result_type' => 'prediction'
                         ];
                     })->toArray();

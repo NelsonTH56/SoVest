@@ -115,46 +115,49 @@ class UserController extends Controller
             return $this->scoringService->getTopUsers(10);
         });
 
-        // Get hot predictions for carousel (not cached - vote counts need to be fresh)
+        // Get hot predictions for carousel (cached for 2 minutes)
         // Hot = recent posts (last 7 days) from users in the top 10% by reputation
         // Falls back to most recent predictions if not enough from top users
+        $hotPredictions = cache()->remember('home:hot_predictions', 120, function () {
+            // Calculate the reputation threshold for top 10% of users
+            $totalUsers = User::count();
+            $top10PercentCount = max(1, (int) ceil($totalUsers * 0.10));
 
-        // Calculate the reputation threshold for top 10% of users
-        $totalUsers = User::count();
-        $top10PercentCount = max(1, (int) ceil($totalUsers * 0.10));
+            $reputationThreshold = User::orderByDesc('reputation_score')
+                ->skip($top10PercentCount - 1)
+                ->take(1)
+                ->value('reputation_score') ?? 0;
 
-        $reputationThreshold = User::orderByDesc('reputation_score')
-            ->skip($top10PercentCount - 1)
-            ->take(1)
-            ->value('reputation_score') ?? 0;
-
-        // First try: Get predictions from top 10% users in last 7 days
-        $hotPredictions = Prediction::with(['user', 'stock'])
-            ->withCount([
-                'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
-                'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
-                'comments as comments_count'
-            ])
-            ->whereHas('user', fn($q) => $q->where('reputation_score', '>=', $reputationThreshold))
-            ->where('prediction_date', '>=', now()->subDays(7))
-            ->where('is_active', 1)
-            ->orderByDesc('prediction_date')
-            ->limit(8)
-            ->get();
-
-        // Fallback: If not enough hot predictions, get most voted recent predictions
-        if ($hotPredictions->count() < 3) {
+            // First try: Get predictions from top 10% users in last 7 days
             $hotPredictions = Prediction::with(['user', 'stock'])
                 ->withCount([
                     'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                     'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
                     'comments as comments_count'
                 ])
+                ->whereHas('user', fn($q) => $q->where('reputation_score', '>=', $reputationThreshold))
+                ->where('prediction_date', '>=', now()->subDays(7))
                 ->where('is_active', 1)
                 ->orderByDesc('prediction_date')
                 ->limit(8)
                 ->get();
-        }
+
+            // Fallback: If not enough hot predictions, get most voted recent predictions
+            if ($hotPredictions->count() < 3) {
+                $hotPredictions = Prediction::with(['user', 'stock'])
+                    ->withCount([
+                        'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
+                        'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
+                        'comments as comments_count'
+                    ])
+                    ->where('is_active', 1)
+                    ->orderByDesc('prediction_date')
+                    ->limit(8)
+                    ->get();
+            }
+
+            return $hotPredictions;
+        });
 
         return view('home', compact('Curruser', 'predictions', 'Userpredictions', 'leaderboardUsers', 'hotPredictions', 'sort'));
     }

@@ -343,7 +343,7 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
      */
     public function getTopUsers($limit = 10) {
         try {
-            // Get all users ordered by reputation score
+            // Get users with prediction counts and avg accuracy in a single query
             $users = User::select([
                 'id',
                 'first_name',
@@ -351,29 +351,27 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
                 'email',
                 'reputation_score'
             ])
+            ->withCount('predictions')
+            ->withAvg(['predictions as avg_accuracy' => function ($query) {
+                $query->whereNotNull('accuracy');
+            }], 'accuracy')
             ->orderBy('reputation_score', 'desc')
             ->limit($limit)
             ->get();
-            
-            // For each user, fetch prediction count and average accuracy
+
+            // Map to array format
             $result = $users->map(function($user) {
-                // Count predictions for this user
-                $predictionsCount = Prediction::where('user_id', $user->id)->count();
-                
-                // Calculate average accuracy
-                $avgAccuracy = Prediction::where('user_id', $user->id)
-                    ->whereNotNull('accuracy')
-                    ->avg('accuracy');
-                
-                // Convert to array and add computed values
-                $userData = $user->toArray();
-                $userData['predictions_count'] = $predictionsCount ?? 0;
-                $userData['avg_accuracy'] = $avgAccuracy ?? 0;
-                
-                return $userData;
-            })
-            ->toArray();
-            
+                return [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'reputation_score' => $user->reputation_score,
+                    'predictions_count' => $user->predictions_count ?? 0,
+                    'avg_accuracy' => $user->avg_accuracy ?? 0,
+                ];
+            })->toArray();
+
             return $result;
         } catch (\Exception $e) {
             error_log("Error fetching top users: " . $e->getMessage());

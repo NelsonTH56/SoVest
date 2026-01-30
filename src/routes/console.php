@@ -18,29 +18,29 @@ Artisan::command('inspire', function () {
 Artisan::command('stocks:listings', function () {
     /** @var ClosureCommand $this */
     $this->info('Starting stock listings update...');
-    
+
     try {
-        // Use container to make and invoke the class with DI
+        // Resolve the task class with DI and call __invoke explicitly
         $task = app()->make(UpdateStockListings::class);
-        $task();
-        
+        $task->__invoke();
+
         $this->info('Stock listings updated successfully.');
     } catch (\Exception $e) {
         $this->error('Failed to update stock listings: ' . $e->getMessage());
         Log::error('Failed to update stock listings: ' . $e->getMessage());
     }
-})->purpose('Update stock prices manually');
+})->purpose('Update stock listings manually');
 
 // Manual execution of UpdateStockPrices task
 Artisan::command('stocks:update', function () {
     /** @var ClosureCommand $this */
     $this->info('Starting stock price update...');
-    
+
     try {
-        // Use container to make and invoke the class with DI
+        // Resolve the task class with DI and call __invoke explicitly
         $task = app()->make(UpdateStockPrices::class);
-        $task();
-        
+        $task->__invoke();
+
         $this->info('Stock prices updated successfully.');
     } catch (\Exception $e) {
         $this->error('Failed to update stock prices: ' . $e->getMessage());
@@ -52,12 +52,12 @@ Artisan::command('stocks:update', function () {
 Artisan::command('predictions:evaluate', function () {
     /** @var ClosureCommand $this */
     $this->info('Starting prediction evaluation...');
-    
+
     try {
-        // Use container to make and invoke the class with DI
+        // Resolve the task class with DI and call __invoke explicitly
         $task = app()->make(EvaluatePredictions::class);
-        $task();
-        
+        $task->__invoke();
+
         $this->info('Predictions evaluated successfully.');
     } catch (\Exception $e) {
         $this->error('Failed to evaluate predictions: ' . $e->getMessage());
@@ -68,7 +68,7 @@ Artisan::command('predictions:evaluate', function () {
 // Schedule the UpdateStockListings task to run weekly
 Schedule::call(function () {
     $task = app()->make(UpdateStockListings::class);
-    $task();
+    $task->__invoke();
 })
     ->weekly()
     ->appendOutputTo(storage_path('logs/stock-listings.log'));
@@ -76,7 +76,7 @@ Schedule::call(function () {
 // Schedule the UpdateStockPrices task to run hourly
 Schedule::call(function () {
     $task = app()->make(UpdateStockPrices::class);
-    $task();
+    $task->__invoke();
 })
     ->hourly()
     ->appendOutputTo(storage_path('logs/stock-updates.log'));
@@ -84,7 +84,7 @@ Schedule::call(function () {
 // Schedule the EvaluatePredictions task to run daily at midnight
 Schedule::call(function () {
     $task = app()->make(EvaluatePredictions::class);
-    $task();
+    $task->__invoke();
 })
     ->dailyAt('00:00')
     ->appendOutputTo(storage_path('logs/prediction-evaluations.log'));

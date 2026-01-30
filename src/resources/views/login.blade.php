@@ -28,14 +28,14 @@
 						@csrf
 
 						<div class="form-floating">
-							<input type="email" class="form-control" id="email" name="email" required value="{{ old('email') }}">
+							<input type="email" class="form-control py-3" id="email" name="email" required value="{{ old('email') }}" style="height: 60px; font-size: 1.1rem;">
 							<label for="email">Email</label>
 						</div>
 						<br>
 
 						<!-- SAMPLE PASSWORD FORM (WITH REQUIRED) -->
 						<div class="form-floating">
-							<input type="password" class="form-control" id="password" name="password" required>
+							<input type="password" class="form-control py-3" id="password" name="password" required style="height: 60px; font-size: 1.1rem;">
 							<label for="password">Password</label>
 						</div>
 						<br>
