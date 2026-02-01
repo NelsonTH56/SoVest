@@ -28,7 +28,7 @@
                             </div>
                         </div>
                         <div class="your-score">
-                            <i class="bi bi-star-fill" style="color: #f59e0b;"></i>
+                            <i class="bi bi-star-fill" style="color: #10b981;"></i>
                             <span>{{ number_format($userInfo['reputation_score']) }} pts</span>
                         </div>
                     </div>
@@ -54,11 +54,11 @@
                         {{-- Rank --}}
                         <div class="rank-cell">
                             @if($index === 0)
-                                <i class="bi bi-1-circle-fill rank-icon" style="color: #fbbf24;"></i>
+                                <i class="bi bi-1-circle rank-icon" style="color: #10b981"></i>
                             @elseif($index === 1)
-                                <i class="bi bi-2-circle-fill rank-icon" style="color: #9ca3af;"></i>
+                                <i class="bi bi-2-circle rank-icon" style="color: #10b981"></i>
                             @elseif($index === 2)
-                                <i class="bi bi-3-circle-fill rank-icon" style="color: #cd7f32;"></i>
+                                <i class="bi bi-3-circle rank-icon" style="color: #10b981s"></i>
                             @else
                                 <span class="rank-number">{{ $index + 1 }}</span>
                             @endif

@@ -197,15 +197,18 @@
                     @if(!empty($leaderboardUsers) && count($leaderboardUsers) > 0)
                         <div class="leaderboard-list">
                             @foreach($leaderboardUsers as $index => $leader)
-                                <div class="leaderboard-item d-flex align-items-center justify-content-between" style="padding: 0.5rem 0.5rem; margin-bottom: 0.25rem;">
+                                @if($index > 0)
+                                    <hr style="margin: 0.25rem 0; border-color: #e5e7eb; opacity: 0.5;">
+                                @endif
+                                <div class="leaderboard-item d-flex align-items-center justify-content-between" style="padding: 0.5rem 0.5rem;">
                                     <div class="d-flex align-items-center gap-2">
                                         {{-- Rank with medal icon for top 3 --}}
                                         @if($index === 0)
-                                            <i class="bi bi-1-circle-fill" style="color: #fbbf24; font-size: 1.25rem;"></i>
+                                            <i class="bi bi-1-circle" style="color: #10b981; font-size: 1.25rem;"></i>
                                         @elseif($index === 1)
-                                            <i class="bi bi-2-circle-fill" style="color: #9ca3af; font-size: 1.25rem;"></i>
+                                            <i class="bi bi-2-circle" style="color: #10b981; font-size: 1.25rem;"></i>
                                         @elseif($index === 2)
-                                            <i class="bi bi-3-circle-fill" style="color: #cd7f32; font-size: 1.25rem;"></i>
+                                            <i class="bi bi-3-circle" style="color: #10b981; font-size: 1.25rem;"></i>
                                         @else
                                             <span class="rank-number" style="width: 1.25rem; text-align: center; font-weight: 600; font-size: 0.85rem; color: #6b7280;">{{ $index + 1 }}</span>
                                         @endif
@@ -216,7 +219,7 @@
                                     </div>
                                     {{-- Reputation Score --}}
                                     <div class="d-flex align-items-center gap-1">
-                                        <i class="bi bi-star-fill" style="color: #f59e0b; font-size: 0.75rem;"></i>
+                                        <i class="bi bi-star" style="color: #f59e0b; font-size: 0.75rem;"></i>
                                         <span class="leaderboard-score" style="font-weight: 700; font-size: 0.85rem; color: #10b981;">
                                             {{ number_format($leader['reputation_score']) }}
                                         </span>
@@ -411,10 +414,6 @@
                                                 <small class="text-muted">
                                                     <i class="bi bi-clock"></i> Ends {{ \Carbon\Carbon::parse($prediction->end_date)->format('M j, Y') }}
                                                 </small>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <small class="text-success"><i class="bi bi-arrow-up"></i> {{ $prediction->upvotes ?? 0 }}</small>
-                                                    <small class="text-danger"><i class="bi bi-arrow-down"></i> {{ $prediction->downvotes ?? 0 }}</small>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
