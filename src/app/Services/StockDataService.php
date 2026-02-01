@@ -27,6 +27,12 @@ class StockDataService implements StockDataServiceInterface
     // Cache key prefix for stock prices
     private const CACHE_PREFIX = 'stock_price_';
 
+    // Cache key prefix for price history
+    private const HISTORY_CACHE_PREFIX = 'stock_history_';
+
+    // Cache TTL for price history (1 hour - charts need reasonably fresh data)
+    private const HISTORY_CACHE_TTL = 3600;
+
     /**
      * Add a stock to track
      * 
@@ -316,6 +322,9 @@ class StockDataService implements StockDataServiceInterface
             ];
             Cache::put($cacheKey, $cachedData, self::CACHE_TTL);
 
+            // Clear price history cache since we have new data
+            $this->clearPriceHistoryCache($symbol);
+
             return true;
         } catch (Exception $e) {
             writeApiLog("Error storing price: " . $e->getMessage());
@@ -359,46 +368,73 @@ class StockDataService implements StockDataServiceInterface
     }
 
     /**
-     * Get price history for a stock
-     * 
+     * Get price history for a stock (with caching)
+     *
      * @param string $symbol Stock symbol
      * @param int $days Number of days to look back
-     * @return array Price history data
+     * @return array Price history data with OHLC values
      */
     public function getPriceHistory($symbol, $days = 30)
     {
-        try {
-            $symbol = strtoupper($symbol);
-            $days = (int) $days;
+        $symbol = strtoupper($symbol);
+        $days = (int) $days;
+        $cacheKey = self::HISTORY_CACHE_PREFIX . $symbol . '_' . $days;
 
-            // Get the stock by symbol
-            $stock = Stock::where('symbol', $symbol)->first();
+        return Cache::remember($cacheKey, self::HISTORY_CACHE_TTL, function () use ($symbol, $days) {
+            try {
+                // Get the stock by symbol
+                $stock = Stock::where('symbol', $symbol)->first();
 
-            if (!$stock) {
+                if (!$stock) {
+                    return [];
+                }
+
+                // Calculate the start date
+                $startDate = date('Y-m-d', strtotime("-$days days"));
+
+                // Get price history with efficient query (only needed columns)
+                $prices = StockPrice::where('stock_id', $stock->stock_id)
+                    ->where('price_date', '>=', $startDate)
+                    ->orderBy('price_date')
+                    ->get(['price_date', 'close_price', 'open_price', 'high_price', 'low_price', 'volume']);
+
+                $history = [];
+                foreach ($prices as $price) {
+                    $date = $price->price_date instanceof \Carbon\Carbon
+                        ? $price->price_date
+                        : \Carbon\Carbon::parse($price->price_date);
+
+                    $history[] = [
+                        'date' => $date->format('Y-m-d'),
+                        'price' => (float) $price->close_price,
+                        'open' => (float) $price->open_price,
+                        'high' => (float) $price->high_price,
+                        'low' => (float) $price->low_price,
+                        'volume' => (int) $price->volume,
+                        'timestamp' => $date->format('M j'), // For chart labels (e.g., "Jan 15")
+                    ];
+                }
+
+                return $history;
+            } catch (Exception $e) {
+                writeApiLog("Error getting price history: " . $e->getMessage());
                 return [];
             }
+        });
+    }
 
-            // Calculate the start date
-            $startDate = date('Y-m-d H:i:s', strtotime("-$days days"));
-
-            // Get price history
-            $prices = StockPrice::where('stock_id', $stock->stock_id)
-                ->where('price_date', '>=', $startDate)
-                ->orderBy('price_date')
-                ->get();
-
-            $history = [];
-            foreach ($prices as $price) {
-                $history[] = [
-                    'price' => (float) $price->close_price,
-                    'timestamp' => $price->price_date
-                ];
-            }
-
-            return $history;
-        } catch (Exception $e) {
-            writeApiLog("Error getting price history: " . $e->getMessage());
-            return [];
+    /**
+     * Clear price history cache for a symbol
+     *
+     * @param string $symbol Stock symbol
+     * @return void
+     */
+    public function clearPriceHistoryCache($symbol)
+    {
+        $symbol = strtoupper($symbol);
+        // Clear common cache durations
+        foreach ([7, 30, 60, 90, 365] as $days) {
+            Cache::forget(self::HISTORY_CACHE_PREFIX . $symbol . '_' . $days);
         }
     }
 

@@ -70,6 +70,12 @@ class StockController extends Controller
             ->limit(10)
             ->get();
 
+        // Get 30-day price history for chart (cached)
+        $priceHistory = $this->stockDataService->getPriceHistory($stock->symbol, 30);
+
+        // Calculate price change stats for display
+        $priceStats = $this->calculatePriceStats($priceHistory);
+
         // Get current user for layout
         $Curruser = Auth::user();
 
@@ -78,7 +84,43 @@ class StockController extends Controller
             'currentPrice' => $currentPrice !== false ? $currentPrice : null,
             'latestPriceDate' => $latestPriceDate,
             'predictions' => $predictions,
-            'Curruser' => $Curruser
+            'Curruser' => $Curruser,
+            'priceHistory' => $priceHistory,
+            'priceStats' => $priceStats,
         ]);
+    }
+
+    /**
+     * Calculate price statistics from history for display
+     *
+     * @param array $priceHistory
+     * @return array
+     */
+    private function calculatePriceStats(array $priceHistory): array
+    {
+        if (empty($priceHistory) || count($priceHistory) < 2) {
+            return [
+                'change' => 0,
+                'changePercent' => 0,
+                'high' => 0,
+                'low' => 0,
+                'hasData' => false,
+            ];
+        }
+
+        $firstPrice = $priceHistory[0]['price'];
+        $lastPrice = end($priceHistory)['price'];
+        $change = $lastPrice - $firstPrice;
+        $changePercent = $firstPrice > 0 ? ($change / $firstPrice) * 100 : 0;
+
+        $allPrices = array_column($priceHistory, 'price');
+
+        return [
+            'change' => round($change, 2),
+            'changePercent' => round($changePercent, 2),
+            'high' => max($allPrices),
+            'low' => min($allPrices),
+            'hasData' => true,
+        ];
     }
 }

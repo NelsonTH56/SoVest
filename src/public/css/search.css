@@ -2,6 +2,72 @@
  * SoVest Search Functionality Styling
  */
 
+/* ===========================================
+   THEME VARIABLES - Auto-switch light/dark
+   =========================================== */
+:root {
+    --search-bg-card: #ffffff;
+    --search-bg-suggestion: #ffffff;
+    --search-bg-suggestion-hover: #f3f4f6;
+    --search-bg-icon: #f3f4f6;
+    --search-bg-input: #ffffff;
+    --search-text: #111827;
+    --search-text-secondary: #374151;
+    --search-text-muted: #6b7280;
+    --search-text-link: #374151;
+    --search-text-link-hover: #111827;
+    --search-border: #e5e7eb;
+    --search-border-header: #e5e7eb;
+    --search-pagination-bg: #ffffff;
+    --search-pagination-border: #d1d5db;
+    --search-pagination-text: #374151;
+    --search-pagination-hover-bg: #f3f4f6;
+    --search-icon-stock: #10b981;
+    --search-icon-user: #3b82f6;
+    --search-icon-prediction: #f59e0b;
+    --search-scrollbar-track: #f3f4f6;
+    --search-scrollbar-thumb: #d1d5db;
+    --search-scrollbar-thumb-hover: #9ca3af;
+}
+
+html.dark-mode, body.dark-mode {
+    --search-bg-card: #2c2c2c;
+    --search-bg-suggestion: #2c2c2c;
+    --search-bg-suggestion-hover: #3c3c3c;
+    --search-bg-icon: #2c2c2c;
+    --search-bg-input: #2c2c2c;
+    --search-text: #e5e7eb;
+    --search-text-secondary: #d4d4d4;
+    --search-text-muted: #777;
+    --search-text-link: #d4d4d4;
+    --search-text-link-hover: #fff;
+    --search-border: #444;
+    --search-border-header: #444;
+    --search-pagination-bg: #2c2c2c;
+    --search-pagination-border: #444;
+    --search-pagination-text: #d4d4d4;
+    --search-pagination-hover-bg: #3c3c3c;
+    --search-icon-stock: #28a745;
+    --search-icon-user: #17a2b8;
+    --search-icon-prediction: #ffc107;
+    --search-scrollbar-track: #1f1f1f;
+    --search-scrollbar-thumb: #444;
+    --search-scrollbar-thumb-hover: #555;
+}
+
+/* ===========================================
+   GLOBAL TRANSITIONS
+   =========================================== */
+.search-results-header, .search-result-card, .result-content,
+.search-suggestions, .nav-search-suggestions, .search-suggestion,
+.pagination .page-link, .form-select, .stock-icon, .user-icon, .prediction-icon {
+    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===========================================
+   BASE STYLES
+   =========================================== */
+
 /* Search Container */
 .search-container {
     margin-bottom: 40px;
@@ -11,15 +77,17 @@
 .search-results-header {
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid var(--search-border-header);
+    color: var(--search-text);
 }
 
 .search-result-card {
-    background-color: white;
+    background-color: var(--search-bg-card);
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 15px;
     transition: all 0.3s ease;
+    color: var(--search-text);
 }
 
 .search-result-card:hover {
@@ -27,28 +95,37 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.search-result-card h4 {
+    color: var(--search-text);
+}
+
+.result-content h4 {
+    color: var(--search-text);
+}
+
+/* Icons */
 .stock-icon, .user-icon, .prediction-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 50px;
     height: 50px;
-    background-color: #2c2c2c;
+    background-color: var(--search-bg-icon);
     border-radius: 50%;
     margin-right: 15px;
     font-size: 1.5rem;
 }
 
 .stock-icon {
-    color: #28a745;
+    color: var(--search-icon-stock);
 }
 
 .user-icon {
-    color: #17a2b8;
+    color: var(--search-icon-user);
 }
 
 .prediction-icon {
-    color: #ffc107;
+    color: var(--search-icon-prediction);
 }
 
 .result-content {
@@ -65,8 +142,8 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: #2c2c2c;
-    border: 1px solid #444;
+    background-color: var(--search-bg-suggestion);
+    border: 1px solid var(--search-border);
     border-radius: 0 0 5px 5px;
     max-height: 300px;
     overflow-y: auto;
@@ -79,8 +156,8 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: #2c2c2c;
-    border: 1px solid #444;
+    background-color: var(--search-bg-suggestion);
+    border: 1px solid var(--search-border);
     border-radius: 0 0 5px 5px;
     max-height: 300px;
     overflow-y: auto;
@@ -95,10 +172,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: var(--search-text-secondary);
 }
 
 .search-suggestion:hover {
-    background-color: #3c3c3c;
+    background-color: var(--search-bg-suggestion-hover);
 }
 
 .search-suggestion i {
@@ -167,7 +245,7 @@
 }
 
 .empty-search-message {
-    color: #777;
+    color: var(--search-text-muted);
     padding: 50px 0;
 }
 
@@ -181,9 +259,9 @@
 }
 
 .pagination .page-link {
-    background-color: #2c2c2c;
-    border-color: #444;
-    color: #d4d4d4;
+    background-color: var(--search-pagination-bg);
+    border-color: var(--search-pagination-border);
+    color: var(--search-pagination-text);
 }
 
 .pagination .page-item.active .page-link {
@@ -192,58 +270,20 @@
 }
 
 .pagination .page-link:hover {
-    background-color: #3c3c3c;
-}
-
-/* Responsiveness */
-@media (max-width: 576px) {
-    .search-nav-form {
-        width: 100%;
-    }
-    
-    .search-result-card {
-        padding: 10px;
-    }
-    
-    .stock-icon, .user-icon, .prediction-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-    
-    .search-suggestion {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .suggestion-actions {
-        margin-left: 0;
-        margin-top: 5px;
-        width: 100%;
-    }
-    
-    .create-prediction-btn {
-        width: 100%;
-    }
-    
-    .prediction-intent {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .prediction-intent .create-prediction-btn {
-        margin-top: 10px;
-        width: 100%;
-    }
+    background-color: var(--search-pagination-hover-bg);
 }
 
 /* Search History & Saved Searches */
 .card.bg-dark {
-    border-color: #444;
+    background-color: var(--search-bg-card) !important;
+    border-color: var(--search-border) !important;
+    color: var(--search-text);
 }
 
 .card.bg-dark .card-header {
-    border-bottom-color: #444;
+    background-color: var(--search-bg-suggestion-hover) !important;
+    border-bottom-color: var(--search-border) !important;
+    color: var(--search-text) !important;
 }
 
 .list-group-item.bg-transparent {
@@ -251,23 +291,23 @@
 }
 
 .list-group-item.bg-transparent a {
-    color: #d4d4d4;
+    color: var(--search-text-link);
 }
 
 .list-group-item.bg-transparent a:hover {
-    color: #fff;
+    color: var(--search-text-link-hover);
 }
 
 /* Advanced Filters */
 .form-select {
-    background-color: #2c2c2c;
-    border-color: #444;
-    color: #d4d4d4;
+    background-color: var(--search-bg-input);
+    border-color: var(--search-border);
+    color: var(--search-text-secondary);
 }
 
 .form-select:focus {
-    background-color: #2c2c2c;
-    color: #d4d4d4;
+    background-color: var(--search-bg-input);
+    color: var(--search-text-secondary);
 }
 
 /* Custom Scrollbar for Suggestions */
@@ -279,115 +319,60 @@
 
 .search-suggestions::-webkit-scrollbar-track,
 .nav-search-suggestions::-webkit-scrollbar-track {
-    background: #1f1f1f;
+    background: var(--search-scrollbar-track);
 }
 
 .search-suggestions::-webkit-scrollbar-thumb,
 .nav-search-suggestions::-webkit-scrollbar-thumb {
-    background: #444;
+    background: var(--search-scrollbar-thumb);
     border-radius: 3px;
 }
 
 .search-suggestions::-webkit-scrollbar-thumb:hover,
 .nav-search-suggestions::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--search-scrollbar-thumb-hover);
 }
 
 /* ===========================================
-   LIGHT MODE TEXT COLORS FOR SEARCH PAGE
+   RESPONSIVE STYLES
    =========================================== */
+@media (max-width: 576px) {
+    .search-nav-form {
+        width: 100%;
+    }
 
-/* Light mode overrides */
-body:not(.dark-mode) .search-results-header {
-    border-bottom-color: #e5e7eb;
-    color: #111827;
-}
+    .search-result-card {
+        padding: 10px;
+    }
 
-body:not(.dark-mode) .search-result-card {
-    background-color: #ffffff;
-    color: #111827;
-}
+    .stock-icon, .user-icon, .prediction-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
 
-body:not(.dark-mode) .search-result-card h4 {
-    color: #111827;
-}
+    .search-suggestion {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-body:not(.dark-mode) .result-content h4 {
-    color: #111827;
-}
+    .suggestion-actions {
+        margin-left: 0;
+        margin-top: 5px;
+        width: 100%;
+    }
 
-body:not(.dark-mode) .search-suggestions,
-body:not(.dark-mode) .nav-search-suggestions {
-    background-color: #ffffff;
-    border-color: #e5e7eb;
-}
+    .create-prediction-btn {
+        width: 100%;
+    }
 
-body:not(.dark-mode) .search-suggestion {
-    color: #374151;
-}
+    .prediction-intent {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-body:not(.dark-mode) .search-suggestion:hover {
-    background-color: #f3f4f6;
-}
-
-body:not(.dark-mode) .pagination .page-link {
-    background-color: #ffffff;
-    border-color: #d1d5db;
-    color: #374151;
-}
-
-body:not(.dark-mode) .pagination .page-link:hover {
-    background-color: #f3f4f6;
-}
-
-body:not(.dark-mode) .card.bg-dark {
-    background-color: #ffffff !important;
-    color: #111827;
-    border-color: #e5e7eb !important;
-}
-
-body:not(.dark-mode) .card.bg-dark .card-header {
-    background-color: #f9fafb !important;
-    border-bottom-color: #e5e7eb !important;
-    color: #111827 !important;
-}
-
-body:not(.dark-mode) .list-group-item.bg-transparent a {
-    color: #374151;
-}
-
-body:not(.dark-mode) .form-select {
-    background-color: #ffffff;
-    border-color: #d1d5db;
-    color: #111827;
-}
-
-body:not(.dark-mode) .empty-search-message {
-    color: #6b7280;
-}
-
-/* Stock, User, and Prediction icon styling for light mode */
-body:not(.dark-mode) .stock-icon,
-body:not(.dark-mode) .user-icon,
-body:not(.dark-mode) .prediction-icon {
-    background-color: #f3f4f6;
-}
-
-body:not(.dark-mode) .stock-icon {
-    color: #10b981;
-}
-
-body:not(.dark-mode) .user-icon {
-    color: #3b82f6;
-}
-
-body:not(.dark-mode) .prediction-icon {
-    color: #f59e0b;
-}
-
-/* Global text transition for search elements */
-.search-results-header, .search-result-card, .result-content,
-.search-suggestions, .nav-search-suggestions, .search-suggestion,
-.pagination .page-link, .form-select, .stock-icon, .user-icon, .prediction-icon {
-    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    .prediction-intent .create-prediction-btn {
+        margin-top: 10px;
+        width: 100%;
+    }
 }

@@ -2,6 +2,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/stock-show.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @endpush
 
 @section('content')
@@ -55,6 +56,47 @@
             </div>
         </div>
     </div>
+
+    <!-- Price History Chart Section -->
+    @if(!empty($priceHistory) && count($priceHistory) > 1)
+    <div class="info-section-card mb-4">
+        <div class="section-title">
+            <i class="bi bi-graph-up-arrow"></i>
+            30-Day Price History
+        </div>
+
+        <!-- Price Change Summary -->
+        @if($priceStats['hasData'])
+        <div class="price-change-summary">
+            <span class="price-change {{ $priceStats['change'] >= 0 ? 'positive' : 'negative' }}">
+                <i class="bi {{ $priceStats['change'] >= 0 ? 'bi-arrow-up-circle-fill' : 'bi-arrow-down-circle-fill' }}"></i>
+                {{ $priceStats['change'] >= 0 ? '+' : '' }}${{ number_format(abs($priceStats['change']), 2) }}
+                ({{ $priceStats['changePercent'] >= 0 ? '+' : '' }}{{ number_format($priceStats['changePercent'], 2) }}%)
+            </span>
+            <span class="price-range">
+                <i class="bi bi-arrow-down-up"></i>
+                Range: ${{ number_format($priceStats['low'], 2) }} - ${{ number_format($priceStats['high'], 2) }}
+            </span>
+        </div>
+        @endif
+
+        <!-- Chart Container -->
+        <div class="chart-container">
+            <canvas id="priceHistoryChart"></canvas>
+        </div>
+    </div>
+    @else
+    <div class="info-section-card mb-4">
+        <div class="section-title">
+            <i class="bi bi-graph-up-arrow"></i>
+            Price History
+        </div>
+        <div class="empty-chart-message">
+            <i class="bi bi-bar-chart-line"></i>
+            <p>No price history available for this stock yet.</p>
+        </div>
+    </div>
+    @endif
 
     <div class="row">
         <!-- Stock Information -->
@@ -248,6 +290,117 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.price-currency').textContent = 'Error loading price';
         });
     }
+
+    // Initialize price history chart
+    @if(!empty($priceHistory) && count($priceHistory) > 1)
+    initPriceChart();
+    @endif
 });
+
+@if(!empty($priceHistory) && count($priceHistory) > 1)
+function initPriceChart() {
+    const priceData = @json($priceHistory);
+    const ctx = document.getElementById('priceHistoryChart');
+
+    if (!ctx || priceData.length === 0) return;
+
+    // Extract labels and prices
+    const labels = priceData.map(item => item.timestamp);
+    const prices = priceData.map(item => item.price);
+
+    // Determine if overall trend is up or down
+    const isPositive = prices[prices.length - 1] >= prices[0];
+
+    // Color scheme
+    const chartColor = isPositive ? '#10b981' : '#ef4444';
+    const gridColor = 'rgba(255, 255, 255, 0.1)';
+    const textColor = '#a0a0a0';
+
+    // Create gradient fill
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, isPositive ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '{{ $stock->symbol }} Price',
+                data: prices,
+                borderColor: chartColor,
+                backgroundColor: gradient,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: chartColor,
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#2a2a2a',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: chartColor,
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        title: function(context) {
+                            const dataIndex = context[0].dataIndex;
+                            return priceData[dataIndex].date;
+                        },
+                        label: function(context) {
+                            return '$' + context.parsed.y.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: { size: 11 },
+                        maxTicksLimit: 6
+                    }
+                },
+                y: {
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        color: gridColor,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: textColor,
+                        font: { size: 11 },
+                        callback: function(value) {
+                            return '$' + value.toFixed(0);
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+@endif
 </script>
 @endsection
