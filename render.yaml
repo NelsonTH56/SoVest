@@ -41,43 +41,84 @@ services:
       - key: ALPHA_VANTAGE_API_KEY
         sync: false
 
-  # Cron job: Update stock prices hourly
+  # Cron job: Update stock prices daily at midnight
   - type: cron
     name: update-stock-prices
     runtime: docker
     rootDir: src
     dockerfilePath: ./Dockerfile
     schedule: "0 0 * * *"
+    dockerCommand: php artisan stocks:update
     envVars:
-      - fromService:
-          name: sovest
-          type: web
-          property: environmentId
+      - key: APP_KEY
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_PORT
+        value: "3306"
+      - key: APP_ENV
+        value: production
 
   # Cron job: Evaluate predictions daily at midnight
   - type: cron
     name: evaluate-predictions
     runtime: docker
+    rootDir: src
     dockerfilePath: ./Dockerfile
     schedule: "0 0 * * *"
-    buildCommand: "true"
-    startCommand: php artisan predictions:evaluate
+    dockerCommand: php artisan predictions:evaluate
     envVars:
-      - fromService:
-          name: sovest
-          type: web
-          property: environmentId
+      - key: APP_KEY
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_PORT
+        value: "3306"
+      - key: APP_ENV
+        value: production
 
-  # Cron job: Update stock listings weekly
+  # Cron job: Update stock listings weekly on Sunday
   - type: cron
     name: update-stock-listings
     runtime: docker
+    rootDir: src
     dockerfilePath: ./Dockerfile
     schedule: "0 0 * * 0"
-    buildCommand: "true"
-    startCommand: php artisan stocks:listings
+    dockerCommand: php artisan stocks:listings
     envVars:
-      - fromService:
-          name: sovest
-          type: web
-          property: environmentId
+      - key: APP_KEY
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_PORT
+        value: "3306"
+      - key: APP_ENV
+        value: production

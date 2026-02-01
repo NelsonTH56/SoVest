@@ -591,6 +591,7 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
      */
     public function getTopUsers($limit = 10) {
         try {
+            // Get users with prediction counts and avg accuracy in a single query
             $users = User::select([
                 'id',
                 'first_name',
@@ -598,6 +599,10 @@ class PredictionScoringService implements PredictionScoringServiceInterface {
                 'email',
                 'reputation_score'
             ])
+            ->withCount('predictions')
+            ->withAvg(['predictions as avg_accuracy' => function ($query) {
+                $query->whereNotNull('accuracy');
+            }], 'accuracy')
             ->orderBy('reputation_score', 'desc')
             ->limit($limit)
             ->get();

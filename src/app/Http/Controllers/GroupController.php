@@ -149,6 +149,7 @@ class GroupController extends Controller
             ->withCount([
                 'votes as upvotes' => fn ($q) => $q->where('vote_type', 'upvote'),
                 'votes as downvotes' => fn ($q) => $q->where('vote_type', 'downvote'),
+                'comments as comments_count'
             ])
             ->orderBy('prediction_date', 'desc')
             ->limit(5)

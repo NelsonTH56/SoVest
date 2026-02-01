@@ -35,8 +35,8 @@ class UserController extends Controller
             $sort = 'trending';
         }
 
-        // Build query with vote counts
-        $query = Prediction::with(['user', 'stock.latestPrice'])
+        // Build query with vote counts and comments count
+        $query = Prediction::with(['user', 'stock'])
             ->withCount([
                 'votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
@@ -44,6 +44,7 @@ class UserController extends Controller
                 'votes as downvotes' => function ($query) {
                     $query->where('vote_type', 'downvote');
                 },
+                'comments as comments_count'
             ]);
 
         // Apply sorting based on parameter
@@ -100,7 +101,8 @@ class UserController extends Controller
                     },
                     'votes as downvotes' => function ($query) {
                         $query->where('vote_type', 'downvote');
-                    }
+                    },
+                    'comments as comments_count'
                 ])
                 ->where('user_id', $userID)
                 ->orderBy('prediction_date', 'desc')
@@ -113,10 +115,10 @@ class UserController extends Controller
             return $this->scoringService->getTopUsers(10);
         });
 
-        // Get hot predictions for carousel (cached for 5 minutes)
+        // Get hot predictions for carousel (cached for 2 minutes)
         // Hot = recent posts (last 7 days) from users in the top 10% by reputation
         // Falls back to most recent predictions if not enough from top users
-        $hotPredictions = cache()->remember('home:hot_predictions', 300, function () {
+        $hotPredictions = cache()->remember('home:hot_predictions', 120, function () {
             // Calculate the reputation threshold for top 10% of users
             $totalUsers = User::count();
             $top10PercentCount = max(1, (int) ceil($totalUsers * 0.10));
@@ -131,6 +133,7 @@ class UserController extends Controller
                 ->withCount([
                     'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                     'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
+                    'comments as comments_count'
                 ])
                 ->whereHas('user', fn($q) => $q->where('reputation_score', '>=', $reputationThreshold))
                 ->where('prediction_date', '>=', now()->subDays(7))
@@ -145,6 +148,7 @@ class UserController extends Controller
                     ->withCount([
                         'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                         'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
+                        'comments as comments_count'
                     ])
                     ->where('is_active', 1)
                     ->orderByDesc('prediction_date')
@@ -434,6 +438,7 @@ class UserController extends Controller
             ->withCount([
                 'votes as upvotes' => fn($q) => $q->where('vote_type', 'upvote'),
                 'votes as downvotes' => fn($q) => $q->where('vote_type', 'downvote'),
+                'comments as comments_count'
             ])
             ->where('user_id', $id)
             ->orderBy('prediction_date', 'desc')

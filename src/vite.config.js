@@ -10,4 +10,21 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    build: {
+        // Enable minification (esbuild is built into Vite)
+        minify: 'esbuild',
+        cssMinify: true,
+        // Optimize chunk sizes
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['axios'],
+                },
+            },
+        },
+        // Generate source maps for production debugging (optional)
+        sourcemap: false,
+        // Target modern browsers for smaller bundles
+        target: 'es2020',
+    },
 });

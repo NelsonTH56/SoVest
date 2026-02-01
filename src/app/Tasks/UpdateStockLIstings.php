@@ -54,11 +54,19 @@ class UpdateStockListings
         } catch (\Exception $e) {
             // Log error
             Log::error("Error in scheduled update: " . $e->getMessage());
-            
+
             // Output error if run manually
             if (php_sapi_name() === 'cli') {
+                echo "\n";
+                echo "**********************************\n";
+                echo "*** STOCK LISTINGS JOB FAILED ***\n";
+                echo "**********************************\n";
                 echo "Error: " . $e->getMessage() . "\n";
+                echo "\nCheck logs for more details.\n";
             }
+
+            // Re-throw to signal failure to scheduler/caller
+            throw $e;
         }
     }
 }
