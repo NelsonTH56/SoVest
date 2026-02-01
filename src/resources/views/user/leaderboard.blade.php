@@ -7,7 +7,7 @@
     {{-- Page Header --}}
     <div class="leaderboard-header text-center mb-4">
         <h1 class="leaderboard-title">
-            <i class="bi bi-trophy-fill" style="color: #f59e0b;"></i>
+            <i class="bi bi-trophy" style="color: #10b981;"></i>
             Leaderboard
         </h1>
         <p class="leaderboard-subtitle">Top predictors ranked by reputation score</p>

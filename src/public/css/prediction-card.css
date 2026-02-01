@@ -9,7 +9,7 @@
    ======================================== */
 .prediction-card-unified {
     background: #ffffff;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #d1d5db;
     border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.25rem;
@@ -302,7 +302,7 @@ body.dark-mode .prediction-card-unified {
 body.dark-mode .prediction-card-unified:hover {
     background: #252525;
     border-color: #10b981;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
 }
 
 body.dark-mode .prediction-card-username {

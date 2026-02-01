@@ -273,7 +273,7 @@ body.dark-mode .sort-dropdown-btn:hover {
 body.dark-mode .sort-dropdown-menu {
     background: #1f1f1f;
     border-color: #404040;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
 }
 
 /* Dropdown Items */
@@ -1210,13 +1210,13 @@ body.dark-mode .hot-carousel-card .hot-card-username {
     opacity: 1;
     transform: scale(1);
     border-color: #10b981;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+    box-shadow: none;
     z-index: 1;
 }
 
 body.dark-mode .hot-carousel-card[data-visible-position="1"] {
     border-color: #10b981;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    box-shadow: none;
 }
 
 .hot-carousel-indicators {

@@ -9,7 +9,7 @@
     padding: 3rem;
     margin-bottom: 2rem;
     border: 1px solid rgba(139, 92, 246, 0.3);
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.4);
+    box-shadow: none;
     position: relative;
     overflow: hidden;
 }
@@ -105,12 +105,12 @@
     font-size: 1.1rem;
     color: white;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    box-shadow: none;
 }
 
 .action-button-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
+    box-shadow: none;
     background: linear-gradient(135deg, #059669, #047857);
 }
 
@@ -207,7 +207,7 @@
 .prediction-card-enhanced:hover {
     transform: translateY(-4px);
     border-color: #10b981;
-    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.2);
+    box-shadow: none;
 }
 
 .prediction-type-badge {

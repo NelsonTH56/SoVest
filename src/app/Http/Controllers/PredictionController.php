@@ -478,7 +478,7 @@ class PredictionController extends Controller
             }
 
             // Mark prediction as viewed if the current user is the owner
-            if (Auth::check() && $prediction->user_id === Auth::id()) {
+            if (Auth::check() && (int) $prediction->user_id === (int) Auth::id()) {
                 $prediction->markAsViewed();
             }
 

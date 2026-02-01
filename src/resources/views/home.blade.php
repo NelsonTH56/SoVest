@@ -186,7 +186,7 @@
                 <div class="card-body" style="padding: 1.25rem;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0" style="font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="bi bi-trophy-fill" style="color: #f59e0b;"></i>
+                            <i class="bi bi-trophy" style="color: #10b981;"></i>
                             Leaderboard
                         </h5>
                         <a href="{{ route('user.leaderboard') }}" class="btn btn-sm btn-outline-primary" style="border-radius: 20px; font-size: 0.8rem;">
@@ -365,7 +365,7 @@
         <div class="sticky-top" style="top: 1rem;">
             {{-- Create Prediction CTA --}}
             <a href="{{ route('predictions.create') }}" class="btn btn-primary w-100 mb-4" style="padding: 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                <i class="bi bi-plus-circle-fill" style="font-size: 1.2rem;"></i>
+                <i class="bi bi-plus-lg" style="font-size: 1.2rem;"></i>
                 Create New Prediction
             </a>
 

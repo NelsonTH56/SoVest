@@ -45,7 +45,7 @@
     background: linear-gradient(135deg, #10b981, #3b82f6);
     border-color: #10b981;
     color: white;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    box-shadow: none;
     transform: scale(1.1);
 }
 
@@ -125,7 +125,7 @@
     background: #1a1a1a;
     border-radius: 20px;
     padding: 3rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
     border: 1px solid #2c2c2c;
 }
 
@@ -158,7 +158,7 @@
     justify-content: center;
     font-size: 2.5rem;
     color: white;
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    box-shadow: none;
 }
 
 .step-title {
@@ -430,13 +430,13 @@
 .prediction-type-card:hover {
     border-color: #10b981;
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+    box-shadow: none;
 }
 
 .btn-check:checked + .prediction-type-card {
     border-color: #10b981;
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    box-shadow: none;
 }
 
 .btn-check:checked + .bullish-card {
@@ -445,7 +445,7 @@
 
 .btn-check:checked + .bearish-card {
     border-color: #ef4444;
-    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+    box-shadow: none;
 }
 
 .prediction-icon {
@@ -749,13 +749,13 @@
     font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    box-shadow: none;
     margin-left: auto;
 }
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+    box-shadow: none;
 }
 
 .btn-submit:active {
@@ -780,7 +780,7 @@
     border: 2px solid #10b981;
     border-radius: 12px;
     margin-top: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
     z-index: 1500;
     background: #1a1a1a;
 }
@@ -828,7 +828,7 @@
 
 .prediction-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
 }
 
 .form-select option {
@@ -885,7 +885,7 @@ textarea.form-control {
     margin-bottom: 0.5rem;
     font-size: 14px;
     color: #b8b8b8;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: none;
     animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -1280,7 +1280,7 @@ body:not(.dark-mode) .confirm-text {
 
 .quick-percent-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
 }
 
 .quick-percent-btn.negative:hover,
