@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Stock;
+use App\Models\StockPrice;
 use App\Models\Prediction;
 use App\Services\StockDataService;
+use App\Jobs\FetchHistoricalPricesJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -73,6 +75,23 @@ class StockController extends Controller
         // Get 30-day price history for chart (cached)
         $priceHistory = $this->stockDataService->getPriceHistory($stock->symbol, 30);
 
+        // Check if we need to fetch historical data (less than 5 data points)
+        $historyLoading = false;
+        if (count($priceHistory) < 5) {
+            // Check if we haven't already dispatched a job recently (use cache to prevent spam)
+            $jobCacheKey = "fetch_history_job_{$stock->symbol}";
+            if (!cache()->has($jobCacheKey)) {
+                // Dispatch job to fetch historical prices in background
+                FetchHistoricalPricesJob::dispatch($stock->symbol, 30);
+                // Mark that we've dispatched (expires in 5 minutes)
+                cache()->put($jobCacheKey, true, 300);
+                $historyLoading = true;
+            } else {
+                // Job was recently dispatched, still loading
+                $historyLoading = true;
+            }
+        }
+
         // Calculate price change stats for display
         $priceStats = $this->calculatePriceStats($priceHistory);
 
@@ -87,6 +106,7 @@ class StockController extends Controller
             'Curruser' => $Curruser,
             'priceHistory' => $priceHistory,
             'priceStats' => $priceStats,
+            'historyLoading' => $historyLoading,
         ]);
     }
 

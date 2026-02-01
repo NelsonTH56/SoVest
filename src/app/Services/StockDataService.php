@@ -11,6 +11,7 @@ namespace App\Services;
 use App\Services\Interfaces\StockDataServiceInterface;
 use App\Models\Stock;
 use App\Models\StockPrice;
+use App\Jobs\FetchHistoricalPricesJob;
 use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -370,6 +371,8 @@ class StockDataService implements StockDataServiceInterface
     /**
      * Get price history for a stock (with caching)
      *
+     * If insufficient data exists in database, automatically fetches from API.
+     *
      * @param string $symbol Stock symbol
      * @param int $days Number of days to look back
      * @return array Price history data with OHLC values
@@ -435,6 +438,114 @@ class StockDataService implements StockDataServiceInterface
         // Clear common cache durations
         foreach ([7, 30, 60, 90, 365] as $days) {
             Cache::forget(self::HISTORY_CACHE_PREFIX . $symbol . '_' . $days);
+        }
+    }
+
+    /**
+     * Fetch and store historical price data from Alpha Vantage TIME_SERIES_DAILY
+     *
+     * @param string $symbol Stock symbol
+     * @param int $days Number of days of history to fetch (max ~100 with compact output)
+     * @return bool Success status
+     */
+    public function fetchHistoricalPrices($symbol, $days = 30)
+    {
+        try {
+            $symbol = strtoupper($symbol);
+            $stock = Stock::where('symbol', $symbol)->first();
+
+            if (!$stock) {
+                writeApiLog("Stock not found for historical fetch: $symbol");
+                return false;
+            }
+
+            // Respect rate limit
+            $this->respectRateLimit();
+
+            $apiKey = Config::get("api_config.ALPHA_VANTAGE_API_KEY");
+            $baseUrl = Config::get("api_config.ALPHA_VANTAGE_BASE_URL");
+
+            // Use TIME_SERIES_DAILY with compact output (last 100 data points)
+            $url = $baseUrl . "?function=TIME_SERIES_DAILY&symbol=$symbol&outputsize=compact&apikey=$apiKey";
+
+            writeApiLog("Fetching historical prices for $symbol");
+
+            $response = file_get_contents($url);
+
+            if ($response === false) {
+                writeApiLog("Failed to fetch historical data for $symbol");
+                return false;
+            }
+
+            $this->lastApiCall = time();
+            $data = json_decode($response, true);
+
+            if (isset($data['Error Message'])) {
+                writeApiLog("API Error for $symbol: " . $data['Error Message']);
+                return false;
+            }
+
+            if (isset($data['Note'])) {
+                writeApiLog("API rate limit hit: " . $data['Note']);
+                return false;
+            }
+
+            if (!isset($data['Time Series (Daily)'])) {
+                writeApiLog("No time series data returned for $symbol");
+                return false;
+            }
+
+            $timeSeries = $data['Time Series (Daily)'];
+            $stored = 0;
+            $startDate = date('Y-m-d', strtotime("-$days days"));
+
+            foreach ($timeSeries as $date => $prices) {
+                // Only store data within requested range
+                if ($date < $startDate) {
+                    continue;
+                }
+
+                $open = (float) $prices['1. open'];
+                $high = (float) $prices['2. high'];
+                $low = (float) $prices['3. low'];
+                $close = (float) $prices['4. close'];
+                $volume = (int) $prices['5. volume'];
+
+                // Check if price already exists for this date
+                $existing = StockPrice::where('stock_id', $stock->stock_id)
+                    ->where('price_date', $date)
+                    ->first();
+
+                if ($existing) {
+                    $existing->open_price = $open;
+                    $existing->high_price = $high;
+                    $existing->low_price = $low;
+                    $existing->close_price = $close;
+                    $existing->volume = $volume;
+                    $existing->save();
+                } else {
+                    StockPrice::create([
+                        'stock_id' => $stock->stock_id,
+                        'price_date' => $date,
+                        'open_price' => $open,
+                        'high_price' => $high,
+                        'low_price' => $low,
+                        'close_price' => $close,
+                        'volume' => $volume,
+                    ]);
+                }
+                $stored++;
+            }
+
+            writeApiLog("Stored $stored historical prices for $symbol");
+
+            // Clear cache so new data is used
+            $this->clearPriceHistoryCache($symbol);
+
+            return true;
+        } catch (Exception $e) {
+            writeApiLog("Error fetching historical prices: " . $e->getMessage());
+            return false;
         }
     }
 

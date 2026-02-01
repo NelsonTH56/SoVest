@@ -92,8 +92,15 @@
             Price History
         </div>
         <div class="empty-chart-message">
-            <i class="bi bi-bar-chart-line"></i>
-            <p>No price history available for this stock yet.</p>
+            @if(isset($historyLoading) && $historyLoading)
+                <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Loading price history... Refresh the page in a few seconds.</p>
+            @else
+                <i class="bi bi-bar-chart-line"></i>
+                <p>No price history available for this stock yet.</p>
+            @endif
         </div>
     </div>
     @endif
