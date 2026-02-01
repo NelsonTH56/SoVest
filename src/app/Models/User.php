@@ -51,7 +51,7 @@ class User extends Authenticatable {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'reputation_score' => 'integer',
+            'reputation_score' => 'float',
             'terms_accepted_at' => 'datetime',
         ];
     }

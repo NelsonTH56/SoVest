@@ -16,7 +16,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stock_prices', function (Blueprint $table) {
-            // Drop the incorrect individual unique constraints
+            // First, drop the foreign key constraint (required before dropping the unique index)
+            $table->dropForeign(['stock_id']);
+        });
+
+        Schema::table('stock_prices', function (Blueprint $table) {
+            // Now drop the incorrect individual unique constraints
             $table->dropUnique(['stock_id']);
             $table->dropUnique(['price_date']);
 
@@ -25,12 +30,18 @@ return new class extends Migration
 
             // Add index for efficient date-range queries (used by getPriceHistory)
             $table->index('price_date', 'stock_prices_date_index');
+
+            // Re-add the foreign key constraint
+            $table->foreign('stock_id')->references('stock_id')->on('stocks')->onDelete('cascade');
         });
     }
 
     public function down(): void
     {
         Schema::table('stock_prices', function (Blueprint $table) {
+            // Drop foreign key first
+            $table->dropForeign(['stock_id']);
+
             // Remove the new indexes
             $table->dropUnique('stock_prices_stock_date_unique');
             $table->dropIndex('stock_prices_date_index');
@@ -38,6 +49,9 @@ return new class extends Migration
             // Restore original (broken) constraints for rollback
             $table->unique('stock_id');
             $table->unique('price_date');
+
+            // Re-add foreign key
+            $table->foreign('stock_id')->references('stock_id')->on('stocks')->onDelete('cascade');
         });
     }
 };
