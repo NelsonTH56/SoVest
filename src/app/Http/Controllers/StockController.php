@@ -6,8 +6,6 @@ use App\Models\Stock;
 use App\Models\StockPrice;
 use App\Models\Prediction;
 use App\Services\StockDataService;
-use App\Jobs\FetchHistoricalPricesJob;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class StockController extends Controller
@@ -41,7 +39,7 @@ class StockController extends Controller
 
         // If price exists in database, get the date
         if ($currentPrice !== false) {
-            $latestPriceRecord = \App\Models\StockPrice::where('stock_id', $stock->stock_id)
+            $latestPriceRecord = StockPrice::where('stock_id', $stock->stock_id)
                 ->orderBy('price_date', 'desc')
                 ->first();
 
@@ -78,17 +76,23 @@ class StockController extends Controller
         // Check if we need to fetch historical data (less than 5 data points)
         $historyLoading = false;
         if (count($priceHistory) < 5) {
-            // Check if we haven't already dispatched a job recently (use cache to prevent spam)
-            $jobCacheKey = "fetch_history_job_{$stock->symbol}";
-            if (!cache()->has($jobCacheKey)) {
-                // Dispatch job to fetch historical prices in background
-                FetchHistoricalPricesJob::dispatch($stock->symbol, 30);
-                // Mark that we've dispatched (expires in 5 minutes)
-                cache()->put($jobCacheKey, true, 300);
-                $historyLoading = true;
-            } else {
-                // Job was recently dispatched, still loading
-                $historyLoading = true;
+            // Check if we haven't already fetched recently (use cache to prevent API spam)
+            $fetchCacheKey = "fetch_history_{$stock->symbol}";
+            if (!cache()->has($fetchCacheKey)) {
+                // Fetch historical prices synchronously for immediate display
+                try {
+                    $success = $this->stockDataService->fetchHistoricalPrices($stock->symbol, 30);
+                    if ($success) {
+                        // Refresh price history after fetching
+                        $priceHistory = $this->stockDataService->getPriceHistory($stock->symbol, 30);
+                    }
+                    // Mark that we've attempted fetch (expires in 5 minutes to prevent API spam)
+                    cache()->put($fetchCacheKey, true, 300);
+                } catch (\Exception $e) {
+                    \Log::error("Failed to fetch historical prices for {$stock->symbol}: " . $e->getMessage());
+                    // Still mark as attempted to prevent repeated failures
+                    cache()->put($fetchCacheKey, true, 300);
+                }
             }
         }
 

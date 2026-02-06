@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <!-- Apply dark mode IMMEDIATELY to prevent flash of light content -->
+    <script>
+        (function() {
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+    </script>
     <meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="SoVest - Social Stock Predictions Platform">
@@ -373,15 +381,11 @@
     {{-- Prediction Modal JS --}}
     <script src="{{ asset('js/prediction-modal.js') }}" type="module"></script>
 
-    <!-- Global Dark Mode Script -->
+    <!-- Sync dark mode class to body (html already has it from head script) -->
     <script>
-        // Apply dark mode on page load if enabled
-        document.addEventListener('DOMContentLoaded', function() {
-            const darkMode = localStorage.getItem('darkMode');
-            if (darkMode === 'enabled') {
-                document.body.classList.add('dark-mode');
-            }
-        });
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+        }
     </script>
 
     <!-- Hamburger Menu Script -->

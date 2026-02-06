@@ -70,9 +70,9 @@
         </div>
     </div>
 
-    <div class="row mt-5">
+    <div class="row mt-5 justify-content-center">
         <!-- Search Results -->
-        <div class="col-lg-8">
+        <div class="col-12 col-md-10 col-lg-8">
             @if (!empty($results))
                 <div class="mb-4">
                     <h3 class="fw-bold results-header">Search Results</h3>
@@ -164,64 +164,6 @@
                     </div>
                     <h3 class="text-white mt-3">Start Exploring</h3>
                     <p class="text-muted">Search for stocks, predictions, or investors above</p>
-                </div>
-            @endif
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            @if (!empty($searchHistory))
-                <div class="sidebar-card">
-                    <div class="sidebar-card-header">
-                        <span><i class="bi bi-clock-history me-2"></i>Recent Searches</span>
-                        <button class="btn btn-sm btn-outline-danger" id="clearHistory">
-                            <i class="bi bi-trash"></i> Clear
-                        </button>
-                    </div>
-                    <div>
-                        @foreach($searchHistory as $history)
-                            <a href="{{ url('search') }}?query={{ urlencode($history['search_query']) }}&type={{ $history['search_type'] }}" class="text-decoration-none">
-                                <div class="history-item">
-                                    <div class="text-white fw-semibold">{{ $history['search_query'] }}</div>
-                                    <small class="text-muted">
-                                        <i class="bi bi-tag"></i> {{ ucfirst($history['search_type']) }} •
-                                        {{ date("M j, g:i a", strtotime($history['created_at'])) }}
-                                    </small>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if (!empty($savedSearches))
-                <div class="sidebar-card">
-                    <div class="sidebar-card-header">
-                        <span><i class="bi bi-bookmark-star-fill me-2"></i>Saved Searches</span>
-                    </div>
-                    <div>
-                        @foreach($savedSearches as $saved)
-                            <div class="history-item d-flex justify-content-between align-items-center">
-                                <a href="{{ url('search') }}?query={{ urlencode($saved['search_query']) }}&type={{ $saved['search_type'] }}" class="text-decoration-none flex-grow-1">
-                                    <div class="text-white fw-semibold">{{ $saved['search_query'] }}</div>
-                                    <small class="text-muted">
-                                        <i class="bi bi-tag"></i> {{ ucfirst($saved['search_type']) }}
-                                    </small>
-                                </a>
-                                <button class="btn btn-sm btn-outline-danger remove-saved" data-id="{{ $saved['id'] }}">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if(!empty($query))
-                <div class="text-center">
-                    <button id="saveSearch" class="btn btn-outline-success btn-sm" data-query="{{ $query }}" data-type="{{ $type }}" style="border-radius: 10px; padding: 0.5rem 1rem;">
-                        <i class="bi bi-bookmark-plus-fill me-1"></i> Save This Search
-                    </button>
                 </div>
             @endif
         </div>

@@ -33,8 +33,8 @@ class PredictionController extends Controller
         $userId = Auth::id();
 
         try {
-            // Get user's predictions with related stock and user data using Eloquent
-            $predictions = Prediction::with(['stock', 'user'])
+            // Get user's predictions with related stock (including latest price) and user data
+            $predictions = Prediction::with(['stock.latestPrice', 'user'])
                 ->withCount(['votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
                 }])
@@ -46,7 +46,7 @@ class PredictionController extends Controller
                 ->orderBy('prediction_date', 'desc')
                 ->get();
 
-            // Format data for the view
+            // Format data for the view (no additional queries - all data is eager loaded)
             $formattedPredictions = $predictions->map(function ($prediction) {
                 $predictionData = $prediction->toArray();
                 $predictionData['symbol'] = $prediction->stock->symbol;
@@ -58,9 +58,8 @@ class PredictionController extends Controller
                 $predictionData['reputation_score'] = $prediction->user->reputation_score;
                 $predictionData['profile_picture'] = $prediction->user->profile_picture;
 
-                // Fetch latest stock price
-                $latestPrice = $this->stockService->getLatestPrice($prediction->stock->symbol);
-                $predictionData['current_price'] = $latestPrice !== false ? $latestPrice : null;
+                // Use eager-loaded latest price (no additional query)
+                $predictionData['current_price'] = $prediction->stock->latestPrice?->close_price;
 
                 return $predictionData;
             })->toArray();
@@ -467,7 +466,7 @@ class PredictionController extends Controller
 
         try {
             // Use Eloquent with eager loading to get prediction with related data
-            $prediction = Prediction::with(['stock', 'user', 'votes'])
+            $prediction = Prediction::with(['stock.latestPrice', 'user', 'votes'])
                 ->where('prediction_id', $predictionId)
                 ->first();
 
@@ -488,10 +487,9 @@ class PredictionController extends Controller
             $predictionData['upvotes'] = $prediction->votes->where('vote_type', 'upvote')->count();
             $predictionData['downvotes'] = $prediction->votes->where('vote_type', 'downvote')->count();
 
-            // Fetch latest stock price and add to prediction data
-            $latestPrice = $this->stockService->getLatestPrice($prediction->stock->symbol);
-            if ($latestPrice !== false) {
-                $predictionData['stock']['current_price'] = $latestPrice;
+            // Use eager-loaded latest price (no additional query)
+            if ($prediction->stock->latestPrice) {
+                $predictionData['stock']['current_price'] = $prediction->stock->latestPrice->close_price;
             }
 
             // Include prediction score display component
@@ -993,8 +991,8 @@ class PredictionController extends Controller
         try {
             $userId = Auth::id();
 
-            // Fetch prediction with all related data
-            $prediction = Prediction::with(['stock', 'user', 'votes'])
+            // Fetch prediction with all related data (including latest price)
+            $prediction = Prediction::with(['stock.latestPrice', 'user', 'votes'])
                 ->withCount(['votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
                 }])
@@ -1018,13 +1016,10 @@ class PredictionController extends Controller
                 $vote = PredictionVote::where('prediction_id', $id)
                     ->where('user_id', $userId)
                     ->first();
-                $userVote = $vote ? $vote->vote_type : null;
+                $userVote = $vote?->vote_type;
             }
 
-            // Fetch latest stock price
-            $currentPrice = $this->stockService->getLatestPrice($prediction->stock->symbol);
-
-            // Format response data
+            // Format response data (use eager-loaded latest price)
             $data = [
                 'prediction_id' => $prediction->prediction_id,
                 'prediction_type' => $prediction->prediction_type,
@@ -1042,7 +1037,7 @@ class PredictionController extends Controller
                     'stock_id' => $prediction->stock->stock_id,
                     'symbol' => $prediction->stock->symbol,
                     'company_name' => $prediction->stock->company_name,
-                    'current_price' => $currentPrice !== false ? $currentPrice : null,
+                    'current_price' => $prediction->stock->latestPrice?->close_price,
                 ],
                 'user' => [
                     'id' => $prediction->user->id,

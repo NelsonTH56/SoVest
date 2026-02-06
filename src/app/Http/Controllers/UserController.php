@@ -35,8 +35,8 @@ class UserController extends Controller
             $sort = 'trending';
         }
 
-        // Build query with vote counts and comments count
-        $query = Prediction::with(['user', 'stock'])
+        // Build query with vote counts, comments count, and eager load relationships
+        $query = Prediction::with(['user', 'stock.latestPrice'])
             ->withCount([
                 'votes as upvotes' => function ($query) {
                     $query->where('vote_type', 'upvote');
